@@ -1,10 +1,13 @@
+import { UserProvider } from '@/context/UserContext';
 import '@/styles/globals.css';
 
 export default function RootLayout({ children }) {
     return (
         <html lang='pt-br'>
             <body>
-                {children}
+                <UserProvider>
+                    {children}
+                </UserProvider>
             </body>
         </html>
     );

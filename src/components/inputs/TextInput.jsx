@@ -14,8 +14,10 @@ export function TextInput({
             placeholder={placeholder}
             required={required}
             className={`
-                border border-gray-300 rounded-md 
                 p-3 w-full
+                border border-gray-300 rounded-xl
+                hover:ring-1 hover:ring-primary
+                focus:ring-1 focus:ring-primary focus:outline-0
                 ${className}
             `}
         />
