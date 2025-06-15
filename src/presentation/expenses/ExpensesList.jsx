@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react';
+import { DateService } from '@/services/dateService';
 import { ICONS } from '@/assets/icons';
 import { TextInput } from '@/components/inputs/TextInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { ExpenseCard } from '@/presentation/expenses/ExpenseCard';
-import { AddExpenseModal } from '@/presentation/expenses/AddExpenseModal';
+import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
 
 export function ExpensesList({
     expenses,
@@ -27,6 +28,13 @@ export function ExpensesList({
     }, [search, expenses.list]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newExpense, setNewExpense] = useState({
+        title: '',
+        description: '',
+        date: DateService.dateToSupabase(new Date()),
+        amount: 0,
+        category: ''
+    });
 
     return (
         <div className='space-y-4 w-[400px]'>
@@ -43,25 +51,23 @@ export function ExpensesList({
                 />
             </div>
             <ul className='flex flex-col gap-2'>
-                {copyList.map((expense) => {
-                    const category = categories.list.find(c => c.id == expense.category);
-                    const expenseTags = tags.list
-                        .filter(t => t.idCategory == category?.id)
-                        .filter(t => expense.tags.includes(t.id));
-                    return (
-                        <li key={expense.id}>
-                            <ExpenseCard 
-                                expense={expense} 
-                                place={places.list.find(p => p.id == expense.place)}
-                                category={category}
-                                tags={expenseTags}
-                            />
-                        </li>
-                    )
-                })}
+                {copyList.map(expense => (
+                    <li key={expense.id}>
+                        <ExpenseCard 
+                            expense={expense} 
+                            place={places.list.find(p => p.id == expense.place)}
+                            categories={categories}
+                            tags={tags}
+                        />
+                    </li>
+                ))}
             </ul>
-            {isModalOpen && <AddExpenseModal
+            {isModalOpen && <ExpenseModal
+                title='Novo gasto'
                 onClose={() => setIsModalOpen(false)}
+                expense={newExpense}
+                setExpense={setNewExpense}
+                categories={categories}
             />}
         </div>
     );

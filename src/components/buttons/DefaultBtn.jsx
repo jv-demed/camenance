@@ -5,7 +5,8 @@ export function DefaultBtn({
     text,
     type = 'button',
     width = '100%',
-    style = '',
+    bg = 'bg-primary',
+    style = {},
     icon: Icon,
     onClick = async () => {}
 }){
@@ -24,25 +25,25 @@ export function DefaultBtn({
                 }
             }}
             style={{
+                ...style,
                 width: width
             }}
             className={`
                 flex items-center justify-center
-                bg-primary text-white cursor-pointer 
-                rounded-xl p-3
+                text-white cursor-pointer 
+                rounded-xl p-3 ${bg}
                 transition-all duration-300 
                 hover:shadow-lg hover:-translate-y-1
-                ${style} 
             `}
         >
             {isLoading 
                 ? <SpinLoader color='white' /> 
-                : <>
+                : <div className='flex items-center gap-2'>
                     {text && <span>{text}</span>}
                     {Icon && <span className='text-xl'>
                         <Icon/>    
                     </span>}
-                </>
+                </div>
             }
         </button>
     );

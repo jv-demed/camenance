@@ -13,14 +13,13 @@ export function Modal({
                     <h2 className='text-xl'>
                         {title}
                     </h2>
-                    <span 
-                        onClick={onClose}
+                    <span onClick={onClose}
                         className='text-2xl cursor-pointer'
                     >
                         <ICONS.close />
                     </span>
                 </header>
-                <div className='mb-2'>
+                <div className='flex flex-col gap-2 mb-2'>
                     {children}
                 </div>
             </div>
