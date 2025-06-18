@@ -13,6 +13,7 @@ export default function Home() {
     const expenses = useDataList({
         table: 'camenance-expenses',
         order: 'date',
+        ascending: false,
         filter: q => q.eq('idUser', user.id)
     });
     

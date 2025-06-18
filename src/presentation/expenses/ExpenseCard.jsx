@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { DateService } from '@/services/dateService';
 import { MonetaryService } from '@/services/monetaryService';
+import { ICONS } from '@/assets/icons';
 import { TagBox } from '@/components/elements/TagBox';
 import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
-import { ICONS } from '@/assets/icons';
 
 export function ExpenseCard({ 
     expense,
-    place,
+    recipients,
     categories,
     tags
 }) {
 
+    const recipient = recipients.list.find(r => r.id == expense.idRecipient);
     const category = categories.list.find(c => c.id == expense.idCategory);
     const expenseTags = tags.list
         .filter(t => t.idCategory == category?.id)
@@ -43,7 +44,7 @@ export function ExpenseCard({
                 `}>
                     <span>{DateService.supabaseToBrWithCompleteMonth(expense.date)}</span>
                     <div className='flex items-center gap-0.5'>
-                        <span>{place.name}</span>
+                        <span>{recipient.name}</span>
                         <ICONS.local />
                     </div>
                 </div>
@@ -78,6 +79,7 @@ export function ExpenseCard({
                 onClose={() => setIsModalOpen(false)}
                 expense={editExpense}
                 setExpense={setEditExpense}
+                recipients={recipients}
                 categories={categories}
                 tags={tags}
             />}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { AlertService } from '@/services/alertService';
 import { ICONS } from '@/assets/icons';
 import { SpinLoader } from '@/components/elements/SpinLoader';
 
@@ -6,6 +7,8 @@ export function AddInput({
     suggestions = [],
     refresh,
     labelField = 'name',
+    initialValue = null,
+    setValue = () => {},
     onCreate = async () => {},
     onSelect = () => {},
     placeholder = 'Digite algo...',
@@ -21,6 +24,22 @@ export function AddInput({
     const [isNewEntry, setIsNewEntry] = useState(false);
     const [highlightIndex, setHighlightIndex] = useState(-1);
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if(initialValue == null) {
+            setInputValue('');
+            setValue(null);
+            return;
+        }
+        const found = suggestions.find(s => s.id === initialValue);
+        if(found) {
+            setInputValue(String(found[labelField]));
+            setValue(found.id);
+        } else {
+            setInputValue('');
+            setValue(null);
+        }
+    }, [initialValue]);
 
     useEffect(() => {
         if(inputValue.trim() === '') {
@@ -59,6 +78,7 @@ export function AddInput({
         setShowDropdown(false);
         setHighlightIndex(-1);
         onSelect && onSelect(item[labelField]);
+        setValue(item.id);
     };
 
     async function handleCreate() {
@@ -66,6 +86,7 @@ export function AddInput({
             setIsLoading(true);
             const newObj = { [labelField]: inputValue };
             await onCreate(newObj);
+            AlertService.fastSuccess();
             refresh();
             handleSelect(newObj);
         } catch (err) {

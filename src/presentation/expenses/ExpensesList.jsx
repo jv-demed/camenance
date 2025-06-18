@@ -32,8 +32,8 @@ export function ExpensesList({
         title: '',
         description: '',
         date: DateService.dateToSupabase(new Date()),
-        recipient: '',
         amount: 0,
+        idRecipient: '',
         idCategory: '',
         idTags: []
     });
@@ -58,6 +58,7 @@ export function ExpensesList({
                         <ExpenseCard 
                             expense={expense} 
                             place={recipients.list.find(p => p.id == expense.idRecipient)}
+                            recipients={recipients}
                             categories={categories}
                             tags={tags}
                         />
@@ -69,6 +70,7 @@ export function ExpensesList({
                 onClose={() => setIsModalOpen(false)}
                 expense={newExpense}
                 setExpense={setNewExpense}
+                expensesRefresh={() => expenses.refresh()}
                 recipients={recipients}
                 categories={categories}
                 tags={tags}
