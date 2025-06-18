@@ -12,10 +12,10 @@ export function ExpenseCard({
     tags
 }) {
 
-    const category = categories.list.find(c => c.id == expense.category);
+    const category = categories.list.find(c => c.id == expense.idCategory);
     const expenseTags = tags.list
         .filter(t => t.idCategory == category?.id)
-        .filter(t => expense.tags.includes(t.id));
+        .filter(t => expense.idTags.includes(t.id));
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editExpense, setEditExpense] = useState(expense);
@@ -79,6 +79,7 @@ export function ExpenseCard({
                 expense={editExpense}
                 setExpense={setEditExpense}
                 categories={categories}
+                tags={tags}
             />}
         </div>
     );

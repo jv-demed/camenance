@@ -18,6 +18,24 @@ export async function getAllRecordsByFilter({
     }return data;
 }
 
+export async function getRecordByFilter({ 
+    table, 
+    select, 
+    where = 'id', 
+    value
+}){
+    const {data, status, error} = await supabase
+        .from(table)
+        .select(select)
+        .eq(where, value);
+    if(status != 200){
+        console.log(error);
+    }
+    if(data.length > 0){
+        return data[0];
+    }
+}
+
 export async function insertRecord({ table, obj }){
     const { status, error } = await supabase
         .from(table)

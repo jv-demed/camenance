@@ -1,37 +1,80 @@
-import { useEffect } from 'react';
+import Select from 'react-select';
 
 export function SelectInput({
     items = [],
     value,
     setValue,
+    placeholder = 'Selecione...',
     displayField = 'name',
     valueField = 'id',
-    required = false
+    required = false,
+    width = '100%'
 }) {
 
-    useEffect(() => {
-        if((!value || value === '') && items.length > 0) {
-            setValue && setValue(items[0][valueField]);
-        }
-    }, [value]);
+    const customStyles = {
+        control: (base, state) => ({
+            ...base,
+            border: '1px solid #d1d5dc',
+            borderRadius: '12px',
+            boxShadow: state.isFocused
+                ? '0 0 0 1px #3b82f6'
+                : base.boxShadow,
+            height: '50px',
+            minHeight: '50px',
+            outline: state.isFocused ? 'none' : undefined,
+            '&:hover': {
+                boxShadow: '0 0 0 1px #3b82f6'
+            }
+        }),
+        option: (styles, { data, isFocused }) => ({
+            ...styles,
+            alignItems: 'center',
+            backgroundColor: isFocused ? '#eee' : 'white',
+            color: 'black',
+            display: 'flex',
+        }),
+        singleValue: (styles, { data }) => ({
+            ...styles,
+            alignItems: 'center',
+            display: 'flex',
+        }),
+    };
+
+    const options = items.map(item => ({
+        value: item[valueField],
+        label: item[displayField],
+        color: item.color,
+    }));
+
+    function formatOptionLabel({ label, color }) {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {color && <span
+                    style={{
+                        backgroundColor: color,
+                        borderRadius: '50%',
+                        display: 'inline-block',
+                        height: 10,
+                        width: 10,
+                    }}
+                />}
+                {label}
+            </div>
+        );
+    } 
 
     return (
-        <select
-            value={value}
-            onChange={e => setValue && setValue(e.target.value)}
-            required={required}
-            className={`
-                p-3 w-full
-                border border-gray-300 rounded-xl
-                hover:ring-1 hover:ring-primary
-                focus:ring-1 focus:ring-primary focus:outline-0
-            `}
-        >
-            {items.map((item, index) => (
-                <option key={index} value={item[valueField]}>
-                    {item[displayField]}
-                </option>
-            ))}
-        </select>
+        <div style={{ width }}>
+            <Select
+                placeholder={placeholder}
+                noOptionsMessage={() => 'Nenhum resultado encontrado'}
+                options={options}
+                value={options.find(opt => opt.value === value)}
+                onChange={option => setValue && setValue(option.value)}
+                formatOptionLabel={formatOptionLabel}
+                isRequired={required}
+                styles={customStyles}
+            />
+        </div>
     );
 }

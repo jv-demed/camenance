@@ -6,6 +6,7 @@ export function DefaultBtn({
     type = 'button',
     width = '100%',
     bg = 'bg-primary',
+    disabled = false,
     style = {},
     icon: Icon,
     onClick = async () => {}
@@ -24,16 +25,21 @@ export function DefaultBtn({
                     setIsLoading(false);
                 }
             }}
+            disabled={disabled}
             style={{
                 ...style,
+                backgroundColor: disabled && 'gray',
+                cursor: disabled && 'not-allowed',
                 width: width
             }}
             className={`
                 flex items-center justify-center
                 text-white cursor-pointer 
                 rounded-xl p-3 ${bg}
-                transition-all duration-300 
-                hover:shadow-lg hover:-translate-y-1
+                ${!disabled && `
+                    transition-all duration-300 
+                    hover:shadow-lg hover:-translate-y-1    
+                `}
             `}
         >
             {isLoading 

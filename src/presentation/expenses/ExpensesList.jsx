@@ -9,7 +9,7 @@ import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
 
 export function ExpensesList({
     expenses,
-    places,
+    recipients,
     categories,
     tags
 }) {
@@ -22,7 +22,7 @@ export function ExpensesList({
     const [search, setSearch] = useState('');
     useEffect(() => {
         const filteredList = expenses.list.filter(e =>
-            e.place.toLowerCase().includes(search.toLowerCase())
+            e.title.toLowerCase().includes(search.toLowerCase())
         );
         setCopyList(filteredList);
     }, [search, expenses.list]);
@@ -32,8 +32,10 @@ export function ExpensesList({
         title: '',
         description: '',
         date: DateService.dateToSupabase(new Date()),
+        recipient: '',
         amount: 0,
-        category: ''
+        idCategory: '',
+        idTags: []
     });
 
     return (
@@ -55,7 +57,7 @@ export function ExpensesList({
                     <li key={expense.id}>
                         <ExpenseCard 
                             expense={expense} 
-                            place={places.list.find(p => p.id == expense.place)}
+                            place={recipients.list.find(p => p.id == expense.idRecipient)}
                             categories={categories}
                             tags={tags}
                         />
@@ -67,7 +69,9 @@ export function ExpensesList({
                 onClose={() => setIsModalOpen(false)}
                 expense={newExpense}
                 setExpense={setNewExpense}
+                recipients={recipients}
                 categories={categories}
+                tags={tags}
             />}
         </div>
     );

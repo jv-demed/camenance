@@ -1,23 +1,24 @@
-'use client'
-import { useEffect } from 'react';
 import { Modal } from '@/components/containers/Modal';
 import { DateInput } from '@/components/inputs/DateInput';
 import { TextInput } from '@/components/inputs/TextInput';
 import { MoneyInput } from '@/components/inputs/MoneyInput';
 import { TextAreaInput } from '@/components/inputs/TextAreaInput';
-import { CategorySection } from './CategorySection';
+import { CategorySection } from '@/presentation/expenses/CategorySection';
+import { AddInput } from '@/components/inputs/AddInput';
+import { insertRecipient } from '@/controllers/expenses/recipientController';
+import { useUser } from '@/context/UserContext';
 
 export function ExpenseModal({ 
     title,
     onClose,
     expense,
     setExpense,
-    categories
+    recipients,
+    categories,
+    tags
 }) {
-
-    useEffect(() => {
-        console.log(expense);
-    }, [expense]);
+    console.log(expense);
+    const { obj: user } = useUser();
 
     return (
         <Modal 
@@ -39,14 +40,25 @@ export function ExpenseModal({
                     value={expense.description}
                     setValue={e => setExpense({ ...expense, description: e })}
                 />
-                <MoneyInput 
-                    value={expense.amount}
-                    setValue={e => setExpense({ ...expense, amount: e })}
-                />
+                <div className='flex gap-1'>
+                    <AddInput placeholder='Destinatário'
+                        suggestions={recipients.list}
+                        refresh={recipients.refresh}
+                        onCreate={async newRecipient => await insertRecipient({
+                            ...newRecipient,
+                            idUser: user.id
+                        })}
+                    />
+                    <MoneyInput 
+                        value={expense.amount}
+                        setValue={e => setExpense({ ...expense, amount: e })}
+                    />
+                </div>
                 <CategorySection
+                    expense={expense}
+                    setExpense={setExpense}
                     categories={categories}
-                    value={expense.category}
-                    setValue={e => setExpense({ ...expense, category: e })}
+                    tags={tags}
                 />
             </div>
         </Modal>

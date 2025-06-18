@@ -16,29 +16,32 @@ export default function Home() {
         filter: q => q.eq('idUser', user.id)
     });
     
-    const places = useDataList({
-        table: 'camenance-expensesPlaces',
+    const recipients = useDataList({
+        table: 'camenance-expensesRecipients',
+        order: 'name',
         filter: q => q.eq('idUser', user.id)
     });
     
     const categories = useDataList({
         table: 'camenance-expensesCategories',
+        order: 'name',
         filter: q => q.eq('idUser', user.id)
     });
     
     const tags = useDataList({
         table: 'camenance-expensesTags',
+        order: 'name',
         filter: q => q.eq('idUser', user.id)
     });
     
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         !expenses.loading && 
-        !places.loading &&
+        !recipients.loading &&
         !categories.loading && 
         !tags.loading &&
         setIsLoading(false);
-    }, [expenses, places, categories, tags]);
+    }, [expenses, recipients, categories, tags]);
 
     return (
         <Main>
@@ -46,7 +49,7 @@ export default function Home() {
                 <SpinLoader /> :
                 <ExpensesList 
                     expenses={expenses}
-                    places={places}
+                    recipients={recipients}
                     categories={categories}
                     tags={tags}
                 />

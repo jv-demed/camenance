@@ -4,7 +4,7 @@ export function TextInput({
     placeholder = '',
     type = 'text',
     required = false,
-    className = '',
+    style = {},
 }){
     return (
         <input
@@ -13,12 +13,12 @@ export function TextInput({
             onChange={e => setValue && setValue(e.target.value)}
             placeholder={placeholder}
             required={required}
+            style={{ style }}
             className={`
                 p-3 w-full
-                border border-gray-300 rounded-xl
+                border border-border rounded-xl
                 hover:ring-1 hover:ring-primary
                 focus:ring-1 focus:ring-primary focus:outline-0
-                ${className}
             `}
         />
     );
