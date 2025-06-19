@@ -4,8 +4,8 @@ import { SpinLoader } from '@/components/elements/SpinLoader';
 
 export function Form({ 
     children,
-    width = 'w-full',
-    style = '',
+    width = '100%',
+    style = {},
     onSubmit = async () => {}
 }){
 
@@ -22,11 +22,8 @@ export function Form({
                     setIsLoading(false);
                 }
             }}
-            className={`
-                flex flex-col items-center justify-start gap-4
-                ${width}
-                ${style}
-            `}
+            style={{ ...style, width }}
+            className='flex flex-col items-center justify-start gap-4'
         >
             {children}
             {isLoading && <div

@@ -42,7 +42,9 @@ export function ExpenseCard({
                     flex items-center justify-between gap-2
                     text-sm text-gray-500    
                 `}>
-                    <span>{DateService.supabaseToBrWithCompleteMonth(expense.date)}</span>
+                    <span>
+                        {DateService.supabaseToBrWithCompleteMonth(expense.date)}
+                    </span>
                     <div className='flex items-center gap-0.5'>
                         <span>{recipient.name}</span>
                         <ICONS.local />

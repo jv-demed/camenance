@@ -72,9 +72,9 @@ export function CategorySection({
     }
 
     return (
-        <div>
-            {(!categoryMode && !tagMode)
-                ? <div className='flex flex-col gap-2'>
+        <div className='w-full'>
+            {(!categoryMode && !tagMode) ? 
+                <div className='flex flex-col gap-2'>
                     <div className='flex gap-1'>
                         <SelectInput
                             placeholder='Categoria'
@@ -102,8 +102,8 @@ export function CategorySection({
                             disabled={!expense.idCategory}
                         />
                     </div>
-                </div>
-                : <div className='flex flex-col gap-2'>
+                </div> : 
+                <div className='flex flex-col gap-2'>
                     {categoryMode && <>
                         <div className='flex gap-1'>
                             <TextInput placeholder='Nome da categoria' 
