@@ -3,7 +3,7 @@ export function TextAreaInput({
     setValue,
     placeholder = '',
     required = false,
-    resize = false
+    resize = 'none'
 }){
     return (
         <textarea
