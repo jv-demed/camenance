@@ -1,4 +1,5 @@
 import { supabase } from '@/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function getAllRecordsByFilter({ 
     table, 
@@ -37,10 +38,15 @@ export async function getRecordByFilter({
 }
 
 export async function insertRecord({ table, obj }){
+    const id = uuidv4();
     const { status, error } = await supabase
         .from(table)
-        .insert(obj);
+        .insert({
+            ...obj,
+            id: id
+        });
     if(status != 201){
         console.log(error);
-    }
+        return;
+    } return id;
 }

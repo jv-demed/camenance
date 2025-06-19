@@ -27,8 +27,7 @@ export function ExpensesList({
         setCopyList(filteredList);
     }, [search, expenses.list]);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [newExpense, setNewExpense] = useState({
+    const expenseObj = {
         title: '',
         description: '',
         date: DateService.dateToSupabase(new Date()),
@@ -36,7 +35,14 @@ export function ExpensesList({
         idRecipient: '',
         idCategory: '',
         idTags: []
-    });
+    };
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newExpense, setNewExpense] = useState(expenseObj);
+
+    useEffect(() => {
+        console.log(newExpense);
+    }, [newExpense]);
 
     return (
         <div className='space-y-4 w-[400px]'>
@@ -69,6 +75,7 @@ export function ExpensesList({
                 title='Novo gasto'
                 onClose={() => setIsModalOpen(false)}
                 expense={newExpense}
+                expenseObj={expenseObj}
                 setExpense={setNewExpense}
                 expensesRefresh={() => expenses.refresh()}
                 recipients={recipients}

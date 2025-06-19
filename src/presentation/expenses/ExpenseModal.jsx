@@ -19,6 +19,7 @@ export function ExpenseModal({
     title,
     onClose,
     expense,
+    expenseObj,
     setExpense,
     expensesRefresh,
     recipients,
@@ -39,6 +40,7 @@ export function ExpenseModal({
             AlertService.fastSuccess();
             expensesRefresh();
             onClose();
+            setExpense(expenseObj);
         }
     }
 
@@ -65,7 +67,7 @@ export function ExpenseModal({
                     <AddInput placeholder='Destinatário'
                         suggestions={recipients.list}
                         refresh={recipients.refresh}
-                        initialValue={expense.idRecipient}
+                        value={expense.idRecipient}
                         setValue={e => setExpense({ ...expense, idRecipient: e })}
                         onCreate={async newRecipient => await insertRecipient({
                             ...newRecipient,

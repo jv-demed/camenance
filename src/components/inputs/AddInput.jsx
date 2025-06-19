@@ -7,10 +7,10 @@ export function AddInput({
     suggestions = [],
     refresh,
     labelField = 'name',
-    initialValue = null,
+    value = null,
     setValue = () => {},
     onCreate = async () => {},
-    onSelect = () => {},
+    onSelect = async () => {},
     placeholder = 'Digite algo...',
     width = '100%'
 }) {
@@ -23,23 +23,19 @@ export function AddInput({
     const [showDropdown, setShowDropdown] = useState(false);
     const [isNewEntry, setIsNewEntry] = useState(false);
     const [highlightIndex, setHighlightIndex] = useState(-1);
+    const [lastValue, setLastValue] = useState(value);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if(initialValue == null) {
-            setInputValue('');
-            setValue(null);
-            return;
+        if(value !== lastValue) {
+            setLastValue(value);  
+            if(value == null) return;
+            const found = suggestions.find(s => s.id === value);
+            if(found) {
+                setInputValue(String(found[labelField]));
+            }
         }
-        const found = suggestions.find(s => s.id === initialValue);
-        if(found) {
-            setInputValue(String(found[labelField]));
-            setValue(found.id);
-        } else {
-            setInputValue('');
-            setValue(null);
-        }
-    }, [initialValue]);
+    }, [value, suggestions]);
 
     useEffect(() => {
         if(inputValue.trim() === '') {
@@ -52,8 +48,27 @@ export function AddInput({
             s[labelField].toLowerCase().includes(inputValue.toLowerCase())
         );
         setFilteredSuggestions(filtered);
-        setShowDropdown(filtered.length > 0);
         setHighlightIndex(-1);
+    }, [inputValue, suggestions]);
+
+    useEffect(() => {
+        const exactMatch = suggestions.find(s => 
+            s[labelField].toLowerCase() === inputValue.toLowerCase()
+        );
+        if(exactMatch) {
+            setValue(exactMatch.id);
+            setIsNewEntry(false);
+        } else {
+            setValue();
+            setIsNewEntry(true);
+        }
+    }, [inputValue, suggestions]);
+
+    useEffect(() => {
+        const check = inputValue.trim() !== '' &&
+            !suggestions.some(s => s[labelField].toLowerCase() === inputValue.toLowerCase());
+        setShowDropdown(check); 
+        setIsNewEntry(check);
     }, [inputValue, suggestions]);
 
     useEffect(() => {
@@ -67,17 +82,18 @@ export function AddInput({
     }, []);
 
     useEffect(() => {
-        const check = inputValue.trim() !== '' &&
-            !suggestions.some(s => s[labelField].toLowerCase() === inputValue.toLowerCase());
-        setShowDropdown(check); 
-        setIsNewEntry(check);
-    }, [inputValue, suggestions]);
+        if(listRef.current && highlightIndex >= 0 && listRef.current.children[highlightIndex]) {
+            listRef.current.children[highlightIndex].scrollIntoView({
+                block: 'nearest'
+            });
+        }
+    }, [highlightIndex]);
 
-    function handleSelect(item) {
+    async function handleSelect(item) {
         setInputValue(item[labelField]);
         setShowDropdown(false);
         setHighlightIndex(-1);
-        onSelect && onSelect(item[labelField]);
+        onSelect && await onSelect();
         setValue(item.id);
     };
 
@@ -85,25 +101,29 @@ export function AddInput({
         try {
             setIsLoading(true);
             const newObj = { [labelField]: inputValue };
-            await onCreate(newObj);
-            AlertService.fastSuccess();
-            refresh();
-            handleSelect(newObj);
-        } catch (err) {
+            const id = await onCreate(newObj);
+            if(id) {
+                AlertService.fastSuccess();
+                refresh();
+                setValue(id);
+                setShowDropdown(false);
+                onSelect && onSelect();
+            }
+        } catch(err) {
             console.error('Erro ao criar:', err);
         } finally {
             setIsLoading(false);
         }
     }
 
-    function handleKeyDown(e) {
+    async function handleKeyDown(e) {
         if(e.key === 'Enter') {
             e.preventDefault();
             if(showDropdown && highlightIndex >= 0) {
                 return handleSelect(filteredSuggestions[highlightIndex]);
             }
             if(isNewEntry) {
-                return handleCreate();
+                return await handleCreate();
             }
         }
         if(e.key === 'ArrowDown') {
@@ -119,14 +139,6 @@ export function AddInput({
             setHighlightIndex(prev => Math.max(prev - 1, 0));
         }
     }
-
-    useEffect(() => {
-        if(listRef.current && highlightIndex >= 0 && listRef.current.children[highlightIndex]) {
-            listRef.current.children[highlightIndex].scrollIntoView({
-                block: 'nearest'
-            });
-        }
-    }, [highlightIndex]);
 
     return (
         <div ref={containerRef} 

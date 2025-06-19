@@ -15,8 +15,6 @@ export async function insertTag(tag) {
 function treatmentTag(tag) {
     if(tag?.name) {
         tag.name = tag.name.trim();
-        tag.name = tag.name.charAt(0).toUpperCase() + 
-                        tag.name.slice(1).toLowerCase();
     }
 }
 

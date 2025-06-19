@@ -11,9 +11,7 @@ export function TextAreaInput({
             onChange={e => setValue && setValue(e.target.value)}
             placeholder={placeholder}
             required={required}
-            style={{
-                resize: resize
-            }}
+            style={{ resize }}
             className={`
                 p-3 w-full
                 border border-gray-300 rounded-xl

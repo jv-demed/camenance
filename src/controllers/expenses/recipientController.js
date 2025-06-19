@@ -1,4 +1,4 @@
-import { getRecordByFilter, insertRecord } from '@/supabase/crud';
+import { insertRecord } from '@/supabase/crud';
 
 export async function insertRecipient(recipient) {
     treatmentRecipient(recipient);
@@ -6,7 +6,7 @@ export async function insertRecipient(recipient) {
     if(message){
         return message;
     }
-    await insertRecord({
+    return await insertRecord({
         table: 'camenance-expensesRecipients',
         obj: recipient
     });
