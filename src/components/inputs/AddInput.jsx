@@ -15,6 +15,8 @@ export function AddInput({
     width = '100%'
 }) {
 
+    console.log(value)
+
     const containerRef = useRef(null);
     const listRef = useRef(null);
 
@@ -27,15 +29,13 @@ export function AddInput({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if(value !== lastValue) {
-            setLastValue(value);  
-            if(value == null) return;
-            const found = suggestions.find(s => s.id === value);
-            if(found) {
-                setInputValue(String(found[labelField]));
-            }
+        if(value == null || !Array.isArray(suggestions) || suggestions.length === 0) return;
+        const found = suggestions.find(s => s.id === value);
+        if(found) {
+            setInputValue(String(found[labelField]));
         }
     }, [value, suggestions]);
+
 
     useEffect(() => {
         if(inputValue.trim() === '') {
