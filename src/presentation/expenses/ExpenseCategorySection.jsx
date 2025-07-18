@@ -11,7 +11,7 @@ import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { SelectInput } from '@/components/inputs/SelectInput';
 import { MultiSelectInput } from '@/components/inputs/MultiSelectInput';
 
-export function CategorySection({
+export function ExpenseCategorySection({
     expense,
     setExpense,
     categories,

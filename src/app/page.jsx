@@ -5,6 +5,7 @@ import { useDataList } from '@/hooks/useDataList';
 import { Main } from '@/components/containers/Main';
 import { SpinLoader } from '@/components/elements/SpinLoader';
 import { ExpensesList } from '@/presentation/expenses/ExpensesList';
+import { ExpensesResumeBox } from '@/presentation/expenses/ExpensesResumeBox';
 
 export default function Home() {  
 
@@ -48,12 +49,19 @@ export default function Home() {
         <Main>
             {isLoading ? 
                 <SpinLoader /> :
-                <ExpensesList 
-                    expenses={expenses}
-                    recipients={recipients}
-                    categories={categories}
-                    tags={tags}
-                />
+                <div className={`
+                    flex gap-4
+                    overflow-hidden w-full
+                    h-screen max-h-screen
+                `}>
+                    <ExpensesResumeBox />
+                    <ExpensesList 
+                        expenses={expenses}
+                        recipients={recipients}
+                        categories={categories}
+                        tags={tags}
+                    />
+                </div>
             }
         </Main>
     );

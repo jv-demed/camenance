@@ -30,8 +30,8 @@ export function ExpenseCard({
             <div onClick={() => setIsModalOpen(true)}
                 className={`
                     relative overflow-hidden rounded-xl px-4 py-2 backdrop-blur-lg cursor-pointer
-                    bg-white/10 border border-white/20 shadow-lg transition-all duration-300
-                    hover:shadow-xl hover:border-white/30 hover:scale-[1.02]
+                    bg-white/10 border border-white/20 shadow-xs transition-all duration-300
+                    hover:border-white/30 hover:scale-[1.02]
                 `}
             >
                 <div className='flex justify-between gap-4 text-xl'>

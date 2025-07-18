@@ -13,7 +13,7 @@ import { MoneyInput } from '@/components/inputs/MoneyInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { TextAreaInput } from '@/components/inputs/TextAreaInput';
 import { ActionsSection } from '@/components/containers/ActionsSection';
-import { CategorySection } from '@/presentation/expenses/CategorySection';
+import { ExpenseCategorySection } from '@/presentation/expenses/ExpenseCategorySection';
 
 export function ExpenseModal({ 
     title,
@@ -79,7 +79,7 @@ export function ExpenseModal({
                         setValue={e => setExpense({ ...expense, amount: e })}
                     />
                 </div>
-                <CategorySection
+                <ExpenseCategorySection
                     expense={expense}
                     setExpense={setExpense}
                     categories={categories}

@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4"
   }
 }
