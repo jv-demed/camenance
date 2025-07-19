@@ -1,6 +1,6 @@
 import Select from 'react-select';
 
-export function SelectInput({
+export function DropdownInput({
     items = [],
     value,
     setValue,

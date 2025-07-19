@@ -8,8 +8,8 @@ import { ICONS } from '@/assets/icons';
 import { TextInput } from '@/components/inputs/TextInput';
 import { ColorInput } from '@/components/inputs/ColorInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
-import { SelectInput } from '@/components/inputs/SelectInput';
-import { MultiSelectInput } from '@/components/inputs/MultiSelectInput';
+import { DropdownInput } from '@/components/inputs/DropdownInput';
+import { DropdownMultiInput } from '@/components/inputs/DropdownMultiInput';
 
 export function ExpenseCategorySection({
     expense,
@@ -76,7 +76,7 @@ export function ExpenseCategorySection({
             {(!categoryMode && !tagMode) ? 
                 <div className='flex flex-col gap-2'>
                     <div className='flex gap-1'>
-                        <SelectInput
+                        <DropdownInput
                             placeholder='Categoria'
                             items={categories.list}
                             value={expense.idCategory}
@@ -89,7 +89,7 @@ export function ExpenseCategorySection({
                         />
                     </div> 
                     <div className='flex gap-1'>
-                        <MultiSelectInput 
+                        <DropdownMultiInput 
                             placeholder='Tags'
                             items={tags.list.filter(t => t.idCategory == expense.idCategory)}
                             values={expense.idTags}

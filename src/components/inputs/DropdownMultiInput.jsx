@@ -2,7 +2,7 @@ import Select, { components } from 'react-select';
 import { TagBox } from '../elements/TagBox';
 
 
-export function MultiSelectInput({
+export function DropdownMultiInput({
     items = [],
     values = [],
     setValues,

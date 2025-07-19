@@ -1,4 +1,3 @@
-import { IoClose } from 'react-icons/io5';
 import { LuSettings } from 'react-icons/lu';
 import { PiPiggyBankBold } from 'react-icons/pi';
 import { MdOutlineFmdGood } from 'react-icons/md';
@@ -8,6 +7,11 @@ import {
     FiLogIn,
     FiLogOut 
 } from 'react-icons/fi';
+import { 
+    IoClose,
+    IoChevronUp,
+    IoChevronDown,
+} from 'react-icons/io5';
 import { 
     FaCheck, 
     FaCircleArrowLeft, 
@@ -19,6 +23,8 @@ export const ICONS = {
     arrowLeft: FaCircleArrowLeft,
     arrowRight: FaCircleArrowRight,
     check: FaCheck,
+    chevronDown: IoChevronDown,
+    chevronUp: IoChevronUp,
     close: IoClose,
     finances: PiPiggyBankBold,
     local: MdOutlineFmdGood,

@@ -40,14 +40,10 @@ export function ExpensesList({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newExpense, setNewExpense] = useState(expenseObj);
 
-    useEffect(() => {
-        console.log(newExpense);
-    }, [newExpense]);
-
     return (
         <div className={`
             flex flex-col gap-2 
-            w-[400px]
+            w-[500px]
         `}>
             <div className='flex gap-1'>
                 <TextInput 
