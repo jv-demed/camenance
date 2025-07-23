@@ -9,32 +9,35 @@ import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
 
 export function ExpensesList({
     expenses,
-    recipients,
+    origins,
     categories,
-    tags
+    tags,
+    refresh
 }) {
 
-    const [copyList, setCopyList] = useState(expenses.list);
+    const [copyList, setCopyList] = useState(expenses);
     useEffect(() => {
-        setCopyList(expenses.list);
-    }, [expenses.list]);
+        setCopyList(expenses);
+    }, [expenses]);
 
     const [search, setSearch] = useState('');
     useEffect(() => {
-        const filteredList = expenses.list.filter(e =>
+        const filteredList = expenses.filter(e =>
             e.title.toLowerCase().includes(search.toLowerCase())
         );
         setCopyList(filteredList);
-    }, [search, expenses.list]);
+    }, [search, expenses]);
 
     const expenseObj = {
-        title: '',
-        description: '',
-        date: DateService.dateToSupabase(new Date()),
         amount: 0,
-        idRecipient: '',
-        idCategory: '',
-        idTags: []
+        date: DateService.dateToSupabase(new Date()),
+        description: '',
+        idCategory: null,
+        idOrigin: null,
+        idTags: [],
+        idType: 0,
+        isEntry: false,
+        title: ''
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,8 +75,8 @@ export function ExpensesList({
                     <li key={expense.id}>
                         <ExpenseCard 
                             expense={expense} 
-                            place={recipients.list.find(p => p.id == expense.idRecipient)}
-                            recipients={recipients}
+                            place={origins.list.find(p => p.id == expense.idRecipient)}
+                            origins={origins}
                             categories={categories}
                             tags={tags}
                         />
@@ -81,13 +84,13 @@ export function ExpensesList({
                 ))}
             </ul>
             {isModalOpen && <ExpenseModal
-                title='Novo gasto'
+                title={`Nova ${newExpense.isEntry ? 'entrada' : 'saída'}`}
                 onClose={() => setIsModalOpen(false)}
                 expense={newExpense}
                 expenseObj={expenseObj}
                 setExpense={setNewExpense}
-                expensesRefresh={() => expenses.refresh()}
-                recipients={recipients}
+                expensesRefresh={refresh}
+                origins={origins}
                 categories={categories}
                 tags={tags}
             />}

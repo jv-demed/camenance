@@ -15,7 +15,8 @@ export function ExpenseCategorySection({
     expense,
     setExpense,
     categories,
-    tags
+    tags,
+    isVisible = true
 }) {
 
     const { obj: user } = useUser();
@@ -72,7 +73,9 @@ export function ExpenseCategorySection({
     }
 
     return (
-        <div className='w-full'>
+        <div className='w-full'
+            style={{ display: !isVisible && 'none' }}
+        >
             {(!categoryMode && !tagMode) ? 
                 <div className='flex flex-col gap-2'>
                     <div className='flex gap-1'>

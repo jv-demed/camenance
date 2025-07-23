@@ -6,6 +6,7 @@ export function SelectMiniInput({
   textField = 'name',
   value,
   setValue,
+  isVisible = true
 }) {
 
     const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +29,7 @@ export function SelectMiniInput({
 
     return (
         <div ref={ref}
+            style={{ display: !isVisible && 'none' }}
             className={`
                 relative inline-block w-32 
                 text-left cursor-pointer    
@@ -37,7 +39,7 @@ export function SelectMiniInput({
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
                     w-full flex items-center justify-between
-                    border border-primary rounded-2xl
+                    border border-border rounded-2xl
                     px-3 py-2 text-xs outline-none    
                 `}
             >

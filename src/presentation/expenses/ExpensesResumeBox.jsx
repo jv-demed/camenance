@@ -1,29 +1,38 @@
 'use client'
-import { useEffect, useState } from 'react';
-import { Box } from '@/components/containers/Box';
-import { resumeFilters } from '@/controllers/expenses/resumeController';
-import { SelectMiniInput } from '@/components/inputs/SelectMiniInput';
+import { ExpenseValueBox } from '@/presentation/expenses/ExpenseValueBox';
 
-export function ExpensesResumeBox(){
+export function ExpensesResumeBox({
+    expenses
+}){
 
-    const [filter, setFilter] = useState(resumeFilters[2]);
-
-    useEffect(() => {
-        console.log(filter);
-    }, [filter]);
+    const totalEntries = expenses
+        .filter(entry => entry.isEntry)
+        .reduce((prev, entry) => prev + entry.amount, 0);
+    const totalExpenses = expenses
+        .filter(expense => !expense.isEntry)
+        .reduce((prev, expense) => prev + expense.amount, 0);
+    const totalAmount = totalEntries - totalExpenses;
 
     return (
-        <div className='w-full border'>
-            <header className='flex items-center justify-between'>
-                <span className='text-xl'>
-                    Saldo
-                </span>
-                <SelectMiniInput 
-                    options={resumeFilters}
-                    value={filter}
-                    setValue={setFilter}
-                />
-            </header>
+        <div className={`
+            flex items-start gap-4
+            w-full pr-2
+        `}>
+            <ExpenseValueBox 
+                title='Entradas'
+                value={+totalEntries}
+                color='text-green-500'
+            />
+            <ExpenseValueBox 
+                title='Saídas'
+                value={-totalExpenses}
+                color='text-[tomato]'
+            />
+            <ExpenseValueBox 
+                title='Saldo'
+                value={totalAmount}
+                color={totalAmount >= 0 ? 'text-green-500' : 'text-[tomato]'}
+            />
         </div>
     )
 }

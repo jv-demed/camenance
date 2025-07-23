@@ -4,6 +4,14 @@ export class DateService {
         return date.toISOString().split('T')[0];
     }
 
+    static dateToDefaultBr(date) {
+        const obj = date instanceof Date ? date : new Date(date);
+        const day   = String(obj.getDate()).padStart(2, '0');
+        const month = String(obj.getMonth() + 1).padStart(2, '0');
+        const year  = obj.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
     static supabaseToBrWithCompleteMonth(date){
         const dateObj = new Date(date);
         return dateObj.toLocaleDateString('pt-BR', { 

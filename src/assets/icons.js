@@ -11,6 +11,7 @@ import {
     IoClose,
     IoChevronUp,
     IoChevronDown,
+    IoChevronForward,
 } from 'react-icons/io5';
 import { 
     FaCheck, 
@@ -24,6 +25,7 @@ export const ICONS = {
     arrowRight: FaCircleArrowRight,
     check: FaCheck,
     chevronDown: IoChevronDown,
+    chevronRight: IoChevronForward,
     chevronUp: IoChevronUp,
     close: IoClose,
     finances: PiPiggyBankBold,

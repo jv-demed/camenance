@@ -7,12 +7,12 @@ import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
 
 export function ExpenseCard({ 
     expense,
-    recipients,
+    origins,
     categories,
     tags
 }) {
 
-    const recipient = recipients.list.find(r => r.id == expense.idRecipient);
+    const origin = origins.list.find(r => r.id == expense.idOrigin);
     const category = categories.list.find(c => c.id == expense.idCategory);
     const expenseTags = tags.list
         .filter(t => t.idCategory == category?.id)
@@ -34,9 +34,11 @@ export function ExpenseCard({
                     hover:border-white/30 hover:scale-[1.02]
                 `}
             >
-                <div className='flex justify-between gap-4 text-xl'>
-                    <h2>{expense.title}</h2>
-                    <span>{MonetaryService.floatToBr(expense.amount)}</span>
+                <div className='flex justify-between gap-4 text-[16px]'>
+                    <h3>{expense.title}</h3>
+                    <span className={expense.isEntry ? 'text-green-500' : 'text-[tomato]'}>
+                        {MonetaryService.floatToBr(expense.amount)}
+                    </span>
                 </div>
                 <div className={`
                     flex items-center justify-between gap-2
@@ -46,11 +48,11 @@ export function ExpenseCard({
                         {DateService.supabaseToBrWithCompleteMonth(expense.date)}
                     </span>
                     <div className='flex items-center gap-0.5'>
-                        <span>{recipient.name}</span>
+                        <span>{origin.name}</span>
                         <ICONS.local />
                     </div>
                 </div>
-                <div className='flex items-center gap-1 mt-2'>
+                {!expense.isEntry && <div className='flex items-center gap-1 mt-2'>
                     <TagBox 
                         tag={category}
                         fontSize='0.75rem'
@@ -71,7 +73,7 @@ export function ExpenseCard({
                             </li>
                         ))}
                     </ul>
-                </div>
+                </div>}
                 <div className={
                     `absolute top-0 right-0 w-20 h-20 
                     bg-white/5 rounded-full filter blur-xl -mr-10 -mt-10
@@ -81,7 +83,7 @@ export function ExpenseCard({
                 onClose={() => setIsModalOpen(false)}
                 expense={editExpense}
                 setExpense={setEditExpense}
-                recipients={recipients}
+                origins={origins}
                 categories={categories}
                 tags={tags}
             />}

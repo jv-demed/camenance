@@ -1,5 +1,31 @@
 import { insertRecord } from '@/supabase/crud';
 
+export const entryTypes = [
+    {
+        id: 0,
+        name: 'Única',
+    },{
+        id: 1,
+        name: 'Recorrente',
+    },{
+        id: 2,
+        name: 'Proventos'
+    }
+];
+
+export const expensesTypes = [
+    {
+        id: 0,
+        name: 'Única',
+    },{
+        id: 1,
+        name: 'Conta',
+    },{
+        id: 2,
+        name: 'Parcelamento',
+    }
+];
+
 export async function insertExpense(expense) {
     treatmentExpense(expense);
     const message = await validateExpense(expense);
@@ -26,12 +52,12 @@ function treatmentExpense(expense) {
 
 async function validateExpense(expense) {
     if(!expense.title) {
-        return 'O gasto precisa de um título.';
+        return `A ${expense.isEntry ? 'entrada' : 'saída'} precisa de um título.`;
     } if(!expense.amount || isNaN(expense.amount) || expense.amount <= 0) {
-        return 'O gasto precisa de um valor válido.';
-    } if(!expense.idRecipient) {
-        return 'O gasto precisa de um destinatário.';
-    } if(!expense.idCategory) {
-        return 'O gasto precisa de uma categoria.';
+        return  `A ${expense.isEntry ? 'entrada' : 'saída'} precisa de um valor válido.`;
+    } if(!expense.idOrigin) {
+        return `A ${expense.isEntry ? 'entrada' : 'saída'} precisa de uma origem.`;
+    } if(!expense.isEntry && !expense.idCategory) {
+        return 'A saída precisa de uma categoria.';
     }
 }
