@@ -8,6 +8,7 @@ import {
     FiLogOut 
 } from 'react-icons/fi';
 import { 
+    IoMenu,
     IoClose,
     IoChevronUp,
     IoChevronDown,
@@ -32,6 +33,7 @@ export const ICONS = {
     local: MdOutlineFmdGood,
     login: FiLogIn,
     logout: FiLogOut,
+    menuHamburger: IoMenu,
     settings: LuSettings,
     spinLoader: AiOutlineLoading3Quarters
 }

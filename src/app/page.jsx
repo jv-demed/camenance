@@ -67,8 +67,6 @@ export default function Home() {
             setStartDate(startDate);
             setEndDate(endDate);
         }
-        console.log(startDate);
-        console.log(endDate);
     }, [expenses.list, dateFilter, isRelative]);
 
     return (
@@ -92,33 +90,35 @@ export default function Home() {
                                 value={dateFilter}
                                 setValue={setDateFilter}
                             />
-                            {dateFilter.id != 6 && <div className='flex items-center gap-1 text-xs border border-border rounded-2xl p-2'>
-                                <span>
-                                    {DateService.dateToDefaultBr(startDate)}
-                                </span>
-                                {dateFilter.id != 0 && <>
-                                    <ICONS.chevronRight />
+                            {dateFilter.id != 6 && <>
+                                <div className='flex items-center gap-1 text-xs border border-border rounded-2xl p-2'>
                                     <span>
-                                        {DateService.dateToDefaultBr(endDate)}
+                                        {DateService.dateToDefaultBr(startDate)}
                                     </span>
-                                </>}
-                            </div>}
-                            <div className='border border-border rounded-2xl p-1'>
-                                <SwitchBtn 
-                                    onToggle={setIsRelative}
-                                    labelLeft={() => <span className={`
-                                        text-xs text-center w-12
-                                    `}>
-                                        Fixo
-                                    </span>}
-                                    labelRight={() => <span className={`
-                                        text-xs text-center w-12
-                                    `}>
-                                        Relativo
-                                    </span>}
-                                    alwaysActivedColor
-                                />
-                            </div>
+                                    {dateFilter.id != 0 && <>
+                                        <ICONS.chevronRight />
+                                        <span>
+                                            {DateService.dateToDefaultBr(endDate)}
+                                        </span>
+                                    </>}
+                                </div>
+                                {dateFilter.id != 0 && <div className='border border-border rounded-2xl p-1'>
+                                    <SwitchBtn 
+                                        onToggle={setIsRelative}
+                                        labelLeft={() => <span className={`
+                                            text-xs text-center w-12
+                                        `}>
+                                            Fixo
+                                        </span>}
+                                        labelRight={() => <span className={`
+                                            text-xs text-center w-12
+                                        `}>
+                                            Relativo
+                                        </span>}
+                                        alwaysActivedColor
+                                    />
+                                </div>}
+                            </>}
                         </div>
                     </header>
                     <div className={`
