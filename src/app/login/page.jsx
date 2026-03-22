@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { login } from '@/services/authService';
+import { login } from '@/supabase/auth';
 import { Main } from '@/components/containers/Main'
 import { Form } from '@/components/containers/Form';
 import { TextInput } from '@/components/inputs/TextInput';
@@ -16,9 +16,20 @@ export default function LoginPage() {
         password: ''
     });
 
+    const [error, setError] = useState(null);
+
     async function handleSubmit() {
-        await login(user);
-        router.push('/');
+        setError(null);
+        try {
+            const res = await login(user);
+            if(res?.error) {
+                setError(res.error);
+                return;
+            }
+            router.push('/');
+        } catch(err) {
+            setError('Erro inesperado');
+        }
     }
 
     return (
@@ -45,6 +56,9 @@ export default function LoginPage() {
                     text='Entrar'
                     type='submit'
                 />
+                {error && <span className='text-error'>
+                    {error}    
+                </span>}
             </Form>
         </Main>
     )

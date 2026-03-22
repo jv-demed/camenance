@@ -7,11 +7,11 @@ export function useAuth() {
 
     const router = useRouter();
 
-    const [obj, setObj] = useState();
+    const [user, setUser] = useState();
     const [loading, setLoading] = useState(true);
 
     const refresh = useCallback(() => {
-        fetchUser().then(res => res && setObj(res));
+        fetchUser().then(res => res && setUser(res));
     }, []);
 
     const fetchUser = async () => {
@@ -26,10 +26,10 @@ export function useAuth() {
     useEffect(() => {
         setLoading(true);
         fetchUser().then(res => {
-            res && setObj(res);
+            res && setUser(res);
             setLoading(false);
         });
     }, []);
 
-    return { obj, loading, refresh };
+    return { user, loading, refresh };
 }

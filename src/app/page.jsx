@@ -14,7 +14,8 @@ import { ICONS } from '@/assets/icons';
 
 export default function Home() {  
 
-    const { obj: user } = useUser();
+    const { user } = useUser();
+    console.log(user);
 
     const expenses = useDataList({
         table: 'camenance-expenses',
