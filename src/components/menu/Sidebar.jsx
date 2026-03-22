@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react';
-import { ICONS } from '@/assets/icons';
-import { MENU_ITEMS } from './manuItem';
 import { useRouter } from 'next/navigation';
+import { ICONS } from '@/assets/icons';
+import { MENU_ITEMS } from '@/components/menu/manuItem';
 
 export function Sidebar() {
 

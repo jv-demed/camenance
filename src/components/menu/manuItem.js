@@ -1,4 +1,4 @@
-import { ICONS } from "@/assets/icons";
+import { ICONS } from '@/assets/icons';
 
 export const MENU_ITEMS = [
     {

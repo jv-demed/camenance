@@ -7,7 +7,7 @@ import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { ExpenseCard } from '@/presentation/expenses/ExpenseCard';
 import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
 
-export function ExpensesList({
+export function ExpenseList({
     expenses,
     origins,
     categories,
@@ -28,20 +28,20 @@ export function ExpensesList({
         setCopyList(filteredList);
     }, [search, expenses]);
 
-    const expenseObj = {
-        amount: 0,
-        date: DateService.dateToSupabase(new Date()),
-        description: '',
-        idCategory: null,
-        idOrigin: null,
-        idTags: [],
-        idType: 0,
-        isEntry: false,
-        title: ''
-    };
+    // const expenseObj = {
+    //     amount: 0,
+    //     date: DateService.dateToSupabase(new Date()),
+    //     description: '',
+    //     idCategory: null,
+    //     idOrigin: null,
+    //     idTags: [],
+    //     idType: 0,
+    //     isEntry: false,
+    //     title: ''
+    // };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [newExpense, setNewExpense] = useState(expenseObj);
+    // const [newExpense, setNewExpense] = useState(expenseObj);
 
     return (
         <div className={`
@@ -75,7 +75,7 @@ export function ExpensesList({
                     <li key={expense.id}>
                         <ExpenseCard 
                             expense={expense} 
-                            place={origins.list.find(p => p.id == expense.idRecipient)}
+                            // place={origins.list.find(p => p.id == expense.idRecipient)}
                             origins={origins}
                             categories={categories}
                             tags={tags}
@@ -83,7 +83,7 @@ export function ExpensesList({
                     </li>
                 ))}
             </ul>
-            {isModalOpen && <ExpenseModal
+            {/* {isModalOpen && <ExpenseModal
                 title={`Nova ${newExpense.isEntry ? 'entrada' : 'saída'}`}
                 onClose={() => setIsModalOpen(false)}
                 expense={newExpense}
@@ -93,7 +93,7 @@ export function ExpensesList({
                 origins={origins}
                 categories={categories}
                 tags={tags}
-            />}
+            />} */}
         </div>
     );
 }

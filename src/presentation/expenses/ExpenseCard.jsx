@@ -12,11 +12,11 @@ export function ExpenseCard({
     tags
 }) {
 
-    const origin = origins.list.find(r => r.id == expense.idOrigin);
-    const category = categories.list.find(c => c.id == expense.idCategory);
-    const expenseTags = tags.list
-        .filter(t => t.idCategory == category?.id)
-        .filter(t => expense.idTags.includes(t.id));
+    // const origin = origins.list.find(r => r.id == expense.idOrigin);
+    // const category = categories.list.find(c => c.id == expense.idCategory);
+    // const expenseTags = tags.list
+    //     .filter(t => t.idCategory == category?.id)
+    //     .filter(t => expense.idTags.includes(t.id));
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editExpense, setEditExpense] = useState(expense);
@@ -44,22 +44,22 @@ export function ExpenseCard({
                     flex items-center justify-between gap-2
                     text-sm text-gray-500    
                 `}>
-                    <span>
+                    {/* <span>
                         {DateService.supabaseToBrWithCompleteMonth(expense.date)}
-                    </span>
-                    <div className='flex items-center gap-0.5'>
+                    </span> */}
+                    {/* <div className='flex items-center gap-0.5'>
                         <span>{origin.name}</span>
                         <ICONS.local />
-                    </div>
+                    </div> */}
                 </div>
                 {!expense.isEntry && <div className='flex items-center gap-1 mt-2'>
-                    <TagBox 
+                    {/* <TagBox 
                         tag={category}
                         fontSize='0.75rem'
                         paddingHorizontal='12px'
                         paddingVertical='4px'
-                    />
-                    <ul className='flex gap-1'>
+                    /> */}
+                    {/* <ul className='flex gap-1'>
                         {expenseTags.map(tag => (
                             <li key={tag.id}
                                 className='flex'
@@ -72,21 +72,21 @@ export function ExpenseCard({
                                 />
                             </li>
                         ))}
-                    </ul>
+                    </ul> */}
                 </div>}
                 <div className={
                     `absolute top-0 right-0 w-20 h-20 
                     bg-white/5 rounded-full filter blur-xl -mr-10 -mt-10
                 `} />
             </div>
-            {isModalOpen && <ExpenseModal
+            {/* {isModalOpen && <ExpenseModal
                 onClose={() => setIsModalOpen(false)}
                 expense={editExpense}
                 setExpense={setEditExpense}
                 origins={origins}
                 categories={categories}
                 tags={tags}
-            />}
+            />} */}
         </div>
     );
 };

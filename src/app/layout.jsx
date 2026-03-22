@@ -1,7 +1,7 @@
 'use client'
 import { usePathname } from 'next/navigation';
 import { UserProvider } from '@/context/UserContext';
-import { Sidebar } from '@/presentation/sidebar/Sidebar';
+import { Sidebar } from '@/components/menu/Sidebar';
 import '@/styles/globals.css';
 
 export default function RootLayout({ children }) {
