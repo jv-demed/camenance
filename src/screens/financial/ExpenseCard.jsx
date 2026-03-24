@@ -7,16 +7,16 @@ import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
 
 export function ExpenseCard({ 
     expense,
-    origins,
+    payees,
     categories,
     tags
 }) {
 
-    // const origin = origins.list.find(r => r.id == expense.idOrigin);
-    // const category = categories.list.find(c => c.id == expense.idCategory);
-    // const expenseTags = tags.list
-    //     .filter(t => t.idCategory == category?.id)
-    //     .filter(t => expense.idTags.includes(t.id));
+    const payee = payees.list.find(p => p.id == expense.payeeId);
+    const category = categories.list.find(c => c.id == expense.categoryId);
+    const expenseTags = tags.list
+        .filter(t => t.categoryId == category?.id)
+        .filter(t => expense.tagIds.includes(t.id));
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editExpense, setEditExpense] = useState(expense);
@@ -44,26 +44,24 @@ export function ExpenseCard({
                     flex items-center justify-between gap-2
                     text-sm text-gray-500    
                 `}>
-                    {/* <span>
-                        {DateService.supabaseToBrWithCompleteMonth(expense.date)}
-                    </span> */}
-                    {/* <div className='flex items-center gap-0.5'>
-                        <span>{origin.name}</span>
+                    <span>
+                        {DateService.timestamptzToStringWithMonth(expense.createdAt)}
+                    </span>
+                    <div className='flex items-center gap-0.5'>
+                        <span>{payee.name}</span>
                         <ICONS.local />
-                    </div> */}
+                    </div>
                 </div>
                 {!expense.isEntry && <div className='flex items-center gap-1 mt-2'>
-                    {/* <TagBox 
+                    <TagBox 
                         tag={category}
                         fontSize='0.75rem'
                         paddingHorizontal='12px'
                         paddingVertical='4px'
-                    /> */}
-                    {/* <ul className='flex gap-1'>
+                    />
+                    <ul className='flex gap-1'>
                         {expenseTags.map(tag => (
-                            <li key={tag.id}
-                                className='flex'
-                            >
+                            <li key={tag.id} className='flex'>
                                 <TagBox 
                                     tag={tag}
                                     fontSize='0.6rem'
@@ -72,21 +70,21 @@ export function ExpenseCard({
                                 />
                             </li>
                         ))}
-                    </ul> */}
+                    </ul>
                 </div>}
                 <div className={
                     `absolute top-0 right-0 w-20 h-20 
                     bg-white/5 rounded-full filter blur-xl -mr-10 -mt-10
                 `} />
             </div>
-            {/* {isModalOpen && <ExpenseModal
+            {isModalOpen && <ExpenseModal
                 onClose={() => setIsModalOpen(false)}
                 expense={editExpense}
                 setExpense={setEditExpense}
-                origins={origins}
+                payees={payees}
                 categories={categories}
                 tags={tags}
-            />} */}
+            />}
         </div>
     );
 };

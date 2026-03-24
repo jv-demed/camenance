@@ -23,7 +23,7 @@ export function ExpenseModal({
     expenseObj,
     setExpense,
     expensesRefresh,
-    origins,
+    payees,
     categories,
     tags
 }) {
@@ -52,7 +52,7 @@ export function ExpenseModal({
             onClose={onClose}
         >
             <nav className='flex items-center justify-end gap-2 w-full'>
-                <div className='flex gap-1'>
+                {/* <div className='flex gap-1'>
                     <span 
                         onClick={() => {
                             if(expense.isEntry) return;
@@ -79,15 +79,15 @@ export function ExpenseModal({
                     >
                         Saída
                     </span>
-                </div>
-                <SelectMiniInput 
+                </div> */}
+                {/* <SelectMiniInput 
                     options={expense.isEntry ? entryTypes : expensesTypes}
                     value={expensesTypes[expense.idType]}
                     setValue={e => setExpense({ ...expense, idType: e.id })}
-                />
+                /> */}
             </nav>
             <Form>
-                <div className='flex gap-1 w-full'>
+                {/* <div className='flex gap-1 w-full'>
                     <TextInput placeholder='Título'
                         value={expense.title}
                         setValue={e => setExpense({ ...expense, title: e })}
@@ -96,12 +96,12 @@ export function ExpenseModal({
                         value={expense.date}
                         setValue={e => setExpense({ ...expense, date: e })}
                     />
-                </div>
-                <TextAreaInput placeholder='Descrição'
+                </div> */}
+                {/* <TextAreaInput placeholder='Descrição'
                     value={expense.description}
                     setValue={e => setExpense({ ...expense, description: e })}
-                />
-                <div className='flex gap-1'>
+                /> */}
+                {/* <div className='flex gap-1'>
                     <AddInput 
                         placeholder='Origem'
                         suggestions={origins.list}
@@ -117,24 +117,24 @@ export function ExpenseModal({
                         value={expense.amount}
                         setValue={e => setExpense({ ...expense, amount: e })}
                     />
-                </div>
-                <ExpenseCategorySection
+                </div> */}
+                {/* <ExpenseCategorySection
                     expense={expense}
                     setExpense={setExpense}
                     categories={categories}
                     tags={tags}
                     isVisible={!expense.isEntry}
-                />
+                /> */}
                 <ActionsSection>
                     {/* delete caso existe um expense.id */}
-                    {!expense.id && 
+                    {/* {!expense.id && 
                         <DefaultBtn 
                             text={`Criar ${expense.isEntry ? 'entrada' : 'saída'}`}
                             icon={ICONS.add}
                             width='150px'
                             onClick={handleNewExpense}
                         />
-                    }
+                    } */}
                 </ActionsSection>
             </Form>
         </Modal>

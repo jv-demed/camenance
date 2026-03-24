@@ -15,46 +15,45 @@ import { PageHeader } from '@/components/elements/PageHeader';
 import { TableNames } from '@/assets/TableNames';
 import { FinancialService } from '@/services/FinancialService';
 import { ExpenseRepository } from '@/repositories/ExpenseRepository';
+import { PayeeRepository } from '@/repositories/PayeeRepository';
+import { ExpenseCategoryRepository } from '@/repositories/ExpenseCategoryRepository';
+import { ExpenseTagRepository } from '@/repositories/ExpenseTagRepository';
 
 export function Financial() {  
 
     const { user } = useUser();
 
-    const expenseRepo = new ExpenseRepository();
-
     const expenses = useDataList({
-        repository: expenseRepo,
+        repository: new ExpenseRepository(),
+        filters: { userId: user.id }
+    });
+    
+    const payees = useDataList({
+        repository: new PayeeRepository(),
+        order: 'name',
         filters: { userId: user.id }
     });
 
-    console.log(expenses);
+    const categories = useDataList({
+        repository: new ExpenseCategoryRepository(),
+        order: 'title',
+        filters: { userId: user.id }
+    });
     
-    // const origins = useDataList({
-    //     table: 'camenance-expensesOrigins',
-    //     order: 'name',
-    //     filter: q => q.eq('idUser', user.id)
-    // });
-    
-    // const categories = useDataList({
-    //     table: 'camenance-expensesCategories',
-    //     order: 'name',
-    //     filter: q => q.eq('idUser', user.id)
-    // });
-    
-    // const tags = useDataList({
-    //     table: 'camenance-expensesTags',
-    //     order: 'name',
-    //     filter: q => q.eq('idUser', user.id)
-    // });
+    const tags = useDataList({
+        repository: new ExpenseTagRepository(),
+        order: 'title',
+        filter: { userId: user.id }
+    });
     
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         !expenses.loading && 
-        // !origins.loading &&
-        // !categories.loading && 
-        // !tags.loading &&
+        !payees.loading &&
+        !categories.loading && 
+        !tags.loading &&
         setIsLoading(false);
-    }, [expenses, /*origins, categories, tags */]);
+    }, [expenses, payees, categories, tags ]);
 
     const [isRelative, setIsRelative] = useState(false);
     const [dateFilter, setDateFilter] = useState(dateFilters[2]);
@@ -129,9 +128,9 @@ export function Financial() {
                         /> */}
                         <ExpenseList 
                             expenses={filteredExpenses}
-                            // origins={origins}
-                            // categories={categories}
-                            // tags={tags}
+                            payees={payees}
+                            categories={categories}
+                            tags={tags}
                             refresh={expenses.refresh}
                         />
                     </div>

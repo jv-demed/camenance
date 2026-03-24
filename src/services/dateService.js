@@ -12,13 +12,12 @@ export class DateService {
         return `${day}/${month}/${year}`;
     }
 
-    static supabaseToBrWithCompleteMonth(date){
+    static timestamptzToStringWithMonth(date){
         const dateObj = new Date(date);
         return dateObj.toLocaleDateString('pt-BR', { 
             day: 'numeric', 
             month: 'short', 
             year: 'numeric',
-            timeZone: 'UTC'
         });
     };
 

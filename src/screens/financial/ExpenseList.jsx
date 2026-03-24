@@ -4,12 +4,12 @@ import { DateService } from '@/services/dateService';
 import { ICONS } from '@/assets/icons';
 import { TextInput } from '@/components/inputs/TextInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
-import { ExpenseCard } from '@/presentation/expenses/ExpenseCard';
+import { ExpenseCard } from '@/screens/financial/ExpenseCard';
 import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
 
 export function ExpenseList({
     expenses,
-    origins,
+    payees,
     categories,
     tags,
     refresh
@@ -75,8 +75,8 @@ export function ExpenseList({
                     <li key={expense.id}>
                         <ExpenseCard 
                             expense={expense} 
-                            // place={origins.list.find(p => p.id == expense.idRecipient)}
-                            origins={origins}
+                            // place={payees.list.find(p => p.id == expense.idRecipient)}
+                            payees={payees}
                             categories={categories}
                             tags={tags}
                         />
