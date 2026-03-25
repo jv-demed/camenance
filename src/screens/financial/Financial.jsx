@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useDataList } from '@/hooks/useDataList';
 import { dateFilters } from '@/controllers/expenses/financialController';
-import { DateService } from '@/services/dateService';
+import { DateService } from '@/services/DateService';
 import { Main } from '@/components/containers/Main';
 import { SwitchBtn } from '@/components/buttons/SwitchBtn';
 import { SpinLoader } from '@/components/elements/SpinLoader';
@@ -15,7 +15,7 @@ import { PageHeader } from '@/components/elements/PageHeader';
 import { TableNames } from '@/assets/TableNames';
 import { FinancialService } from '@/services/FinancialService';
 import { ExpenseRepository } from '@/repositories/ExpenseRepository';
-import { PayeeRepository } from '@/repositories/PayeeRepository';
+import { payeeRepository } from '@/repositories/PayeeRepository';
 import { ExpenseCategoryRepository } from '@/repositories/ExpenseCategoryRepository';
 import { ExpenseTagRepository } from '@/repositories/ExpenseTagRepository';
 
@@ -29,7 +29,7 @@ export function Financial() {
     });
     
     const payees = useDataList({
-        repository: new PayeeRepository(),
+        repository: payeeRepository,
         order: 'name',
         filters: { userId: user.id }
     });
@@ -132,6 +132,7 @@ export function Financial() {
                             categories={categories}
                             tags={tags}
                             refresh={expenses.refresh}
+                            user={user}
                         />
                     </div>
                 </div>

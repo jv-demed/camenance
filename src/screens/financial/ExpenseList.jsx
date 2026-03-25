@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { DateService } from '@/services/dateService';
+import { DateService } from '@/services/DateService';
 import { ICONS } from '@/assets/icons';
 import { TextInput } from '@/components/inputs/TextInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
@@ -12,7 +12,8 @@ export function ExpenseList({
     payees,
     categories,
     tags,
-    refresh
+    refresh,
+    user
 }) {
 
     const [copyList, setCopyList] = useState(expenses);
@@ -79,6 +80,7 @@ export function ExpenseList({
                             payees={payees}
                             categories={categories}
                             tags={tags}
+                            user={user}
                         />
                     </li>
                 ))}

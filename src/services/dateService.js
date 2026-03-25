@@ -12,6 +12,15 @@ export class DateService {
         return `${day}/${month}/${year}`;
     }
 
+    static dateToTimestamptz(date) {
+        return new Date(date).toISOString();
+    }
+
+    static timestamptzToDate(timestamptz) {
+        const date = new Date(timestamptz);
+        return date.toISOString().split('T')[0];
+    }
+
     static timestamptzToStringWithMonth(date){
         const dateObj = new Date(date);
         return dateObj.toLocaleDateString('pt-BR', { 

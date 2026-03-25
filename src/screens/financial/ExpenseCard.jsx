@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DateService } from '@/services/dateService';
+import { DateService } from '@/services/DateService';
 import { MonetaryService } from '@/services/monetaryService';
 import { ICONS } from '@/assets/icons';
 import { TagBox } from '@/components/elements/TagBox';
@@ -9,7 +9,8 @@ export function ExpenseCard({
     expense,
     payees,
     categories,
-    tags
+    tags,
+    user
 }) {
 
     const payee = payees.list.find(p => p.id == expense.payeeId);
@@ -77,14 +78,16 @@ export function ExpenseCard({
                     bg-white/5 rounded-full filter blur-xl -mr-10 -mt-10
                 `} />
             </div>
-            {isModalOpen && <ExpenseModal
+            <ExpenseModal title={expense.title}
+                isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 expense={editExpense}
                 setExpense={setEditExpense}
                 payees={payees}
                 categories={categories}
                 tags={tags}
-            />}
+                user={user}
+            />
         </div>
     );
 };

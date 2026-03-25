@@ -4,8 +4,7 @@ import { ICONS } from '@/assets/icons';
 import { SpinLoader } from '@/components/elements/SpinLoader';
 
 export function AddInput({
-    suggestions = [],
-    refresh,
+    data,
     labelField = 'name',
     value = null,
     setValue = () => {},
@@ -14,8 +13,6 @@ export function AddInput({
     placeholder = 'Digite algo...',
     width = '100%'
 }) {
-
-    console.log(value)
 
     const containerRef = useRef(null);
     const listRef = useRef(null);
@@ -29,12 +26,12 @@ export function AddInput({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if(value == null || !Array.isArray(suggestions) || suggestions.length === 0) return;
-        const found = suggestions.find(s => s.id === value);
+        if(value == null || !Array.isArray(data.list) || data.list.length === 0) return;
+        const found = data.list.find(s => s.id === value);
         if(found) {
             setInputValue(String(found[labelField]));
         }
-    }, [value, suggestions]);
+    }, [value, data.list]);
 
 
     useEffect(() => {
@@ -44,15 +41,15 @@ export function AddInput({
             setHighlightIndex(-1);
             return;
         }
-        const filtered = suggestions.filter(s =>
+        const filtered = data.list.filter(s =>
             s[labelField].toLowerCase().includes(inputValue.toLowerCase())
         );
         setFilteredSuggestions(filtered);
         setHighlightIndex(-1);
-    }, [inputValue, suggestions]);
+    }, [inputValue, data.list]);
 
     useEffect(() => {
-        const exactMatch = suggestions.find(s => 
+        const exactMatch = data.list.find(s => 
             s[labelField].toLowerCase() === inputValue.toLowerCase()
         );
         if(exactMatch) {
@@ -62,14 +59,14 @@ export function AddInput({
             setValue();
             setIsNewEntry(true);
         }
-    }, [inputValue, suggestions]);
+    }, [inputValue, data.list]);
 
     useEffect(() => {
         const check = inputValue.trim() !== '' &&
-            !suggestions.some(s => s[labelField].toLowerCase() === inputValue.toLowerCase());
+            !data.list.some(s => s[labelField].toLowerCase() === inputValue.toLowerCase());
         setShowDropdown(check); 
         setIsNewEntry(check);
-    }, [inputValue, suggestions]);
+    }, [inputValue, data.list]);
 
     useEffect(() => {
         const handleClickOutside = e => {
@@ -104,7 +101,7 @@ export function AddInput({
             const id = await onCreate(newObj);
             if(id) {
                 AlertService.fastSuccess();
-                refresh();
+                data.refresh();
                 setValue(id);
                 setShowDropdown(false);
                 onSelect && onSelect();

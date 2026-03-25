@@ -15,8 +15,12 @@ import { TextAreaInput } from '@/components/inputs/TextAreaInput';
 import { SelectMiniInput } from '@/components/inputs/SelectMiniInput';
 import { ActionsSection } from '@/components/containers/ActionsSection';
 import { ExpenseCategorySection } from '@/presentation/expenses/ExpenseCategorySection';
+import { DateService } from '@/services/DateService';
+import { payeeRepository } from '@/repositories/PayeeRepository';
+import { PayeeModel } from '@/models/PayeeModel';
 
 export function ExpenseModal({ 
+    isOpen,
     title,
     onClose,
     expense,
@@ -25,15 +29,26 @@ export function ExpenseModal({
     expensesRefresh,
     payees,
     categories,
-    tags
+    tags,
+    user
 }) {
-    
-    const { obj: user } = useUser();
+
+    if(!isOpen) return null;
+
+    async function handleAddPayee(newPayee) {
+        const payee = new PayeeModel({
+            ...newPayee,
+            userId: user.id
+        });
+        const savedPayee = await payeeRepository.insert(payee);
+        return savedPayee?.id;
+    }
 
     async function handleNewExpense() {
         const message = await insertExpense({
             ...expense,
-            idUser: user.id
+            idUser: user.id,
+            createdAt: DateService.dateToTimestamptz(expense.createdAt)
         });
         if(message) {
             AlertService.error(message);
@@ -51,8 +66,8 @@ export function ExpenseModal({
         <Modal title={title}
             onClose={onClose}
         >
-            <nav className='flex items-center justify-end gap-2 w-full'>
-                {/* <div className='flex gap-1'>
+            {/* <nav className='flex items-center justify-end gap-2 w-full'>
+                <div className='flex gap-1'>
                     <span 
                         onClick={() => {
                             if(expense.isEntry) return;
@@ -79,45 +94,40 @@ export function ExpenseModal({
                     >
                         Saída
                     </span>
-                </div> */}
-                {/* <SelectMiniInput 
+                </div>
+                <SelectMiniInput 
                     options={expense.isEntry ? entryTypes : expensesTypes}
                     value={expensesTypes[expense.idType]}
                     setValue={e => setExpense({ ...expense, idType: e.id })}
-                /> */}
-            </nav>
+                />
+            </nav> */}
             <Form>
-                {/* <div className='flex gap-1 w-full'>
+                <div className='flex gap-1 w-full'>
                     <TextInput placeholder='Título'
                         value={expense.title}
                         setValue={e => setExpense({ ...expense, title: e })}
                     />
                     <DateInput 
-                        value={expense.date}
-                        setValue={e => setExpense({ ...expense, date: e })}
+                        value={DateService.timestamptzToDate(expense.createdAt)}
+                        setValue={e => setExpense({ ...expense, createdAt: e })}
                     />
-                </div> */}
-                {/* <TextAreaInput placeholder='Descrição'
+                </div>
+                <TextAreaInput placeholder='Descrição'
                     value={expense.description}
                     setValue={e => setExpense({ ...expense, description: e })}
-                /> */}
-                {/* <div className='flex gap-1'>
-                    <AddInput 
-                        placeholder='Origem'
-                        suggestions={origins.list}
-                        refresh={origins.refresh}
-                        value={expense.idOrigin}
-                        setValue={e => setExpense({ ...expense, idOrigin: e })}
-                        onCreate={async newOrigin => await insertOrigin({
-                            ...newOrigin,
-                            idUser: user.id
-                        })}
+                />
+                <div className='flex gap-1'>
+                    <AddInput placeholder='Beneficiário'
+                        data={payees}
+                        value={expense.payeeId}
+                        setValue={e => setExpense({ ...expense, payeeId: e })}
+                        onCreate={handleAddPayee}
                     />
                     <MoneyInput 
                         value={expense.amount}
                         setValue={e => setExpense({ ...expense, amount: e })}
                     />
-                </div> */}
+                </div>
                 {/* <ExpenseCategorySection
                     expense={expense}
                     setExpense={setExpense}
