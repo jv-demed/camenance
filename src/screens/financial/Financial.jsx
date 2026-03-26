@@ -3,6 +3,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useDataList } from '@/hooks/useDataList';
 import { dateFilters } from '@/controllers/expenses/financialController';
+import { payeeRepository } from '@/repositories/PayeeRepository';
+import { expenseRepository } from '@/repositories/ExpenseRepository';
+import { expenseTagRepository } from '@/repositories/ExpenseTagRepository';
+import { expenseCategoryRepository } from '@/repositories/ExpenseCategoryRepository';
 import { DateService } from '@/services/DateService';
 import { Main } from '@/components/containers/Main';
 import { SwitchBtn } from '@/components/buttons/SwitchBtn';
@@ -14,17 +18,13 @@ import { ICONS } from '@/assets/icons';
 import { PageHeader } from '@/components/elements/PageHeader';
 import { TableNames } from '@/assets/TableNames';
 import { FinancialService } from '@/services/FinancialService';
-import { ExpenseRepository } from '@/repositories/ExpenseRepository';
-import { payeeRepository } from '@/repositories/PayeeRepository';
-import { ExpenseCategoryRepository } from '@/repositories/ExpenseCategoryRepository';
-import { ExpenseTagRepository } from '@/repositories/ExpenseTagRepository';
 
 export function Financial() {  
 
     const { user } = useUser();
 
     const expenses = useDataList({
-        repository: new ExpenseRepository(),
+        repository: expenseRepository,
         filters: { userId: user.id }
     });
     
@@ -35,13 +35,13 @@ export function Financial() {
     });
 
     const categories = useDataList({
-        repository: new ExpenseCategoryRepository(),
+        repository: expenseCategoryRepository,
         order: 'title',
         filters: { userId: user.id }
     });
     
     const tags = useDataList({
-        repository: new ExpenseTagRepository(),
+        repository: expenseTagRepository,
         order: 'title',
         filter: { userId: user.id }
     });

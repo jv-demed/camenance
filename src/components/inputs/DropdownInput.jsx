@@ -7,7 +7,6 @@ export function DropdownInput({
     placeholder = 'Selecione...',
     displayField = 'name',
     valueField = 'id',
-    required = false,
     width = '100%'
 }) {
 
@@ -46,12 +45,19 @@ export function DropdownInput({
         color: item.color,
     }));
 
+    function toColorCss(color) {
+        if(!color && color !== 0) return null;
+        if(typeof color === 'number') return `#${color.toString(16).padStart(6, '0')}`;
+        return color;
+    }
+
     function formatOptionLabel({ label, color }) {
+        const colorCss = toColorCss(color);
         return (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {color && <span
+                {colorCss && <span
                     style={{
-                        backgroundColor: color,
+                        backgroundColor: colorCss,
                         borderRadius: '50%',
                         display: 'inline-block',
                         height: 10,
@@ -61,7 +67,7 @@ export function DropdownInput({
                 {label}
             </div>
         );
-    } 
+    }
 
     return (
         <div style={{ width }}>
@@ -69,10 +75,9 @@ export function DropdownInput({
                 placeholder={placeholder}
                 noOptionsMessage={() => 'Nenhum resultado encontrado'}
                 options={options}
-                value={options.find(opt => opt.value === value)}
-                onChange={option => setValue && setValue(option.value)}
+                value={options.find(opt => opt.value === value) ?? null}
+                onChange={option => setValue && setValue(option?.value ?? null)}
                 formatOptionLabel={formatOptionLabel}
-                isRequired={required}
                 styles={customStyles}
             />
         </div>

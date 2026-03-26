@@ -1,6 +1,5 @@
-import Select, { components } from 'react-select';
-import { TagBox } from '../elements/TagBox';
-
+import Select from 'react-select';
+import { TagBox } from '@/components/elements/TagBox';
 
 export function DropdownMultiInput({
     items = [],
@@ -9,28 +8,24 @@ export function DropdownMultiInput({
     placeholder = 'Selecione...',
     displayField = 'name',
     valueField = 'id',
-    required = false,
     width = '100%',
-    defaultColor = '#e5e7eb' // gray-200
+    defaultColor = '#e5e7eb'
 }) {
 
-    // Mapeia os dados recebidos para o formato do react-select
     const options = items.map(item => ({
         value: item[valueField],
         label: item[displayField],
         color: item.color,
     }));
 
-    // Preenche as opções selecionadas com base nos valores
-    const selectedOptions = options.filter(opt => values.includes(opt.value));
+    const safeValues = values ?? [];
+    const selectedOptions = options.filter(opt => safeValues.some(v => v == opt.value));
 
-    // Quando clicar em uma tag, remove ela da seleção
     const handleTagClick = (valueToRemove) => {
-        const newValues = values.filter(val => val !== valueToRemove);
+        const newValues = safeValues.filter(val => val != valueToRemove);
         setValues && setValues(newValues);
     };
 
-    // Substitui a renderização padrão da tag
     const CustomMultiValue = (props) => {
         const { data } = props;
         return (
@@ -39,8 +34,8 @@ export function DropdownMultiInput({
                 onClick={() => handleTagClick(data.value)}
             >
                 <TagBox
-                    tag={{ name: data.label, color: data.color || defaultColor }}
-                    fontSize="0.875rem" // text-sm
+                    tag={{ title: data.label, color: data.color ?? defaultColor }}
+                    fontSize="0.875rem"
                     paddingHorizontal="10px"
                     paddingVertical="4px"
                 />
@@ -48,7 +43,6 @@ export function DropdownMultiInput({
         );
     };
 
-    // Estilo do select
     const customStyles = {
         control: (base, state) => ({
             ...base,
@@ -92,7 +86,6 @@ export function DropdownMultiInput({
                 }
                 styles={customStyles}
                 components={{ MultiValue: CustomMultiValue }}
-                isRequired={required}
             />
         </div>
     );

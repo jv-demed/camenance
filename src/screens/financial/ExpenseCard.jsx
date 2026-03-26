@@ -3,7 +3,7 @@ import { DateService } from '@/services/DateService';
 import { MonetaryService } from '@/services/monetaryService';
 import { ICONS } from '@/assets/icons';
 import { TagBox } from '@/components/elements/TagBox';
-import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
+import { ExpenseModal } from '@/screens/financial/ExpenseModal';
 
 export function ExpenseCard({ 
     expense,

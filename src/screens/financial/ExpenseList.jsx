@@ -5,7 +5,7 @@ import { ICONS } from '@/assets/icons';
 import { TextInput } from '@/components/inputs/TextInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { ExpenseCard } from '@/screens/financial/ExpenseCard';
-import { ExpenseModal } from '@/presentation/expenses/ExpenseModal';
+import { ExpenseModal } from '@/screens/financial/ExpenseModal';
 
 export function ExpenseList({
     expenses,
