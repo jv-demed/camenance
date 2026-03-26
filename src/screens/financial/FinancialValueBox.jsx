@@ -1,6 +1,6 @@
 import { MonetaryService } from '@/services/monetaryService';
 
-export function ExpenseValueBox({
+export function FinancialValueBox({
     title,
     value,
     color

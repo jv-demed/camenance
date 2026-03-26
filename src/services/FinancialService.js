@@ -1,3 +1,6 @@
+import { DATE_FILTER } from '@/enums/DateFilters';
+import { DateService } from '@/services/DateService';
+
 export class FinancialService {
 
     static filterExpenses({
@@ -11,15 +14,16 @@ export class FinancialService {
         if(isRelative) {
             endDate = now;
         }
-        switch(Number(dateFilter.id)) {
-            case 0: // Dia
-                startDate = new Date(now);
+        switch(dateFilter) {
+            case DATE_FILTER.DAILY:
+                startDate = DateService.startOfDay(now);
+                endDate = DateService.endOfDay(now);
                 break;
-            case 1: // Semana
+            case DATE_FILTER.WEEKLY:
                 if(isRelative) {
                     startDate = new Date(now);
                     startDate.setDate(now.getDate() - 6);
-                }else {
+                } else {
                     const dayOfWeek = now.getDay();
                     startDate = new Date(now);
                     startDate.setDate(now.getDate() - dayOfWeek);
@@ -27,11 +31,11 @@ export class FinancialService {
                     endDate.setDate(startDate.getDate() + 6);
                 }
                 break;
-            case 2: // Mês
+            case DATE_FILTER.MONTHLY:
                 if(isRelative) {
                     startDate = new Date(now);
                     startDate.setMonth(now.getMonth() - 1);
-                }else {
+                } else {
                     const year = now.getFullYear();
                     const month = now.getMonth();
                     const lastDay = new Date(year, month + 1, 0).getDate();
@@ -39,35 +43,35 @@ export class FinancialService {
                     endDate = new Date(year, month, lastDay, 23, 59, 59, 999);
                 }
                 break;
-            case 3: // Trimestre
+            case DATE_FILTER.QUARTERLY:
                 if(isRelative) {
                     startDate = new Date(now);
                     startDate.setMonth(now.getMonth() - 3);
-                }else {
+                } else {
                     const quarter = Math.floor(now.getMonth() / 3);
                     startDate = new Date(now.getFullYear(), quarter * 3, 1);
                     endDate = new Date(now.getFullYear(), quarter * 3 + 3, 0);
                 }
                 break;
-            case 4: // Semestre
+            case DATE_FILTER.BIANNUAL:
                 if(isRelative) {
                     startDate = new Date(now);
                     startDate.setMonth(now.getMonth() - 6);
-                }else {
+                } else {
                     const semStart = now.getMonth() < 6 ? 0 : 6;
                     startDate = new Date(now.getFullYear(), semStart, 1);
                     endDate = new Date(now.getFullYear(), semStart + 6, 0);
                 }
                 break;
-            case 5: // Ano
+            case DATE_FILTER.ANNUAL:
                 if(isRelative) {
                     startDate = new Date(now);
                     startDate.setFullYear(now.getFullYear() - 1);
-                }else {
+                } else {
                     startDate = new Date(now.getFullYear(), 0, 1);
                     endDate = new Date(now.getFullYear() + 1, 0, 0);
                 }
-                break;            
+                break;
             default:
                 startDate = new Date(2000, 0, 1);
                 endDate = new Date(3000, 12, 0);

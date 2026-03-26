@@ -46,6 +46,14 @@ export class DateService {
         return '';
     }
 
+    static startOfDay(date = new Date()) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    static endOfDay(date = new Date()) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+    }
+
     static validateBrDate(dateStr) {
         if (!dateStr || dateStr.length < 10) return false;
         const [day, month, year] = dateStr.split('/').map(Number);

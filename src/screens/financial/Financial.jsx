@@ -1,22 +1,18 @@
-'use client'
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useDataList } from '@/hooks/useDataList';
-import { dateFilters } from '@/controllers/expenses/financialController';
 import { payeeRepository } from '@/repositories/PayeeRepository';
 import { expenseRepository } from '@/repositories/ExpenseRepository';
 import { expenseTagRepository } from '@/repositories/ExpenseTagRepository';
 import { expenseCategoryRepository } from '@/repositories/ExpenseCategoryRepository';
-import { DateService } from '@/services/DateService';
+import { DATE_FILTER } from '@/enums/DateFilters';
+import { FinancialService } from '@/services/FinancialService';
 import { Main } from '@/components/containers/Main';
-import { SwitchBtn } from '@/components/buttons/SwitchBtn';
+import { PageHeader } from '@/components/elements/PageHeader';
 import { SpinLoader } from '@/components/elements/SpinLoader';
 import { ExpenseList } from '@/screens/financial/ExpenseList';
-import { SelectMiniInput } from '@/components/inputs/SelectMiniInput';
-import { ExpensesResumeBox } from '@/presentation/expenses/ExpensesResumeBox';
-import { ICONS } from '@/assets/icons';
-import { PageHeader } from '@/components/elements/PageHeader';
-import { FinancialService } from '@/services/FinancialService';
+import { FinancialFilters } from '@/screens/financial/FinancialFilters';
+import { FinancialResumeBox } from '@/screens/financial/FinancialResumeBox';
 
 export function Financial() {  
 
@@ -42,7 +38,7 @@ export function Financial() {
     const tags = useDataList({
         repository: expenseTagRepository,
         order: 'title',
-        filters: { userId: user.id }
+        filter: { userId: user.id }
     });
     
     const [isLoading, setIsLoading] = useState(true);
@@ -55,7 +51,13 @@ export function Financial() {
     }, [expenses, payees, categories, tags ]);
 
     const [isRelative, setIsRelative] = useState(false);
-    const [dateFilter, setDateFilter] = useState(dateFilters[2]);
+    const [dateFilter, setDateFilter] = useState(DATE_FILTER.MONTHLY);
+
+    function handleDateFilterChange(filter) {
+        setDateFilter(filter);
+        setIsRelative(false);
+    }
+    
     const [startDate, setStartDate] = useState();
     const [endDate, setEndDate] = useState();
     const [filteredExpenses, setFilteredExpenses] = useState([]);
@@ -81,50 +83,22 @@ export function Financial() {
                     h-screen max-h-screen overflow-hidden
                 `}>
                     <PageHeader title='Financeiro'>
-                        {/*
-                            <SelectMiniInput 
-                                options={dateFilters}
-                                value={dateFilter}
-                                setValue={setDateFilter}
-                            />
-                            {dateFilter.id != 6 && <>
-                                <div className='flex items-center gap-1 text-xs border border-border rounded-2xl p-2'>
-                                    <span>
-                                        {DateService.dateToBrDate(startDate)}
-                                    </span>
-                                    {dateFilter.id != 0 && <>
-                                        <ICONS.chevronRight />
-                                        <span>
-                                            {DateService.dateToBrDate(endDate)}
-                                        </span>
-                                    </>}
-                                </div>
-                                {dateFilter.id != 0 && <div className='border border-border rounded-2xl p-1'>
-                                    <SwitchBtn 
-                                        onToggle={setIsRelative}
-                                        labelLeft={() => <span className={`
-                                            text-xs text-center w-12
-                                        `}>
-                                            Fixo
-                                        </span>}
-                                        labelRight={() => <span className={`
-                                            text-xs text-center w-12
-                                        `}>
-                                            Relativo
-                                        </span>}
-                                        alwaysActivedColor
-                                    />
-                                </div>}
-                            </>}
-                        </div> */}
+                        <FinancialFilters
+                            dateFilter={dateFilter}
+                            setDateFilter={handleDateFilterChange}
+                            isRelative={isRelative}
+                            setIsRelative={setIsRelative}
+                            startDate={startDate}
+                            endDate={endDate}
+                        />
                     </PageHeader>
                     <div className={`
                         flex gap-4 pt-1
                         overflow-hidden 
                     `}>
-                        {/* <ExpensesResumeBox 
+                        <FinancialResumeBox
                             expenses={filteredExpenses}
-                        /> */}
+                        />
                         <ExpenseList 
                             expenses={filteredExpenses}
                             payees={payees}

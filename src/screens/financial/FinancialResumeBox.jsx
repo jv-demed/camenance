@@ -1,38 +1,36 @@
-'use client'
-import { ExpenseValueBox } from '@/presentation/expenses/ExpenseValueBox';
+import { FinancialValueBox } from '@/screens/financial/FinancialValueBox';
 
-export function ExpensesResumeBox({
+export function FinancialResumeBox({
     expenses
 }){
 
-    const totalEntries = expenses
-        .filter(entry => entry.isEntry)
-        .reduce((prev, entry) => prev + entry.amount, 0);
+    // const totalEntries = expenses
+    //     .filter(entry => entry.isEntry)
+    //     .reduce((prev, entry) => prev + entry.amount, 0);
     const totalExpenses = expenses
-        .filter(expense => !expense.isEntry)
         .reduce((prev, expense) => prev + expense.amount, 0);
-    const totalAmount = totalEntries - totalExpenses;
+    // const totalAmount = totalEntries - totalExpenses;
 
     return (
         <div className={`
             flex items-start gap-4
             w-full pr-2
         `}>
-            <ExpenseValueBox 
+            {/* <FinancialValueBox 
                 title='Entradas'
                 value={+totalEntries}
                 color='text-green-500'
-            />
-            <ExpenseValueBox 
+            /> */}
+            <FinancialValueBox 
                 title='Saídas'
                 value={-totalExpenses}
                 color='text-[tomato]'
             />
-            <ExpenseValueBox 
+            {/* <FinancialValueBox 
                 title='Saldo'
                 value={totalAmount}
                 color={totalAmount >= 0 ? 'text-green-500' : 'text-[tomato]'}
-            />
+            /> */}
         </div>
     )
 }
