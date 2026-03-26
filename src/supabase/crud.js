@@ -30,10 +30,13 @@ export class Crud {
         return data;
     }
 
-    static async findAll(table, filters = {}) {
+    static async findAll(table, filters = {}, order = null) {
         let query = supabase.from(table).select('*');
         for(const key in filters) {
             query = query.eq(key, filters[key]);
+        }
+        if(order) {
+            query = query.order(order.column, { ascending: order.ascending ?? true });
         }
         const { data, error } = await query;
         if(error) throw error;

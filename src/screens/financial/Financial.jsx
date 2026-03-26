@@ -2,53 +2,70 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useDataList } from '@/hooks/useDataList';
 import { payeeRepository } from '@/repositories/PayeeRepository';
+import { sourceRepository } from '@/repositories/SourceRepository';
 import { expenseRepository } from '@/repositories/ExpenseRepository';
-import { expenseTagRepository } from '@/repositories/ExpenseTagRepository';
-import { expenseCategoryRepository } from '@/repositories/ExpenseCategoryRepository';
+import { incomeRepository } from '@/repositories/IncomeRepository';
+import { financialTagRepository } from '@/repositories/FinancialTagRepository';
+import { financialCategoryRepository } from '@/repositories/FinancialCategoryRepository';
 import { DATE_FILTER } from '@/enums/DateFilters';
 import { FinancialService } from '@/services/FinancialService';
 import { Main } from '@/components/containers/Main';
 import { PageHeader } from '@/components/elements/PageHeader';
 import { SpinLoader } from '@/components/elements/SpinLoader';
-import { ExpenseList } from '@/screens/financial/ExpenseList';
+import { TransactionList } from '@/screens/financial/TransactionList';
 import { FinancialFilters } from '@/screens/financial/FinancialFilters';
 import { FinancialResumeBox } from '@/screens/financial/FinancialResumeBox';
 
-export function Financial() {  
+export function Financial() {
 
     const { user } = useUser();
 
     const expenses = useDataList({
         repository: expenseRepository,
+        order: { column: 'date', ascending: false },
         filters: { userId: user.id }
     });
-    
+
+    const incomes = useDataList({
+        repository: incomeRepository,
+        order: { column: 'date', ascending: false },
+        filters: { userId: user.id }
+    });
+
     const payees = useDataList({
         repository: payeeRepository,
-        order: 'name',
+        order: { column: 'name', ascending: true },
+        filters: { userId: user.id }
+    });
+
+    const sources = useDataList({
+        repository: sourceRepository,
+        order: { column: 'name', ascending: true },
         filters: { userId: user.id }
     });
 
     const categories = useDataList({
-        repository: expenseCategoryRepository,
-        order: 'title',
+        repository: financialCategoryRepository,
+        order: { column: 'title', ascending: true },
         filters: { userId: user.id }
     });
-    
+
     const tags = useDataList({
-        repository: expenseTagRepository,
-        order: 'title',
-        filter: { userId: user.id }
+        repository: financialTagRepository,
+        order: { column: 'title', ascending: true },
+        filters: { userId: user.id }
     });
-    
+
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
-        !expenses.loading && 
+        !expenses.loading &&
+        !incomes.loading &&
         !payees.loading &&
-        !categories.loading && 
+        !sources.loading &&
+        !categories.loading &&
         !tags.loading &&
         setIsLoading(false);
-    }, [expenses, payees, categories, tags ]);
+    }, [expenses, incomes, payees, sources, categories, tags]);
 
     const [isRelative, setIsRelative] = useState(false);
     const [dateFilter, setDateFilter] = useState(DATE_FILTER.MONTHLY);
@@ -57,10 +74,11 @@ export function Financial() {
         setDateFilter(filter);
         setIsRelative(false);
     }
-    
+
     const [startDate, setStartDate] = useState();
     const [endDate, setEndDate] = useState();
     const [filteredExpenses, setFilteredExpenses] = useState([]);
+    const [filteredIncomes, setFilteredIncomes] = useState([]);
 
     useEffect(() => {
         if(expenses) {
@@ -75,9 +93,20 @@ export function Financial() {
         }
     }, [expenses.list, dateFilter, isRelative]);
 
+    useEffect(() => {
+        if(incomes) {
+            const { list } = FinancialService.filterExpenses({
+                expenses: incomes.list,
+                isRelative: isRelative,
+                dateFilter: dateFilter
+            });
+            setFilteredIncomes(list);
+        }
+    }, [incomes.list, dateFilter, isRelative]);
+
     return (
         <Main>
-            {isLoading ? <SpinLoader /> : 
+            {isLoading ? <SpinLoader /> :
                 <div className={`
                     flex flex-col gap-2 w-full
                     h-screen max-h-screen overflow-hidden
@@ -94,17 +123,21 @@ export function Financial() {
                     </PageHeader>
                     <div className={`
                         flex gap-4 pt-1
-                        overflow-hidden 
+                        overflow-hidden
                     `}>
                         <FinancialResumeBox
                             expenses={filteredExpenses}
+                            incomes={filteredIncomes}
                         />
-                        <ExpenseList 
+                        <TransactionList
                             expenses={filteredExpenses}
+                            incomes={filteredIncomes}
                             payees={payees}
+                            sources={sources}
                             categories={categories}
                             tags={tags}
-                            refresh={expenses.refresh}
+                            expensesRefresh={expenses.refresh}
+                            incomesRefresh={incomes.refresh}
                             user={user}
                         />
                     </div>

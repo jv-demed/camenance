@@ -3,32 +3,36 @@ import { DateService } from '@/services/DateService';
 import { MonetaryService } from '@/services/monetaryService';
 import { ICONS } from '@/assets/icons';
 import { TagBox } from '@/components/elements/TagBox';
-import { ExpenseModal } from '@/screens/financial/ExpenseModal';
+import { TransactionModal } from '@/screens/financial/TransactionModal';
 
-export function ExpenseCard({
-    expense,
+export function TransactionCard({
+    record,
     payees,
+    sources,
     categories,
     tags,
     user,
     refresh
 }) {
 
-    const payee = payees.list.find(p => p.id == expense.payeeId);
-    const category = categories.list.find(c => c.id == expense.categoryId);
-    const expenseTags = tags.list
+    const origin = record._isIncome
+        ? sources.list.find(s => s.id == record.sourceId)
+        : payees.list.find(p => p.id == record.payeeId);
+
+    const category = categories.list.find(c => c.id == record.categoryId);
+    const recordTags = tags.list
         .filter(t => t.categoryId == category?.id)
-        .filter(t => expense.tagIds.includes(t.id));
+        .filter(t => record.tagIds.includes(t.id));
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editExpense, setEditExpense] = useState(expense);
+    const [editRecord, setEditRecord] = useState(record);
 
-    useEffect(() => setEditExpense(expense), [expense]);
+    useEffect(() => setEditRecord(record), [record]);
 
     return (
         <div className='relative group'>
             <div className={`
-                absolute inset-0 bg-gradient-to-r from-gray-500/5 to-gray-600/5 rounded-xl 
+                absolute inset-0 bg-gradient-to-r from-gray-500/5 to-gray-600/5 rounded-xl
                 opacity-0 group-hover:opacity-100 transition-opacity duration-300
             `} />
             <div onClick={() => setIsModalOpen(true)}
@@ -39,34 +43,34 @@ export function ExpenseCard({
                 `}
             >
                 <div className='flex justify-between gap-4 text-[16px]'>
-                    <h3>{expense.title}</h3>
-                    <span className={expense.isEntry ? 'text-green-500' : 'text-[tomato]'}>
-                        {MonetaryService.floatToBr(expense.amount)}
+                    <h3>{record.title}</h3>
+                    <span className={record._isIncome ? 'text-green-500' : 'text-[tomato]'}>
+                        {MonetaryService.floatToBr(record.amount)}
                     </span>
                 </div>
                 <div className={`
                     flex items-center justify-between gap-2
-                    text-sm text-gray-500    
+                    text-sm text-gray-500
                 `}>
                     <span>
-                        {DateService.sqlDateToBrDate(expense.date)}
+                        {DateService.sqlDateToBrDate(record.date)}
                     </span>
                     <div className='flex items-center gap-0.5'>
-                        <span>{payee.name}</span>
+                        <span>{origin?.name}</span>
                         <ICONS.local />
                     </div>
                 </div>
-                {!expense.isEntry && <div className='flex items-center gap-1 mt-2'>
-                    <TagBox 
+                {category && <div className='flex items-center gap-1 mt-2'>
+                    <TagBox
                         tag={category}
                         fontSize='0.75rem'
                         paddingHorizontal='12px'
                         paddingVertical='4px'
                     />
                     <ul className='flex gap-1'>
-                        {expenseTags.map(tag => (
+                        {recordTags.map(tag => (
                             <li key={tag.id} className='flex'>
-                                <TagBox 
+                                <TagBox
                                     tag={tag}
                                     fontSize='0.6rem'
                                     paddingHorizontal='8px'
@@ -77,17 +81,19 @@ export function ExpenseCard({
                     </ul>
                 </div>}
                 <div className={
-                    `absolute top-0 right-0 w-20 h-20 
+                    `absolute top-0 right-0 w-20 h-20
                     bg-white/5 rounded-full filter blur-xl -mr-10 -mt-10
                 `} />
             </div>
-            <ExpenseModal title={expense.title}
+            <TransactionModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                expense={editExpense}
-                setExpense={setEditExpense}
-                expensesRefresh={refresh}
+                record={editRecord}
+                setRecord={setEditRecord}
+                expensesRefresh={record._isIncome ? undefined : refresh}
+                incomesRefresh={record._isIncome ? refresh : undefined}
                 payees={payees}
+                sources={sources}
                 categories={categories}
                 tags={tags}
                 user={user}

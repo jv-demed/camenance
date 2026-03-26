@@ -1,23 +1,24 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
-import { expenseTagRepository } from '@/repositories/ExpenseTagRepository';
-import { expenseCategoryRepository } from '@/repositories/ExpenseCategoryRepository';
+import { financialTagRepository } from '@/repositories/FinancialTagRepository';
+import { financialCategoryRepository } from '@/repositories/FinancialCategoryRepository';
 import { AlertService } from '@/services/alertService';
 import { ICONS } from '@/assets/icons';
-import { ExpenseTagModel } from '@/models/ExpenseTagModel';
-import { ExpenseCategoryModel } from '@/models/ExpenseCategoryModel';
+import { FinancialTagModel } from '@/models/FinancialTagModel';
+import { FinancialCategoryModel } from '@/models/FinancialCategoryModel';
 import { TextInput } from '@/components/inputs/TextInput';
 import { ColorInput } from '@/components/inputs/ColorInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { DropdownInput } from '@/components/inputs/DropdownInput';
 import { DropdownMultiInput } from '@/components/inputs/DropdownMultiInput';
 
-export function ExpenseCategorySection({
-    expense,
-    setExpense,
+export function TransactionCategorySection({
+    record,
+    setRecord,
     categories,
-    tags
+    tags,
+    type
 }) {
 
     const { user } = useUser();
@@ -35,12 +36,13 @@ export function ExpenseCategorySection({
             AlertService.error('A categoria precisa de um nome.');
             return;
         }
-        const category = new ExpenseCategoryModel({
+        const category = new FinancialCategoryModel({
             ...newCategory,
             color: parseInt(newCategory.color.replace('#', ''), 16),
-            userId: user.id
+            userId: user.id,
+            type: type
         });
-        await expenseCategoryRepository.insert(category);
+        await financialCategoryRepository.insert(category);
         AlertService.fastSuccess();
         categories.refresh();
         setCategoryMode(false);
@@ -50,27 +52,27 @@ export function ExpenseCategorySection({
     const objTag = {
         title: '',
         color: '#3b82f6',
-        categoryId: expense.categoryId
+        categoryId: record.categoryId
     }
 
     const [tagMode, setTagMode] = useState(false);
     const [newTag, setNewTag] = useState(objTag);
 
     useEffect(() => {
-        setNewTag(prev => ({ ...prev, categoryId: expense.categoryId }));
-    }, [expense.categoryId]);
+        setNewTag(prev => ({ ...prev, categoryId: record.categoryId }));
+    }, [record.categoryId]);
 
     async function handleNewTag() {
         if(!newTag.title.trim()) {
             AlertService.error('A tag precisa de um nome.');
             return;
         }
-        const tag = new ExpenseTagModel({
+        const tag = new FinancialTagModel({
             ...newTag,
             color: parseInt(newTag.color.replace('#', ''), 16),
             userId: user.id
         });
-        await expenseTagRepository.insert(tag);
+        await financialTagRepository.insert(tag);
         AlertService.fastSuccess();
         tags.refresh();
         setTagMode(false);
@@ -84,10 +86,10 @@ export function ExpenseCategorySection({
                     <div className='flex gap-1'>
                         <DropdownInput
                             placeholder='Categoria'
-                            items={categories.list}
+                            items={categories.list.filter(c => c.type === type)}
                             displayField='title'
-                            value={expense.categoryId}
-                            setValue={e => setExpense({ ...expense, categoryId: e })}
+                            value={record.categoryId}
+                            setValue={e => setRecord({ ...record, categoryId: e })}
                         />
                         <DefaultBtn
                             icon={ICONS.add}
@@ -98,16 +100,16 @@ export function ExpenseCategorySection({
                     <div className='flex gap-1'>
                         <DropdownMultiInput
                             placeholder='Tags'
-                            items={tags.list.filter(t => t.categoryId == expense.categoryId)}
+                            items={tags.list.filter(t => t.categoryId == record.categoryId)}
                             displayField='title'
-                            values={expense.tagIds}
-                            setValues={e => setExpense({ ...expense, tagIds: e })}
+                            values={record.tagIds}
+                            setValues={e => setRecord({ ...record, tagIds: e })}
                         />
                         <DefaultBtn
                             icon={ICONS.add}
                             width='50px'
                             onClick={() => setTagMode(true)}
-                            disabled={!expense.categoryId}
+                            disabled={!record.categoryId}
                         />
                     </div>
                 </div> :

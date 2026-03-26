@@ -1,6 +1,6 @@
 import { BaseModel } from '@/models/BaseModel';
 
-export class ExpenseTagModel extends BaseModel {
+export class FinancialTagModel extends BaseModel {
 
     static fields = {
         id: 'id',

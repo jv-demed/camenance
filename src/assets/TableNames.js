@@ -1,6 +1,8 @@
 export const TableNames = Object.freeze({
-    EXPENSE_CATEGORIES: 'camenance_expense_categories',
-    EXPENSE_TAGS: 'camenance_expense_tags',
     EXPENSES: 'camenance_expenses',
+    FINANCIAL_CATEGORIES: 'camenance_financial_categories',
+    FINANCIAL_TAGS: 'camenance_financial_tags',
+    INCOMES: 'camenance_incomes',
+    SOURCES: 'camenance_sources',
     PAYEES: 'camenance_payees'
 });

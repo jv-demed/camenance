@@ -4,56 +4,65 @@ import { DateService } from '@/services/DateService';
 import { ICONS } from '@/assets/icons';
 import { TextInput } from '@/components/inputs/TextInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
-import { ExpenseCard } from '@/screens/financial/ExpenseCard';
-import { ExpenseModal } from '@/screens/financial/ExpenseModal';
+import { TransactionCard } from '@/screens/financial/TransactionCard';
+import { TransactionModal } from '@/screens/financial/TransactionModal';
 
-export function ExpenseList({
+export function TransactionList({
     expenses,
+    incomes,
     payees,
+    sources,
     categories,
     tags,
-    refresh,
+    expensesRefresh,
+    incomesRefresh,
     user
 }) {
 
-    const [copyList, setCopyList] = useState(expenses);
+    const mergedList = [
+        ...expenses.map(e => ({ ...e, _isIncome: false })),
+        ...incomes.map(i => ({ ...i, _isIncome: true }))
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const [copyList, setCopyList] = useState(mergedList);
     useEffect(() => {
-        setCopyList(expenses);
-    }, [expenses]);
+        setCopyList(mergedList);
+    }, [expenses, incomes]);
 
     const [search, setSearch] = useState('');
     useEffect(() => {
-        const filteredList = expenses.filter(e =>
+        const filteredList = mergedList.filter(e =>
             e.title.toLowerCase().includes(search.toLowerCase())
         );
         setCopyList(filteredList);
-    }, [search, expenses]);
+    }, [search, expenses, incomes]);
 
-    const expenseObj = {
+    const recordObj = {
         amount: 0,
         date: DateService.dateToSqlDate(new Date()),
         description: '',
         categoryId: null,
         tagIds: [],
         payeeId: null,
+        sourceId: null,
         title: ''
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [newExpense, setNewExpense] = useState(expenseObj);
+    const [newRecord, setNewRecord] = useState(recordObj);
 
     return (
         <div className={`
-            flex flex-col gap-2 
+            flex flex-col gap-2
             w-[500px]
         `}>
             <div className='flex gap-1'>
-                <TextInput 
+                <TextInput
                     placeholder='Buscar...'
                     value={search}
                     setValue={setSearch}
                 />
-                <DefaultBtn 
+                <DefaultBtn
                     width='50px'
                     icon={ICONS.add}
                     onClick={() => setIsModalOpen(true)}
@@ -70,27 +79,39 @@ export function ExpenseList({
                 [&::-webkit-scrollbar-thumb:hover]:bg-gray-400/80
             `}
             >
-                {copyList.map(expense => (
-                    <li key={expense.id}>
-                        <ExpenseCard
-                            expense={expense}
+                {copyList.length === 0 ? (
+                    <li className='flex flex-col items-center gap-2 py-8 text-gray-400'>
+                        <ICONS.finances size={36} />
+                        <span className='text-sm'>
+                            {search
+                                ? 'Nenhuma movimentação encontrada'
+                                : 'Nenhuma movimentação cadastrada'
+                            }
+                        </span>
+                    </li>
+                ) : copyList.map(record => (
+                    <li key={`${record._isIncome ? 'income' : 'expense'}-${record.id}`}>
+                        <TransactionCard
+                            record={record}
                             payees={payees}
+                            sources={sources}
                             categories={categories}
                             tags={tags}
                             user={user}
-                            refresh={refresh}
+                            refresh={record._isIncome ? incomesRefresh : expensesRefresh}
                         />
                     </li>
                 ))}
             </ul>
-            <ExpenseModal
+            <TransactionModal
                 isOpen={isModalOpen}
-                title='Novo Gasto'
-                onClose={() => { setIsModalOpen(false); setNewExpense(expenseObj); }}
-                expense={newExpense}
-                setExpense={setNewExpense}
-                expensesRefresh={refresh}
+                onClose={() => { setIsModalOpen(false); setNewRecord(recordObj); }}
+                record={newRecord}
+                setRecord={setNewRecord}
+                expensesRefresh={expensesRefresh}
+                incomesRefresh={incomesRefresh}
                 payees={payees}
+                sources={sources}
                 categories={categories}
                 tags={tags}
                 user={user}

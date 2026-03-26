@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 export function useDataList({
     repository,
     filters,
+    order,
     delay
 }) {
 
@@ -20,7 +21,7 @@ export function useDataList({
         const fetchData = async () => {
             setLoading(true);
             try {
-                const data = await repository.findAll(filters);
+                const data = await repository.findAll(filters, order);
                 setList(data);
             } catch(err) {
                 console.log(err.message);
