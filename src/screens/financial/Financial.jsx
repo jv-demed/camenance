@@ -16,7 +16,6 @@ import { SelectMiniInput } from '@/components/inputs/SelectMiniInput';
 import { ExpensesResumeBox } from '@/presentation/expenses/ExpensesResumeBox';
 import { ICONS } from '@/assets/icons';
 import { PageHeader } from '@/components/elements/PageHeader';
-import { TableNames } from '@/assets/TableNames';
 import { FinancialService } from '@/services/FinancialService';
 
 export function Financial() {  
@@ -43,7 +42,7 @@ export function Financial() {
     const tags = useDataList({
         repository: expenseTagRepository,
         order: 'title',
-        filter: { userId: user.id }
+        filters: { userId: user.id }
     });
     
     const [isLoading, setIsLoading] = useState(true);
@@ -91,12 +90,12 @@ export function Financial() {
                             {dateFilter.id != 6 && <>
                                 <div className='flex items-center gap-1 text-xs border border-border rounded-2xl p-2'>
                                     <span>
-                                        {DateService.dateToDefaultBr(startDate)}
+                                        {DateService.dateToBrDate(startDate)}
                                     </span>
                                     {dateFilter.id != 0 && <>
                                         <ICONS.chevronRight />
                                         <span>
-                                            {DateService.dateToDefaultBr(endDate)}
+                                            {DateService.dateToBrDate(endDate)}
                                         </span>
                                     </>}
                                 </div>

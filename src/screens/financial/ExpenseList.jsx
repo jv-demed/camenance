@@ -29,20 +29,18 @@ export function ExpenseList({
         setCopyList(filteredList);
     }, [search, expenses]);
 
-    // const expenseObj = {
-    //     amount: 0,
-    //     date: DateService.dateToSupabase(new Date()),
-    //     description: '',
-    //     idCategory: null,
-    //     idOrigin: null,
-    //     idTags: [],
-    //     idType: 0,
-    //     isEntry: false,
-    //     title: ''
-    // };
+    const expenseObj = {
+        amount: 0,
+        date: DateService.dateToSqlDate(new Date()),
+        description: '',
+        categoryId: null,
+        tagIds: [],
+        payeeId: null,
+        title: ''
+    };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // const [newExpense, setNewExpense] = useState(expenseObj);
+    const [newExpense, setNewExpense] = useState(expenseObj);
 
     return (
         <div className={`
@@ -74,28 +72,29 @@ export function ExpenseList({
             >
                 {copyList.map(expense => (
                     <li key={expense.id}>
-                        <ExpenseCard 
-                            expense={expense} 
-                            // place={payees.list.find(p => p.id == expense.idRecipient)}
+                        <ExpenseCard
+                            expense={expense}
                             payees={payees}
                             categories={categories}
                             tags={tags}
                             user={user}
+                            refresh={refresh}
                         />
                     </li>
                 ))}
             </ul>
-            {/* {isModalOpen && <ExpenseModal
-                title={`Nova ${newExpense.isEntry ? 'entrada' : 'saída'}`}
-                onClose={() => setIsModalOpen(false)}
+            <ExpenseModal
+                isOpen={isModalOpen}
+                title='Novo Gasto'
+                onClose={() => { setIsModalOpen(false); setNewExpense(expenseObj); }}
                 expense={newExpense}
-                expenseObj={expenseObj}
                 setExpense={setNewExpense}
                 expensesRefresh={refresh}
-                origins={origins}
+                payees={payees}
                 categories={categories}
                 tags={tags}
-            />} */}
+                user={user}
+            />
         </div>
     );
 }

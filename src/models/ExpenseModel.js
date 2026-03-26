@@ -12,7 +12,8 @@ export class ExpenseModel extends BaseModel {
         amount: 'amount',
         payeeId: 'payee_id',
         categoryId: 'category_id',
-        tagIds: 'tag_ids'
+        tagIds: 'tag_ids',
+        date: 'date'
     };
 
 }

@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DateService } from '@/services/DateService';
 import { MonetaryService } from '@/services/monetaryService';
 import { ICONS } from '@/assets/icons';
 import { TagBox } from '@/components/elements/TagBox';
 import { ExpenseModal } from '@/screens/financial/ExpenseModal';
 
-export function ExpenseCard({ 
+export function ExpenseCard({
     expense,
     payees,
     categories,
     tags,
-    user
+    user,
+    refresh
 }) {
 
     const payee = payees.list.find(p => p.id == expense.payeeId);
@@ -21,6 +22,8 @@ export function ExpenseCard({
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editExpense, setEditExpense] = useState(expense);
+
+    useEffect(() => setEditExpense(expense), [expense]);
 
     return (
         <div className='relative group'>
@@ -46,7 +49,7 @@ export function ExpenseCard({
                     text-sm text-gray-500    
                 `}>
                     <span>
-                        {DateService.timestamptzToStringWithMonth(expense.createdAt)}
+                        {DateService.sqlDateToBrDate(expense.date)}
                     </span>
                     <div className='flex items-center gap-0.5'>
                         <span>{payee.name}</span>
@@ -83,6 +86,7 @@ export function ExpenseCard({
                 onClose={() => setIsModalOpen(false)}
                 expense={editExpense}
                 setExpense={setEditExpense}
+                expensesRefresh={refresh}
                 payees={payees}
                 categories={categories}
                 tags={tags}

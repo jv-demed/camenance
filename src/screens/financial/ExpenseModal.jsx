@@ -2,7 +2,6 @@
 import { payeeRepository } from '@/repositories/PayeeRepository';
 import { expenseRepository } from '@/repositories/ExpenseRepository';
 import { ICONS } from '@/assets/icons';
-import { DateService } from '@/services/DateService';
 import { AlertService } from '@/services/alertService';
 import { PayeeModel } from '@/models/PayeeModel';
 import { ExpenseModel } from '@/models/ExpenseModel';
@@ -22,7 +21,6 @@ export function ExpenseModal({
     title,
     onClose,
     expense,
-    expenseObj,
     setExpense,
     expensesRefresh,
     payees,
@@ -45,25 +43,20 @@ export function ExpenseModal({
     async function handleNewExpense() {
         const model = new ExpenseModel({
             ...expense,
-            userId: user.id,
-            createdAt: DateService.dateToTimestamptz(expense.createdAt)
+            userId: user.id
         });
         try {
             await expenseRepository.insert(model);
             AlertService.fastSuccess();
             expensesRefresh?.();
             onClose();
-            setExpense?.(expenseObj);
         } catch(e) {
             AlertService.error(e.message);
         }
     }
 
     async function handleUpdateExpense() {
-        const model = new ExpenseModel({
-            ...expense,
-            createdAt: DateService.dateToTimestamptz(expense.createdAt)
-        });
+        const model = new ExpenseModel({ ...expense });
         try {
             await expenseRepository.update(expense.id, model);
             AlertService.fastSuccess();
@@ -85,8 +78,8 @@ export function ExpenseModal({
                         setValue={e => setExpense({ ...expense, title: e })}
                     />
                     <DateInput
-                        value={DateService.timestamptzToDate(expense.createdAt)}
-                        setValue={e => setExpense({ ...expense, createdAt: e })}
+                        value={expense.date}
+                        setValue={e => setExpense({ ...expense, date: e })}
                     />
                 </div>
                 <TextAreaInput placeholder='Descrição'
