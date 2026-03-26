@@ -18,7 +18,7 @@ export class DateService {
 
     static timestamptzToSqlDate(timestamptz) {
         return new Date(timestamptz).toISOString().split('T')[0];
-    }
+    }  
 
     static timestamptzToBrWithMonth(timestamptz) {
         return new Date(timestamptz).toLocaleDateString('pt-BR', {
