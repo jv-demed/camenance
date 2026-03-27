@@ -14,6 +14,20 @@ export class AlertService {
         });
     }
     
+    static async confirm(text) {
+        const result = await Swal.fire({
+            confirmButtonColor: 'tomato',
+            confirmButtonText: 'Excluir',
+            cancelButtonText: 'Cancelar',
+            icon: 'warning',
+            iconColor: 'tomato',
+            showCancelButton: true,
+            text: text,
+            title: 'Tem certeza?'
+        });
+        return result.isConfirmed;
+    }
+
     static error(text){
         Swal.fire({
             confirmButtonColor: 'tomato',

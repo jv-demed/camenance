@@ -38,7 +38,9 @@ export function TransactionModal({
 
     if(!isOpen) return null;
 
-    const [categoryType, setCategoryType] = useState(FINANCIAL_CATEGORY_TYPES.EXPENSE);
+    const [categoryType, setCategoryType] = useState(
+        record._isIncome ? FINANCIAL_CATEGORY_TYPES.INCOME : FINANCIAL_CATEGORY_TYPES.EXPENSE
+    );
 
     const isIncome = categoryType === FINANCIAL_CATEGORY_TYPES.INCOME;
 
@@ -63,6 +65,24 @@ export function TransactionModal({
             } else {
                 const model = new ExpenseModel({ ...record, userId: user.id });
                 await expenseRepository.insert(model);
+                expensesRefresh?.();
+            }
+            AlertService.fastSuccess();
+            onClose();
+        } catch(e) {
+            AlertService.error(e.message);
+        }
+    }
+
+    async function handleDelete() {
+        const confirmed = await AlertService.confirm('Esta ação não pode ser desfeita.');
+        if (!confirmed) return;
+        try {
+            if (isIncome) {
+                await incomeRepository.delete(record.id);
+                incomesRefresh?.();
+            } else {
+                await expenseRepository.delete(record.id);
                 expensesRefresh?.();
             }
             AlertService.fastSuccess();
@@ -109,6 +129,7 @@ export function TransactionModal({
                             options={FINANCIAL_CATEGORY_TYPES_OPTIONS}
                             value={categoryType}
                             setValue={setCategoryType}
+                            disabled={!!record.id}
                         />
                         <div className='flex gap-1 w-full'>
                             <TextInput placeholder='Título'
@@ -154,12 +175,20 @@ export function TransactionModal({
                         />
                         <ActionsSection>
                             {record.id ? (
-                                <DefaultBtn
-                                    text='Salvar'
-                                    icon={ICONS.check}
-                                    width='110px'
-                                    onClick={handleUpdate}
-                                />
+                                <>
+                                    <DefaultBtn
+                                        icon={ICONS.trash}
+                                        width='50px'
+                                        bg='bg-error'
+                                        onClick={handleDelete}
+                                    />
+                                    <DefaultBtn
+                                        text='Salvar'
+                                        icon={ICONS.check}
+                                        width='110px'
+                                        onClick={handleUpdate}
+                                    />
+                                </>
                             ) : (
                                 <DefaultBtn
                                     text={isIncome ? 'Criar ganho' : 'Criar gasto'}

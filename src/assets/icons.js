@@ -8,6 +8,7 @@ import {
     FiLogIn,
     FiLogOut,
     FiSearch,
+    FiTrash2,
 } from 'react-icons/fi';
 import { 
     IoMenu,
@@ -39,5 +40,6 @@ export const ICONS = {
     logout: FiLogOut,
     menuHamburger: IoMenu,
     settings: LuSettings,
-    spinLoader: AiOutlineLoading3Quarters
+    spinLoader: AiOutlineLoading3Quarters,
+    trash: FiTrash2,
 }

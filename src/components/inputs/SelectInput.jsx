@@ -7,6 +7,7 @@ export function SelectInput({
     setValue,
     placeholder = 'Selecione...',
     isVisible = true,
+    disabled = false,
 }) {
     if (!isVisible) return null;
 
@@ -33,11 +34,11 @@ export function SelectInput({
     return (
         <div ref={ref} className='relative w-full'>
             <button type='button'
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => !disabled && setIsOpen(!isOpen)}
                 className={`
                     p-3 w-full flex items-center justify-between
                     border border-border rounded-xl
-                    hover:ring-1 hover:ring-primary
+                    ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:ring-1 hover:ring-primary'}
                     ${isOpen ? 'ring-1 ring-primary outline-0' : 'outline-0'}
                 `}
             >
