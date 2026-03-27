@@ -18,7 +18,7 @@ const TYPE_FILTER_OPTIONS = ['Todas', ...Object.values(FINANCIAL_CATEGORY_TYPES_
 export function CategoriesSection({ categories, user }) {
 
     const [newTitle, setNewTitle] = useState('');
-    const [newColor, setNewColor] = useState('6366f1');
+    const [newColor, setNewColor] = useState('#6366f1');
     const [newType, setNewType] = useState(FINANCIAL_CATEGORY_TYPES.EXPENSE);
     const [search, setSearch] = useState('');
     const [typeFilter, setTypeFilter] = useState('Todas');
@@ -77,7 +77,7 @@ export function CategoriesSection({ categories, user }) {
     return (
         <div className='flex flex-col gap-4'>
             <div className='flex items-center gap-2'>
-                <ColorInput value={ColorService.numberToHex(newColor)} setValue={v => setNewColor(v.replace('#', ''))} width='46px' />
+                <ColorInput value={newColor} setValue={setNewColor} width='46px' />
                 <div className='flex-1'>
                     <TextInput placeholder='Nova categoria' value={newTitle} setValue={setNewTitle} />
                 </div>
@@ -100,7 +100,7 @@ export function CategoriesSection({ categories, user }) {
                         {editingId === category.id ? (
                             <>
                                 <div className='flex items-center gap-2 flex-1 mr-2'>
-                                    <ColorInput value={ColorService.numberToHex(editValues.color)} setValue={v => setEditValues(p => ({ ...p, color: v.replace('#', '') }))} width='36px' />
+                                    <ColorInput value={editValues.color} setValue={v => setEditValues(p => ({ ...p, color: v }))} width='36px' />
                                     <div className='flex-1'>
                                         <TextInput value={editValues.title} setValue={v => setEditValues(p => ({ ...p, title: v }))} />
                                     </div>
@@ -119,7 +119,7 @@ export function CategoriesSection({ categories, user }) {
                                     <span
                                         className='text-sm font-medium px-3 py-0.5 rounded-full'
                                         style={{
-                                            backgroundColor: ColorService.numberToHex(category.color),
+                                            backgroundColor: category.color,
                                             color: ColorService.getContrastColor(category.color)
                                         }}
                                     >

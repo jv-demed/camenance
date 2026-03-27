@@ -45,14 +45,8 @@ export function DropdownInput({
         color: item.color,
     }));
 
-    function toColorCss(color) {
-        if(!color && color !== 0) return null;
-        if(typeof color === 'number') return `#${color.toString(16).padStart(6, '0')}`;
-        return color;
-    }
-
     function formatOptionLabel({ label, color }) {
-        const colorCss = toColorCss(color);
+        const colorCss = color ?? null;
         return (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {colorCss && <span

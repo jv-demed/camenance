@@ -16,6 +16,7 @@ import { TransactionList } from '@/screens/financial/TransactionList';
 import { FinancialFilters } from '@/screens/financial/FinancialFilters';
 import { FinancialResumeBox } from '@/screens/financial/FinancialResumeBox';
 import { FinancialSettingsModal } from '@/screens/financial/FinancialSettingsModal';
+import { FinancialDashboard } from '@/screens/financial/FinancialDashboard';
 import { IconBtn } from '@/components/buttons/IconBtn';
 import { ICONS } from '@/assets/icons';
 
@@ -133,10 +134,20 @@ export function Financial() {
                         flex gap-4 pt-1
                         overflow-hidden
                     `}>
-                        <FinancialResumeBox
-                            expenses={filteredExpenses}
-                            incomes={filteredIncomes}
-                        />
+                        <div className="flex flex-col gap-3 flex-1 min-w-0 overflow-hidden">
+                            <FinancialResumeBox
+                                expenses={filteredExpenses}
+                                incomes={filteredIncomes}
+                            />
+                            <FinancialDashboard
+                                expenses={filteredExpenses}
+                                incomes={filteredIncomes}
+                                categories={categories}
+                                payees={payees}
+                                sources={sources}
+                                dateFilter={dateFilter}
+                            />
+                        </div>
                         <TransactionList
                             expenses={filteredExpenses}
                             incomes={filteredIncomes}

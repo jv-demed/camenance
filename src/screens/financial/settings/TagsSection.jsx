@@ -15,7 +15,7 @@ import { SearchBar } from '@/components/inputs/SearchBar';
 export function TagsSection({ tags, categories, user }) {
 
     const [newTitle, setNewTitle] = useState('');
-    const [newColor, setNewColor] = useState('6366f1');
+    const [newColor, setNewColor] = useState('#6366f1');
     const [newCategoryId, setNewCategoryId] = useState('');
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('Todas');
@@ -77,7 +77,7 @@ export function TagsSection({ tags, categories, user }) {
     return (
         <div className='flex flex-col gap-4'>
             <div className='flex items-center gap-2'>
-                <ColorInput value={ColorService.numberToHex(newColor)} setValue={v => setNewColor(v.replace('#', ''))} width='46px' />
+                <ColorInput value={newColor} setValue={setNewColor} width='46px' />
                 <div className='flex-1'>
                     <TextInput placeholder='Nova tag' value={newTitle} setValue={setNewTitle} />
                 </div>
@@ -102,7 +102,7 @@ export function TagsSection({ tags, categories, user }) {
                             {editingId === tag.id ? (
                                 <>
                                     <div className='flex items-center gap-2 flex-1 mr-2'>
-                                        <ColorInput value={ColorService.numberToHex(editValues.color)} setValue={v => setEditValues(p => ({ ...p, color: v.replace('#', '') }))} width='36px' />
+                                        <ColorInput value={editValues.color} setValue={v => setEditValues(p => ({ ...p, color: v }))} width='36px' />
                                         <div className='flex-1'>
                                             <TextInput value={editValues.title} setValue={v => setEditValues(p => ({ ...p, title: v }))} />
                                         </div>
@@ -121,7 +121,7 @@ export function TagsSection({ tags, categories, user }) {
                                         <span
                                             className='text-sm font-medium px-3 py-0.5 rounded-full'
                                             style={{
-                                                backgroundColor: ColorService.numberToHex(tag.color),
+                                                backgroundColor: tag.color,
                                                 color: ColorService.getContrastColor(tag.color)
                                             }}
                                         >

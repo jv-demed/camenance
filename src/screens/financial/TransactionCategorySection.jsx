@@ -38,7 +38,6 @@ export function TransactionCategorySection({
         }
         const category = new FinancialCategoryModel({
             ...newCategory,
-            color: parseInt(newCategory.color.replace('#', ''), 16),
             userId: user.id,
             type: type
         });
@@ -69,7 +68,6 @@ export function TransactionCategorySection({
         }
         const tag = new FinancialTagModel({
             ...newTag,
-            color: parseInt(newTag.color.replace('#', ''), 16),
             userId: user.id
         });
         await financialTagRepository.insert(tag);

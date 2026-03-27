@@ -1,15 +1,15 @@
 import { ColorService } from '@/services/ColorService';
 
-export function TagBox({ 
+export function TagBox({
     tag,
     fontSize,
     paddingHorizontal,
     paddingVertical
 }) {
     return (
-        <span 
+        <span
             style={{
-                backgroundColor: ColorService.numberToHex(tag.color),
+                backgroundColor: tag.color,
                 color: ColorService.getContrastColor(tag.color),
                 fontSize: fontSize,
                 paddingTop: paddingVertical,
