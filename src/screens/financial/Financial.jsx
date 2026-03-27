@@ -154,6 +154,11 @@ export function Financial() {
             <FinancialSettingsModal
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
+                categories={categories}
+                tags={tags}
+                payees={payees}
+                sources={sources}
+                user={user}
             />
         </Main>
     );

@@ -3,9 +3,10 @@ import { PiPiggyBankBold } from 'react-icons/pi';
 import { MdOutlineFmdGood } from 'react-icons/md';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
-import { 
+import {
+    FiEdit2,
     FiLogIn,
-    FiLogOut 
+    FiLogOut
 } from 'react-icons/fi';
 import { 
     IoMenu,
@@ -22,6 +23,7 @@ import {
 
 export const ICONS = {
     add: BiMessageSquareAdd,
+    edit: FiEdit2,
     arrowLeft: FaCircleArrowLeft,
     arrowRight: FaCircleArrowRight,
     check: FaCheck,
