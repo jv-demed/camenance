@@ -6,7 +6,8 @@ import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import {
     FiEdit2,
     FiLogIn,
-    FiLogOut
+    FiLogOut,
+    FiSearch,
 } from 'react-icons/fi';
 import { 
     IoMenu,
@@ -24,6 +25,7 @@ import {
 export const ICONS = {
     add: BiMessageSquareAdd,
     edit: FiEdit2,
+    search: FiSearch,
     arrowLeft: FaCircleArrowLeft,
     arrowRight: FaCircleArrowRight,
     check: FaCheck,
