@@ -15,6 +15,9 @@ import { SpinLoader } from '@/components/elements/SpinLoader';
 import { TransactionList } from '@/screens/financial/TransactionList';
 import { FinancialFilters } from '@/screens/financial/FinancialFilters';
 import { FinancialResumeBox } from '@/screens/financial/FinancialResumeBox';
+import { FinancialSettingsModal } from '@/screens/financial/FinancialSettingsModal';
+import { IconBtn } from '@/components/buttons/IconBtn';
+import { ICONS } from '@/assets/icons';
 
 export function Financial() {
 
@@ -66,6 +69,8 @@ export function Financial() {
         !tags.loading &&
         setIsLoading(false);
     }, [expenses, incomes, payees, sources, categories, tags]);
+
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const [isRelative, setIsRelative] = useState(false);
     const [dateFilter, setDateFilter] = useState(DATE_FILTER.MONTHLY);
@@ -120,6 +125,9 @@ export function Financial() {
                             startDate={startDate}
                             endDate={endDate}
                         />
+                        <IconBtn icon={ICONS.settings}
+                            onClick={() => setIsSettingsOpen(true)}
+                        />
                     </PageHeader>
                     <div className={`
                         flex gap-4 pt-1
@@ -143,6 +151,10 @@ export function Financial() {
                     </div>
                 </div>
             }
+            <FinancialSettingsModal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+            />
         </Main>
     );
 }
