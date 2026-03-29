@@ -11,6 +11,8 @@ export function DropdownInput({
 }) {
 
     const customStyles = {
+        menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+        menu: (base) => ({ ...base, borderRadius: '12px', overflow: 'hidden' }),
         control: (base, state) => ({
             ...base,
             border: '1px solid #d1d5dc',
@@ -73,6 +75,8 @@ export function DropdownInput({
                 onChange={option => setValue && setValue(option?.value ?? null)}
                 formatOptionLabel={formatOptionLabel}
                 styles={customStyles}
+                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                menuPosition='fixed'
             />
         </div>
     );

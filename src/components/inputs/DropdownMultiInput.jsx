@@ -44,6 +44,8 @@ export function DropdownMultiInput({
     };
 
     const customStyles = {
+        menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+        menu: (base) => ({ ...base, borderRadius: '12px', overflow: 'hidden' }),
         control: (base, state) => ({
             ...base,
             border: '1px solid #d1d5dc',
@@ -86,6 +88,8 @@ export function DropdownMultiInput({
                 }
                 styles={customStyles}
                 components={{ MultiValue: CustomMultiValue }}
+                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                menuPosition='fixed'
             />
         </div>
     );
