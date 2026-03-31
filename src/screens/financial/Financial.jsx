@@ -7,6 +7,8 @@ import { expenseRepository } from '@/repositories/ExpenseRepository';
 import { incomeRepository } from '@/repositories/IncomeRepository';
 import { financialTagRepository } from '@/repositories/FinancialTagRepository';
 import { financialCategoryRepository } from '@/repositories/FinancialCategoryRepository';
+import { creditCardRepository } from '@/repositories/CreditCardRepository';
+import { installmentPurchaseRepository } from '@/repositories/InstallmentPurchaseRepository';
 import { DATE_FILTER } from '@/enums/DateFilters';
 import { FinancialService } from '@/services/FinancialService';
 import { Main } from '@/components/containers/Main';
@@ -17,6 +19,7 @@ import { FinancialFilters } from '@/screens/financial/FinancialFilters';
 import { FinancialResumeBox } from '@/screens/financial/FinancialResumeBox';
 import { FinancialSettingsModal } from '@/screens/financial/FinancialSettingsModal';
 import { FinancialDashboard } from '@/screens/financial/FinancialDashboard';
+import { PendingInstallmentsList } from '@/screens/financial/PendingInstallmentsList';
 import { IconBtn } from '@/components/buttons/IconBtn';
 import { ICONS } from '@/assets/icons';
 
@@ -60,6 +63,18 @@ export function Financial() {
         filters: { userId: user.id }
     });
 
+    const creditCards = useDataList({
+        repository: creditCardRepository,
+        order: { column: 'name', ascending: true },
+        filters: { userId: user.id }
+    });
+
+    const installmentPurchases = useDataList({
+        repository: installmentPurchaseRepository,
+        order: { column: 'start_date', ascending: false },
+        filters: { userId: user.id }
+    });
+
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         !expenses.loading &&
@@ -68,10 +83,13 @@ export function Financial() {
         !sources.loading &&
         !categories.loading &&
         !tags.loading &&
+        !creditCards.loading &&
+        !installmentPurchases.loading &&
         setIsLoading(false);
-    }, [expenses, incomes, payees, sources, categories, tags]);
+    }, [expenses, incomes, payees, sources, categories, tags, creditCards, installmentPurchases]);
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('dashboard');
 
     const [isRelative, setIsRelative] = useState(false);
     const [dateFilter, setDateFilter] = useState(DATE_FILTER.MONTHLY);
@@ -139,14 +157,49 @@ export function Financial() {
                                 expenses={filteredExpenses}
                                 incomes={filteredIncomes}
                             />
-                            <FinancialDashboard
-                                expenses={filteredExpenses}
-                                incomes={filteredIncomes}
-                                categories={categories}
-                                payees={payees}
-                                sources={sources}
-                                dateFilter={dateFilter}
-                            />
+                            <div className="flex gap-1 border-b border-white/15 pb-1">
+                                {[
+                                    { key: 'dashboard', label: 'Dashboard' },
+                                    { key: 'installments', label: 'Parcelas Pendentes' },
+                                ].map(tab => (
+                                    <button
+                                        key={tab.key}
+                                        onClick={() => setActiveTab(tab.key)}
+                                        className={`
+                                            px-4 py-1.5 rounded-lg text-sm transition-all duration-200
+                                            ${activeTab === tab.key
+                                                ? 'bg-white text-gray-500 font-semibold'
+                                                : 'text-gray-400 hover:text-white'
+                                            }
+                                        `}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                            {activeTab === 'dashboard' && (
+                                <FinancialDashboard
+                                    expenses={filteredExpenses}
+                                    incomes={filteredIncomes}
+                                    categories={categories}
+                                    payees={payees}
+                                    sources={sources}
+                                    dateFilter={dateFilter}
+                                />
+                            )}
+                            {activeTab === 'installments' && (
+                                <PendingInstallmentsList
+                                    installmentPurchases={installmentPurchases}
+                                    expenses={expenses.list}
+                                    payees={payees}
+                                    categories={categories}
+                                    tags={tags}
+                                    creditCards={creditCards}
+                                    user={user}
+                                    installmentPurchasesRefresh={installmentPurchases.refresh}
+                                    expensesRefresh={expenses.refresh}
+                                />
+                            )}
                         </div>
                         <TransactionList
                             expenses={filteredExpenses}
@@ -155,6 +208,7 @@ export function Financial() {
                             sources={sources}
                             categories={categories}
                             tags={tags}
+                            creditCards={creditCards}
                             expensesRefresh={expenses.refresh}
                             incomesRefresh={incomes.refresh}
                             user={user}
@@ -169,6 +223,7 @@ export function Financial() {
                 tags={tags}
                 payees={payees}
                 sources={sources}
+                creditCards={creditCards}
                 user={user}
             />
         </Main>

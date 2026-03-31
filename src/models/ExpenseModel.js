@@ -13,7 +13,13 @@ export class ExpenseModel extends BaseModel {
         payeeId: 'payee_id',
         categoryId: 'category_id',
         tagIds: 'tag_ids',
-        date: 'date'
+        date: 'date',
+        paymentType: 'payment_type',
+        creditCardId: 'credit_card_id',
+        installmentGroupId: 'installment_group_id',
+        installmentNumber: 'installment_number',
+        installmentTotal: 'installment_total',
+        dueDate: 'due_date'
     };
 
 }

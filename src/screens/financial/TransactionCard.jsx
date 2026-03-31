@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { DateService } from '@/services/DateService';
 import { MonetaryService } from '@/services/monetaryService';
 import { ICONS } from '@/assets/icons';
+import { PAYMENT_TYPES_LABELS } from '@/enums/PaymentTypes';
 import { TagBox } from '@/components/elements/TagBox';
 import { TransactionModal } from '@/screens/financial/TransactionModal';
 
@@ -11,6 +12,7 @@ export function TransactionCard({
     sources,
     categories,
     tags,
+    creditCards,
     user,
     refresh
 }) {
@@ -42,11 +44,17 @@ export function TransactionCard({
                     hover:border-white/30 hover:scale-[1.02]
                 `}
             >
-                <div className='flex justify-between gap-4 text-[16px]'>
-                    <h3>{record.title}</h3>
-                    <span className={record._isIncome ? 'text-green-500' : 'text-[tomato]'}>
-                        {MonetaryService.floatToBr(record.amount)}
-                    </span>
+                <div className='flex justify-between items-start gap-4 text-[16px]'>
+                    <div className='flex-1 flex flex-col gap-1'>
+                        <div className='flex items-center gap-2'>
+                            <h3>{record.title}</h3>
+                        </div>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                        <span className={record._isIncome ? 'text-green-500' : 'text-[tomato]'}>
+                            {MonetaryService.floatToBr(record.amount)}
+                        </span>
+                    </div>
                 </div>
                 <div className={`
                     flex items-center justify-between gap-2
@@ -54,6 +62,7 @@ export function TransactionCard({
                 `}>
                     <span>
                         {DateService.sqlDateToBrDate(record.date)}
+                        {record.paymentType && ` - ${PAYMENT_TYPES_LABELS[record.paymentType]}`}
                     </span>
                     <div className='flex items-center gap-0.5'>
                         <span>{origin?.name}</span>
@@ -96,6 +105,7 @@ export function TransactionCard({
                 sources={sources}
                 categories={categories}
                 tags={tags}
+                creditCards={creditCards}
                 user={user}
             />
         </div>

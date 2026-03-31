@@ -14,6 +14,7 @@ export function TransactionList({
     sources,
     categories,
     tags,
+    creditCards,
     expensesRefresh,
     incomesRefresh,
     user
@@ -114,6 +115,7 @@ export function TransactionList({
                 sources={sources}
                 categories={categories}
                 tags={tags}
+                creditCards={creditCards}
                 user={user}
             />
         </div>

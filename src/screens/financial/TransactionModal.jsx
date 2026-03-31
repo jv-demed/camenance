@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { payeeRepository } from '@/repositories/PayeeRepository';
 import { sourceRepository } from '@/repositories/SourceRepository';
 import { expenseRepository } from '@/repositories/ExpenseRepository';
@@ -11,6 +11,7 @@ import { SourceModel } from '@/models/SourceModel';
 import { ExpenseModel } from '@/models/ExpenseModel';
 import { IncomeModel } from '@/models/IncomeModel';
 import { FINANCIAL_CATEGORY_TYPES, FINANCIAL_CATEGORY_TYPES_OPTIONS } from '@/enums/FinancialCategoryTypes';
+import { PAYMENT_TYPES, PAYMENT_TYPES_OPTIONS } from '@/enums/PaymentTypes';
 import { Form } from '@/components/containers/Form';
 import { AddInput } from '@/components/inputs/AddInput';
 import { DateInput } from '@/components/inputs/DateInput';
@@ -33,6 +34,7 @@ export function TransactionModal({
     sources,
     categories,
     tags,
+    creditCards,
     user
 }) {
 
@@ -43,6 +45,18 @@ export function TransactionModal({
     );
 
     const isIncome = categoryType === FINANCIAL_CATEGORY_TYPES.INCOME;
+
+    const [paymentType, setPaymentType] = useState(record.paymentType || PAYMENT_TYPES.DEBIT);
+    const [creditCardId, setCreditCardId] = useState(record.creditCardId || null);
+
+    // Opções de cartão de crédito
+    const creditCardOptions = useMemo(() => {
+        return (creditCards?.list || []).map(card => ({
+            value: card.id,
+            label: card.name
+        }));
+    }, [creditCards?.list]);
+
 
     async function handleAddPayee(newPayee) {
         const payee = new PayeeModel({ ...newPayee, userId: user.id });
@@ -63,7 +77,14 @@ export function TransactionModal({
                 await incomeRepository.insert(model);
                 incomesRefresh?.();
             } else {
-                const model = new ExpenseModel({ ...record, userId: user.id });
+                // Lógica para despesas, incluindo crédito parcelado
+                const model = new ExpenseModel({
+                    ...record,
+                    paymentType: paymentType,
+                    creditCardId: paymentType === PAYMENT_TYPES.CREDIT ? creditCardId : null,
+                    installmentTotal: 1,
+                    userId: user.id
+                });
                 await expenseRepository.insert(model);
                 expensesRefresh?.();
             }
@@ -116,21 +137,35 @@ export function TransactionModal({
 
     return (
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
-            <div className='bg-white rounded-xl w-full max-w-md flex flex-col overflow-hidden'>
+            <div className='bg-white rounded-xl w-full max-w-md flex flex-col overflow-hidden max-h-[90vh]'>
                 <header className='flex items-center justify-between px-6 py-4 border-b border-gray-200'>
                     <h2 className='text-lg'>{title}</h2>
                     <span onClick={onClose} className='text-2xl cursor-pointer text-gray-500 hover:text-gray-800'>
                         <ICONS.close />
                     </span>
                 </header>
-                <div className='px-6 py-4'>
+                <div className='px-6 py-4 overflow-y-auto'>
                     <Form>
-                        <SelectInput
-                            options={FINANCIAL_CATEGORY_TYPES_OPTIONS}
-                            value={categoryType}
-                            setValue={setCategoryType}
-                            disabled={!!record.id}
-                        />
+                        <div className='flex gap-1 w-full'>
+                            <div className='flex-1'>
+                                <SelectInput
+                                    options={FINANCIAL_CATEGORY_TYPES_OPTIONS}
+                                    value={categoryType}
+                                    setValue={setCategoryType}
+                                    disabled={!!record.id}
+                                />
+                            </div>
+                            {!isIncome && (
+                                <div className='flex-1'>
+                                    <SelectInput
+                                        options={PAYMENT_TYPES_OPTIONS}
+                                        value={paymentType}
+                                        setValue={setPaymentType}
+                                        disabled={!!record.id}
+                                    />
+                                </div>
+                            )}
+                        </div>
                         <div className='flex gap-1 w-full'>
                             <TextInput placeholder='Título'
                                 value={record.title}
@@ -166,6 +201,15 @@ export function TransactionModal({
                                 setValue={e => setRecord({ ...record, amount: e })}
                             />
                         </div>
+                        {!isIncome && paymentType === PAYMENT_TYPES.CREDIT && (
+                            <SelectInput
+                                options={creditCardOptions}
+                                value={creditCardId}
+                                setValue={setCreditCardId}
+                                label='Cartão'
+                                disabled={!!record.id}
+                            />
+                        )}
                         <TransactionCategorySection
                             record={record}
                             setRecord={setRecord}
