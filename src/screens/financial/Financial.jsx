@@ -160,7 +160,7 @@ export function Financial() {
                             <div className="flex gap-1 border-b border-white/15 pb-1">
                                 {[
                                     { key: 'dashboard', label: 'Dashboard' },
-                                    { key: 'installments', label: 'Parcelas Pendentes' },
+                                    { key: 'installments', label: 'Crédito' },
                                 ].map(tab => (
                                     <button
                                         key={tab.key}

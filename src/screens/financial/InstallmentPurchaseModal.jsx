@@ -87,7 +87,9 @@ export function InstallmentPurchaseModal({
         }
     }
 
-    const title = record.id ? 'Editar Compra Parcelada' : 'Nova Compra Parcelada';
+    const isInstallment = record.installmentTotal > 1;
+
+    const title = record.id ? 'Editar Compra no Crédito' : 'Nova Compra no Crédito';
 
     return (
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
@@ -100,7 +102,7 @@ export function InstallmentPurchaseModal({
                 </header>
                 <div className='px-6 py-4 overflow-y-auto'>
                     <Form>
-                        <div className='flex gap-1'>
+                        <div className='flex gap-1 w-full'>
                             <TextInput
                                 placeholder='Título'
                                 value={record.title}
@@ -131,7 +133,7 @@ export function InstallmentPurchaseModal({
                                 disabled={hasPayments}
                             />
                         </div>
-                        <div className='flex gap-1'>
+                        <div className='flex gap-1 w-full'>
                             <div className='flex-1'>
                                 <SelectInput
                                     options={creditCardOptions}
@@ -145,8 +147,8 @@ export function InstallmentPurchaseModal({
                                 <NumberInput
                                     placeholder='Parcelas'
                                     value={record.installmentTotal}
-                                    setValue={e => setRecord({ ...record, installmentTotal: Math.max(2, parseInt(e) || 2) })}
-                                    min={2}
+                                    setValue={e => setRecord({ ...record, installmentTotal: Math.max(1, parseInt(e) || 1) })}
+                                    min={1}
                                     disabled={hasPayments}
                                 />
                             </div>
@@ -176,9 +178,9 @@ export function InstallmentPurchaseModal({
                                 </>
                             ) : (
                                 <DefaultBtn
-                                    text='Criar compra'
+                                    text={isInstallment ? 'Criar parcelado' : 'Criar à vista'}
                                     icon={ICONS.add}
-                                    width='150px'
+                                    width={isInstallment ? '180px' : '150px'}
                                     onClick={handleInsert}
                                 />
                             )}

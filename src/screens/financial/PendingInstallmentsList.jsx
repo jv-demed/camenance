@@ -3,18 +3,19 @@ import { expenseRepository } from '@/repositories/ExpenseRepository';
 import { ExpenseModel } from '@/models/ExpenseModel';
 import { CreditCardService } from '@/services/CreditCardService';
 import { DateService } from '@/services/DateService';
-import { MonetaryService } from '@/services/monetaryService';
 import { AlertService } from '@/services/alertService';
 import { PAYMENT_TYPES } from '@/enums/PaymentTypes';
 import { ICONS } from '@/assets/icons';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { InstallmentPurchaseModal } from '@/screens/financial/InstallmentPurchaseModal';
+import { PendingInstallmentCard } from '@/screens/financial/PendingInstallmentCard';
+import { SpinLoader } from '@/components/elements/SpinLoader';
 
 const emptyPurchase = {
     title: '',
     description: '',
     totalAmount: 0,
-    installmentTotal: 2,
+    installmentTotal: 1,
     creditCardId: null,
     payeeId: null,
     categoryId: null,
@@ -34,7 +35,9 @@ export function PendingInstallmentsList({
     expensesRefresh
 }) {
 
-    const pendingInstallments = useMemo(() => {
+    const now = new Date();
+
+    const installmentsByMonth = useMemo(() => {
         const result = [];
         for (const purchase of installmentPurchases.list) {
             const card = creditCards.list.find(c => c.id === purchase.creditCardId);
@@ -50,12 +53,71 @@ export function PendingInstallmentsList({
                 result.push({ purchase, installmentNumber: i, installmentAmount, dueDate });
             }
         }
-        return result.sort((a, b) => {
+        result.sort((a, b) => {
             if (!a.dueDate) return 1;
             if (!b.dueDate) return -1;
             return a.dueDate - b.dueDate;
         });
+
+        const sections = [];
+        for (const item of result) {
+            const rawLabel = item.dueDate
+                ? item.dueDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+                : 'sem vencimento';
+            const label = rawLabel.charAt(0).toUpperCase() + rawLabel.slice(1);
+            const key = item.dueDate
+                ? `${item.dueDate.getFullYear()}-${item.dueDate.getMonth()}`
+                : 'none';
+            let section = sections.find(s => s.key === key);
+            if (!section) {
+                section = { key, label, items: [] };
+                sections.push(section);
+            }
+            section.items.push(item);
+        }
+        return sections;
     }, [installmentPurchases.list, expenses, creditCards.list]);
+
+    const firstFutureKey = installmentsByMonth.find(({ key }) => {
+        if (key === 'none') return false;
+        const [year, month] = key.split('-').map(Number);
+        return year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth());
+    })?.key ?? null;
+
+    function isBlocked(key) {
+        if (key === 'none' || key === firstFutureKey) return false;
+        const [year, month] = key.split('-').map(Number);
+        return year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth());
+    }
+
+    async function handlePayAll(key, items) {
+        setPayingAllKey(key);
+        try {
+            await Promise.all(items.map(({ purchase, installmentNumber, installmentAmount }) =>
+                expenseRepository.insert(new ExpenseModel({
+                    title: `${purchase.title} ${installmentNumber}/${purchase.installmentTotal}`,
+                    amount: installmentAmount,
+                    date: DateService.dateToSqlDate(new Date()),
+                    description: purchase.description || '',
+                    payeeId: purchase.payeeId,
+                    categoryId: purchase.categoryId,
+                    tagIds: purchase.tagIds || [],
+                    paymentType: PAYMENT_TYPES.CREDIT,
+                    creditCardId: purchase.creditCardId,
+                    installmentGroupId: purchase.id,
+                    installmentNumber: installmentNumber,
+                    installmentTotal: purchase.installmentTotal,
+                    userId: user.id
+                }))
+            ));
+            expensesRefresh?.();
+            AlertService.fastSuccess();
+        } catch (e) {
+            AlertService.error(e.message);
+        } finally {
+            setPayingAllKey(null);
+        }
+    }
 
     async function handlePay(purchase, installmentNumber, installmentAmount) {
         try {
@@ -82,11 +144,16 @@ export function PendingInstallmentsList({
         }
     }
 
+    const [payingAllKey, setPayingAllKey] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalRecord, setModalRecord] = useState(emptyPurchase);
 
     function openNew() {
-        setModalRecord({ ...emptyPurchase, startDate: DateService.dateToSqlDate(new Date()) });
+        setModalRecord({
+            ...emptyPurchase,
+            startDate: DateService.dateToSqlDate(new Date()),
+            creditCardId: creditCards.list[0]?.id ?? null
+        });
         setIsModalOpen(true);
     }
 
@@ -114,70 +181,56 @@ export function PendingInstallmentsList({
                 [&::-webkit-scrollbar-thumb]:rounded-md
                 [&::-webkit-scrollbar-thumb:hover]:bg-gray-400/80
             `}>
-                {pendingInstallments.length === 0 ? (
+                {installmentsByMonth.length === 0 ? (
                     <li className='flex flex-col items-center gap-2 py-8 text-gray-400'>
                         <ICONS.finances size={36} />
                         <span className='text-sm'>Nenhuma parcela pendente</span>
                     </li>
-                ) : pendingInstallments.map(({ purchase, installmentNumber, installmentAmount, dueDate }) => {
-                    const payee = payees.list.find(p => p.id === purchase.payeeId);
-                    return (
-                        <li key={`${purchase.id}-${installmentNumber}`}>
-                            <div className='relative group'>
-                                <div className={`
-                                    absolute inset-0 bg-gradient-to-r from-gray-500/5 to-gray-600/5 rounded-xl
-                                    opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                                `} />
-                                <div className={`
-                                    relative overflow-hidden rounded-xl px-4 py-2 backdrop-blur-lg
-                                    bg-white/10 border border-white/20 shadow-xs transition-all duration-300
-                                    hover:border-white/30
-                                `}>
-                                    <div className='flex justify-between items-start gap-4 text-[16px]'>
-                                        <div className='flex-1 flex items-center gap-2'>
-                                            <h3
-                                                className='cursor-pointer hover:underline'
-                                                onClick={() => openEdit(purchase)}
-                                            >
-                                                {purchase.title}
-                                            </h3>
-                                            <span className='text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded'>
-                                                {installmentNumber}/{purchase.installmentTotal}
-                                            </span>
-                                        </div>
-                                        <div className='flex items-center gap-2'>
-                                            <button
-                                                onClick={() => handlePay(purchase, installmentNumber, installmentAmount)}
-                                                className='p-1 rounded hover:bg-white/10 transition-colors'
-                                                title='Marcar como pago'
-                                            >
-                                                <ICONS.check />
-                                            </button>
-                                            <span className='text-[tomato]'>
-                                                {MonetaryService.floatToBr(installmentAmount)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className='flex items-center justify-between gap-2 text-sm text-gray-500'>
-                                        <span>
-                                            {dueDate
-                                                ? `Vence ${DateService.dateToBrDate(dueDate)}`
-                                                : 'Sem vencimento'
-                                            }
-                                        </span>
-                                        {payee && (
-                                            <div className='flex items-center gap-0.5'>
-                                                <span>{payee.name}</span>
-                                                <ICONS.local />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className='absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full filter blur-xl -mr-10 -mt-10' />
-                                </div>
-                            </div>
-                        </li>
-                    );
-                })}
+                ) : installmentsByMonth.map(({ key, label, items }) => (
+                    <li key={key} className='flex flex-col gap-2'>
+                        <div className='flex items-center justify-between px-1'>
+                            <h4 className='text-xs font-semibold tracking-widest text-gray-400'>
+                                {label}
+                            </h4>
+                            <button
+                                onClick={() => handlePayAll(key, items)}
+                                disabled={payingAllKey === key || isBlocked(key)}
+                                title='Pagar todas as parcelas do mês'
+                                className={`
+                                    text-xs flex items-center gap-1 px-2 py-0.5 rounded
+                                    bg-blue-500/10 hover:bg-blue-500/25
+                                    border border-blue-500/20 hover:border-blue-500/40
+                                    text-blue-400 hover:text-blue-300
+                                    transition-all duration-200 cursor-pointer
+                                    disabled:opacity-50 disabled:cursor-not-allowed
+                                `}
+                            >
+                                {payingAllKey === key
+                                    ? <SpinLoader color='text-blue-400' width='0.75rem' />
+                                    : <><ICONS.check size={12} /> Pagar todos</>
+                                }
+                            </button>
+                        </div>
+                        <ul className='flex flex-col gap-2'>
+                            {items.map(({ purchase, installmentNumber, installmentAmount, dueDate }) => (
+                                <li key={`${purchase.id}-${installmentNumber}`}>
+                                    <PendingInstallmentCard
+                                        purchase={purchase}
+                                        installmentNumber={installmentNumber}
+                                        installmentAmount={installmentAmount}
+                                        dueDate={dueDate}
+                                        payees={payees}
+                                        categories={categories}
+                                        tags={tags}
+                                        onPay={handlePay}
+                                        onEdit={openEdit}
+                                        disabled={isBlocked(key)}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                    </li>
+                ))}
             </ul>
             <InstallmentPurchaseModal
                 isOpen={isModalOpen}

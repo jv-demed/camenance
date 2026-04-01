@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { payeeRepository } from '@/repositories/PayeeRepository';
 import { sourceRepository } from '@/repositories/SourceRepository';
 import { expenseRepository } from '@/repositories/ExpenseRepository';
@@ -11,7 +11,7 @@ import { SourceModel } from '@/models/SourceModel';
 import { ExpenseModel } from '@/models/ExpenseModel';
 import { IncomeModel } from '@/models/IncomeModel';
 import { FINANCIAL_CATEGORY_TYPES, FINANCIAL_CATEGORY_TYPES_OPTIONS } from '@/enums/FinancialCategoryTypes';
-import { PAYMENT_TYPES, PAYMENT_TYPES_OPTIONS } from '@/enums/PaymentTypes';
+import { PAYMENT_TYPES } from '@/enums/PaymentTypes';
 import { Form } from '@/components/containers/Form';
 import { AddInput } from '@/components/inputs/AddInput';
 import { DateInput } from '@/components/inputs/DateInput';
@@ -34,7 +34,6 @@ export function TransactionModal({
     sources,
     categories,
     tags,
-    creditCards,
     user
 }) {
 
@@ -46,16 +45,6 @@ export function TransactionModal({
 
     const isIncome = categoryType === FINANCIAL_CATEGORY_TYPES.INCOME;
 
-    const [paymentType, setPaymentType] = useState(record.paymentType || PAYMENT_TYPES.DEBIT);
-    const [creditCardId, setCreditCardId] = useState(record.creditCardId || null);
-
-    // Opções de cartão de crédito
-    const creditCardOptions = useMemo(() => {
-        return (creditCards?.list || []).map(card => ({
-            value: card.id,
-            label: card.name
-        }));
-    }, [creditCards?.list]);
 
 
     async function handleAddPayee(newPayee) {
@@ -80,9 +69,7 @@ export function TransactionModal({
                 // Lógica para despesas, incluindo crédito parcelado
                 const model = new ExpenseModel({
                     ...record,
-                    paymentType: paymentType,
-                    creditCardId: paymentType === PAYMENT_TYPES.CREDIT ? creditCardId : null,
-                    installmentTotal: 1,
+                    paymentType: PAYMENT_TYPES.DEBIT,
                     userId: user.id
                 });
                 await expenseRepository.insert(model);
@@ -155,16 +142,6 @@ export function TransactionModal({
                                     disabled={!!record.id}
                                 />
                             </div>
-                            {!isIncome && (
-                                <div className='flex-1'>
-                                    <SelectInput
-                                        options={PAYMENT_TYPES_OPTIONS}
-                                        value={paymentType}
-                                        setValue={setPaymentType}
-                                        disabled={!!record.id}
-                                    />
-                                </div>
-                            )}
                         </div>
                         <div className='flex gap-1 w-full'>
                             <TextInput placeholder='Título'
@@ -201,15 +178,6 @@ export function TransactionModal({
                                 setValue={e => setRecord({ ...record, amount: e })}
                             />
                         </div>
-                        {!isIncome && paymentType === PAYMENT_TYPES.CREDIT && (
-                            <SelectInput
-                                options={creditCardOptions}
-                                value={creditCardId}
-                                setValue={setCreditCardId}
-                                label='Cartão'
-                                disabled={!!record.id}
-                            />
-                        )}
                         <TransactionCategorySection
                             record={record}
                             setRecord={setRecord}
