@@ -6,5 +6,6 @@ export const TableNames = Object.freeze({
     SOURCES: 'camenance_sources',
     PAYEES: 'camenance_payees',
     CREDIT_CARDS: 'camenance_credit_cards',
-    INSTALLMENT_PURCHASES: 'camenance_installment_purchases'
+    INSTALLMENT_PURCHASES: 'camenance_installment_purchases',
+    POKEMONS: 'camenance_pokemons'
 });

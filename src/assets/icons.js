@@ -1,3 +1,4 @@
+import { TbPokeball } from 'react-icons/tb';
 import { LuSettings, LuList, LuLayoutList } from 'react-icons/lu';
 import { PiPiggyBankBold } from 'react-icons/pi';
 import { MdOutlineFmdGood } from 'react-icons/md';
@@ -35,6 +36,7 @@ export const ICONS = {
     chevronUp: IoChevronUp,
     close: IoClose,
     finances: PiPiggyBankBold,
+    pokemon: TbPokeball,
     local: MdOutlineFmdGood,
     login: FiLogIn,
     logout: FiLogOut,

@@ -6,6 +6,10 @@ export const MENU_ITEMS = [
         icon: ICONS.finances,
         url: '/'
     },{
+        name: 'Pokémon',
+        icon: ICONS.pokemon,
+        url: '/pokemon'
+    },{
         name: 'Configurações',
         icon: ICONS.settings,
         url: '/settings'
