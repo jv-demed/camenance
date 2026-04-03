@@ -17,7 +17,7 @@ import { SpinLoader } from '@/components/elements/SpinLoader';
 import { TransactionList } from '@/screens/financial/TransactionList';
 import { FinancialFilters } from '@/screens/financial/FinancialFilters';
 import { FinancialResumeBox } from '@/screens/financial/FinancialResumeBox';
-import { FinancialSettingsModal } from '@/screens/financial/FinancialSettingsModal';
+import { FinancialSettingsModal } from '@/screens/financial/settings/FinancialSettingsModal';
 import { FinancialDashboard } from '@/screens/financial/FinancialDashboard';
 import { CreditPurchasesList } from '@/screens/financial/CreditPurchasesList';
 import { IconBtn } from '@/components/buttons/IconBtn';
@@ -184,7 +184,6 @@ export function Financial() {
                                     categories={categories}
                                     payees={payees}
                                     sources={sources}
-                                    dateFilter={dateFilter}
                                 />
                             )}
                             {activeTab === 'credit' && (

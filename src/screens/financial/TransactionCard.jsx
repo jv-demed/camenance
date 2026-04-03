@@ -3,6 +3,7 @@ import { DateService } from '@/services/DateService';
 import { MonetaryService } from '@/services/monetaryService';
 import { ICONS } from '@/assets/icons';
 import { PAYMENT_TYPES_LABELS } from '@/enums/PaymentTypes';
+import { INCOME_TYPES_LABELS } from '@/enums/IncomeTypes';
 import { TagBox } from '@/components/elements/TagBox';
 import { TransactionModal } from '@/screens/financial/TransactionModal';
 
@@ -62,7 +63,10 @@ export function TransactionCard({
                 `}>
                     <span>
                         {DateService.sqlDateToBrDate(record.date)}
-                        {record.paymentType && ` - ${PAYMENT_TYPES_LABELS[record.paymentType]}`}
+                        {record._isIncome
+                            ? record.incomeType && ` - ${INCOME_TYPES_LABELS[record.incomeType]}`
+                            : record.paymentType && ` - ${PAYMENT_TYPES_LABELS[record.paymentType]}`
+                        }
                     </span>
                     <div className='flex items-center gap-0.5'>
                         <span>{origin?.name}</span>

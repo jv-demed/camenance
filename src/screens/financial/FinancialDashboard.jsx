@@ -2,51 +2,15 @@
 
 import { useMemo } from 'react';
 import {
-    AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+    BarChart, Bar, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { DATE_FILTER } from '@/enums/DateFilters';
 import { MonetaryService } from '@/services/monetaryService';
 
 const CHART_COLORS = [
     '#6366f1', '#f59e0b', '#06b6d4', '#8b5cf6',
     '#f97316', '#ec4899', '#14b8a6', '#84cc16'
 ];
-
-const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-function parseSqlDate(dateStr) {
-    const [year, month, day] = dateStr.split('-').map(Number);
-    return new Date(year, month - 1, day);
-}
-
-function getPeriodKey(dateStr, dateFilter) {
-    const d = parseSqlDate(dateStr);
-    switch (dateFilter) {
-        case DATE_FILTER.WEEKLY:
-        case DATE_FILTER.MONTHLY:
-            return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
-        case DATE_FILTER.QUARTERLY:
-        case DATE_FILTER.BIANNUAL:
-        case DATE_FILTER.ANNUAL:
-        case DATE_FILTER.TOTAL:
-        default:
-            return `${MONTHS[d.getMonth()]}/${String(d.getFullYear()).slice(2)}`;
-    }
-}
-
-function getPeriodSortKey(dateStr, dateFilter) {
-    const d = parseSqlDate(dateStr);
-    switch (dateFilter) {
-        case DATE_FILTER.QUARTERLY:
-        case DATE_FILTER.BIANNUAL:
-        case DATE_FILTER.ANNUAL:
-        case DATE_FILTER.TOTAL:
-            return d.getFullYear() * 100 + d.getMonth();
-        default:
-            return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-    }
-}
 
 function CustomTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null;
@@ -80,25 +44,7 @@ export function FinancialDashboard({
     categories,
     payees,
     sources,
-    dateFilter
 }) {
-    const timeSeriesData = useMemo(() => {
-        const groups = {};
-        expenses.forEach(e => {
-            const key = getPeriodKey(e.date, dateFilter);
-            const sortKey = getPeriodSortKey(e.date, dateFilter);
-            if (!groups[key]) groups[key] = { period: key, sortKey, Entradas: 0, Saídas: 0 };
-            groups[key]['Saídas'] += e.amount;
-        });
-        incomes.forEach(i => {
-            const key = getPeriodKey(i.date, dateFilter);
-            const sortKey = getPeriodSortKey(i.date, dateFilter);
-            if (!groups[key]) groups[key] = { period: key, sortKey, Entradas: 0, Saídas: 0 };
-            groups[key]['Entradas'] += i.amount;
-        });
-        return Object.values(groups).sort((a, b) => a.sortKey - b.sortKey);
-    }, [expenses, incomes, dateFilter]);
-
     const expensesByCategory = useMemo(() => {
         const groups = {};
         expenses.forEach(e => {
@@ -163,33 +109,6 @@ export function FinancialDashboard({
             [&::-webkit-scrollbar-thumb]:rounded-md
             [&::-webkit-scrollbar-thumb:hover]:bg-gray-400/80
         `}>
-            {timeSeriesData.length > 1 && (
-                <div className="border border-border rounded-2xl p-4">
-                    <h3 className="text-sm font-semibold mb-3 text-gray-500">Evolução no Período</h3>
-                    <ResponsiveContainer width="100%" height={180}>
-                        <AreaChart data={timeSeriesData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="gradEntradas" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
-                                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                                </linearGradient>
-                                <linearGradient id="gradSaidas" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.25} />
-                                    <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                            <XAxis dataKey="period" tick={{ fontSize: 11 }} />
-                            <YAxis tickFormatter={tickFormatter} tick={{ fontSize: 10 }} width={90} />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
-                            <Area type="monotone" dataKey="Entradas" stroke="#22c55e" fill="url(#gradEntradas)" strokeWidth={2} dot={false} />
-                            <Area type="monotone" dataKey="Saídas" stroke="#f43f5e" fill="url(#gradSaidas)" strokeWidth={2} dot={false} />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-            )}
-
             <div className="flex gap-4">
                 {expensesByCategory.length > 0 && (
                     <div className="border border-border rounded-2xl p-4 flex-1 min-w-0">

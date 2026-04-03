@@ -78,7 +78,7 @@ export class FinancialService {
         }
         return {
             list: expenses.filter(exp => {
-                const d = new Date(exp.date);
+                const d = new Date(exp.date + 'T00:00:00');
                 if(startDate && d < startDate) return false;
                 if(endDate && d >= endDate) return false;
                 return true;

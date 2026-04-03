@@ -11,7 +11,8 @@ import { SourceModel } from '@/models/SourceModel';
 import { ExpenseModel } from '@/models/ExpenseModel';
 import { IncomeModel } from '@/models/IncomeModel';
 import { FINANCIAL_CATEGORY_TYPES, FINANCIAL_CATEGORY_TYPES_OPTIONS } from '@/enums/FinancialCategoryTypes';
-import { PAYMENT_TYPES } from '@/enums/PaymentTypes';
+import { PAYMENT_TYPES, PAYMENT_TYPES_OPTIONS } from '@/enums/PaymentTypes';
+import { INCOME_TYPES, INCOME_TYPES_OPTIONS } from '@/enums/IncomeTypes';
 import { Form } from '@/components/containers/Form';
 import { AddInput } from '@/components/inputs/AddInput';
 import { DateInput } from '@/components/inputs/DateInput';
@@ -69,7 +70,7 @@ export function TransactionModal({
                 // Lógica para despesas, incluindo crédito parcelado
                 const model = new ExpenseModel({
                     ...record,
-                    paymentType: PAYMENT_TYPES.DEBIT,
+                    paymentType: record.paymentType || PAYMENT_TYPES.DEBIT,
                     userId: user.id
                 });
                 await expenseRepository.insert(model);
@@ -141,6 +142,23 @@ export function TransactionModal({
                                     setValue={setCategoryType}
                                     disabled={!!record.id}
                                 />
+                            </div>
+                            <div className='flex-1'>
+                                {isIncome ? (
+                                    <SelectInput
+                                        options={INCOME_TYPES_OPTIONS}
+                                        value={record.incomeType || INCOME_TYPES.PIX}
+                                        setValue={e => setRecord({ ...record, incomeType: e })}
+                                        label='Tipo de recebimento'
+                                    />
+                                ) : (
+                                    <SelectInput
+                                        options={PAYMENT_TYPES_OPTIONS.filter(o => o.value !== PAYMENT_TYPES.CREDIT)}
+                                        value={record.paymentType || PAYMENT_TYPES.DEBIT}
+                                        setValue={e => setRecord({ ...record, paymentType: e })}
+                                        label='Tipo de pagamento'
+                                    />
+                                )}
                             </div>
                         </div>
                         <div className='flex gap-1 w-full'>

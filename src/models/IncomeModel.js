@@ -11,6 +11,7 @@ export class IncomeModel extends BaseModel {
         description: 'description',
         amount: 'amount',
         sourceId: 'source_id',
+        incomeType: 'income_type',
         categoryId: 'category_id',
         tagIds: 'tag_ids',
         date: 'date'
