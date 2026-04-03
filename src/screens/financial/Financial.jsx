@@ -19,7 +19,7 @@ import { FinancialFilters } from '@/screens/financial/FinancialFilters';
 import { FinancialResumeBox } from '@/screens/financial/FinancialResumeBox';
 import { FinancialSettingsModal } from '@/screens/financial/FinancialSettingsModal';
 import { FinancialDashboard } from '@/screens/financial/FinancialDashboard';
-import { PendingInstallmentsList } from '@/screens/financial/PendingInstallmentsList';
+import { CreditPurchasesList } from '@/screens/financial/CreditPurchasesList';
 import { IconBtn } from '@/components/buttons/IconBtn';
 import { ICONS } from '@/assets/icons';
 
@@ -160,7 +160,7 @@ export function Financial() {
                             <div className="flex gap-1 border-b border-white/15 pb-1">
                                 {[
                                     { key: 'dashboard', label: 'Dashboard' },
-                                    { key: 'installments', label: 'Crédito' },
+                                    { key: 'credit', label: 'Crédito' },
                                 ].map(tab => (
                                     <button
                                         key={tab.key}
@@ -187,8 +187,8 @@ export function Financial() {
                                     dateFilter={dateFilter}
                                 />
                             )}
-                            {activeTab === 'installments' && (
-                                <PendingInstallmentsList
+                            {activeTab === 'credit' && (
+                                <CreditPurchasesList
                                     installmentPurchases={installmentPurchases}
                                     expenses={expenses.list}
                                     payees={payees}

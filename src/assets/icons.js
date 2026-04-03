@@ -1,4 +1,4 @@
-import { LuSettings } from 'react-icons/lu';
+import { LuSettings, LuList, LuLayoutList } from 'react-icons/lu';
 import { PiPiggyBankBold } from 'react-icons/pi';
 import { MdOutlineFmdGood } from 'react-icons/md';
 import { BiMessageSquareAdd } from 'react-icons/bi';
@@ -40,6 +40,8 @@ export const ICONS = {
     logout: FiLogOut,
     menuHamburger: IoMenu,
     settings: LuSettings,
+    viewCard: LuLayoutList,
+    viewList: LuList,
     spinLoader: AiOutlineLoading3Quarters,
     trash: FiTrash2,
 }

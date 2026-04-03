@@ -19,7 +19,7 @@ import { TextAreaInput } from '@/components/inputs/TextAreaInput';
 import { ActionsSection } from '@/components/containers/ActionsSection';
 import { TransactionCategorySection } from '@/screens/financial/TransactionCategorySection';
 
-export function InstallmentPurchaseModal({
+export function CreditPurchaseModal({
     isOpen,
     onClose,
     record,

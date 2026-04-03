@@ -7,8 +7,9 @@ import { AlertService } from '@/services/alertService';
 import { PAYMENT_TYPES } from '@/enums/PaymentTypes';
 import { ICONS } from '@/assets/icons';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
-import { InstallmentPurchaseModal } from '@/screens/financial/InstallmentPurchaseModal';
-import { PendingInstallmentCard } from '@/screens/financial/PendingInstallmentCard';
+import { TextInput } from '@/components/inputs/TextInput';
+import { CreditPurchaseModal } from '@/screens/financial/CreditPurchaseModal';
+import { CreditPurchaseCard } from '@/screens/financial/CreditPurchaseCard';
 import { SpinLoader } from '@/components/elements/SpinLoader';
 
 const emptyPurchase = {
@@ -23,7 +24,7 @@ const emptyPurchase = {
     startDate: DateService.dateToSqlDate(new Date())
 };
 
-export function PendingInstallmentsList({
+export function CreditPurchasesList({
     installmentPurchases,
     expenses,
     payees,
@@ -37,9 +38,14 @@ export function PendingInstallmentsList({
 
     const now = new Date();
 
+    const [search, setSearch] = useState('');
+    const [typeFilter, setTypeFilter] = useState('all');
+
     const installmentsByMonth = useMemo(() => {
         const result = [];
         for (const purchase of installmentPurchases.list) {
+            if (typeFilter === 'installment' && purchase.installmentTotal <= 1) continue;
+            if (typeFilter === 'single' && purchase.installmentTotal > 1) continue;
             const card = creditCards.list.find(c => c.id === purchase.creditCardId);
             const installmentAmount = purchase.totalAmount / purchase.installmentTotal;
             for (let i = 1; i <= purchase.installmentTotal; i++) {
@@ -75,8 +81,11 @@ export function PendingInstallmentsList({
             }
             section.items.push(item);
         }
-        return sections;
-    }, [installmentPurchases.list, expenses, creditCards.list]);
+        if (!search) return sections;
+        return sections
+            .map(s => ({ ...s, items: s.items.filter(i => i.purchase.title.toLowerCase().includes(search.toLowerCase())) }))
+            .filter(s => s.items.length > 0);
+    }, [installmentPurchases.list, expenses, creditCards.list, search, typeFilter]);
 
     const firstFutureKey = installmentsByMonth.find(({ key }) => {
         if (key === 'none') return false;
@@ -144,6 +153,7 @@ export function PendingInstallmentsList({
         }
     }
 
+    const [viewMode, setViewMode] = useState('card');
     const [payingAllKey, setPayingAllKey] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalRecord, setModalRecord] = useState(emptyPurchase);
@@ -168,8 +178,52 @@ export function PendingInstallmentsList({
 
     return (
         <>
-            <div className='flex justify-end'>
+            <div className='flex gap-1'>
+                <TextInput placeholder='Buscar...' value={search} setValue={setSearch} />
                 <DefaultBtn width='50px' icon={ICONS.add} onClick={openNew} />
+            </div>
+            <div className='flex items-center justify-between'>
+                <div className='flex gap-1'>
+                    {[
+                        { key: 'all', label: 'Todos' },
+                        { key: 'installment', label: 'Parcelado' },
+                        { key: 'single', label: 'À vista' },
+                    ].map(f => (
+                        <button
+                            key={f.key}
+                            onClick={() => setTypeFilter(f.key)}
+                            className={`
+                                px-3 py-1 rounded-lg text-xs transition-all duration-200
+                                ${typeFilter === f.key
+                                    ? 'bg-blue-500 text-white font-semibold'
+                                    : 'text-gray-400 hover:text-blue-400'
+                                }
+                            `}
+                        >
+                            {f.label}
+                        </button>
+                    ))}
+                </div>
+                <div className='flex gap-1'>
+                    {[
+                        { key: 'card', Icon: ICONS.viewCard },
+                        { key: 'list', Icon: ICONS.viewList },
+                    ].map(({ key, Icon }) => (
+                        <button
+                            key={key}
+                            onClick={() => setViewMode(key)}
+                            className={`
+                                p-1 rounded-lg transition-all duration-200
+                                ${viewMode === key
+                                    ? 'bg-blue-500 text-white'
+                                    : 'text-gray-400 hover:text-blue-400'
+                                }
+                            `}
+                        >
+                            <Icon size={16} />
+                        </button>
+                    ))}
+                </div>
             </div>
             <ul className={`
                 flex flex-col gap-2 p-1.5
@@ -184,7 +238,7 @@ export function PendingInstallmentsList({
                 {installmentsByMonth.length === 0 ? (
                     <li className='flex flex-col items-center gap-2 py-8 text-gray-400'>
                         <ICONS.finances size={36} />
-                        <span className='text-sm'>Nenhuma parcela pendente</span>
+                        <span className='text-sm'>Nenhuma compra no crédito</span>
                     </li>
                 ) : installmentsByMonth.map(({ key, label, items }) => (
                     <li key={key} className='flex flex-col gap-2'>
@@ -214,7 +268,7 @@ export function PendingInstallmentsList({
                         <ul className='flex flex-col gap-2'>
                             {items.map(({ purchase, installmentNumber, installmentAmount, dueDate }) => (
                                 <li key={`${purchase.id}-${installmentNumber}`}>
-                                    <PendingInstallmentCard
+                                    <CreditPurchaseCard
                                         purchase={purchase}
                                         installmentNumber={installmentNumber}
                                         installmentAmount={installmentAmount}
@@ -225,6 +279,7 @@ export function PendingInstallmentsList({
                                         onPay={handlePay}
                                         onEdit={openEdit}
                                         disabled={isBlocked(key)}
+                                        compact={viewMode === 'list'}
                                     />
                                 </li>
                             ))}
@@ -232,7 +287,7 @@ export function PendingInstallmentsList({
                     </li>
                 ))}
             </ul>
-            <InstallmentPurchaseModal
+            <CreditPurchaseModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 record={modalRecord}
