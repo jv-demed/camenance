@@ -4,7 +4,7 @@ import { ICONS } from '@/assets/icons';
 import { financialCategoryRepository } from '@/repositories/FinancialCategoryRepository';
 import { FinancialCategoryModel } from '@/models/FinancialCategoryModel';
 import { FINANCIAL_CATEGORY_TYPES, FINANCIAL_CATEGORY_TYPES_LABELS, FINANCIAL_CATEGORY_TYPES_OPTIONS } from '@/enums/FinancialCategoryTypes';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { ColorService } from '@/services/ColorService';
 import { TextInput } from '@/components/inputs/TextInput';
 import { ColorInput } from '@/components/inputs/ColorInput';

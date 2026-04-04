@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MonetaryService } from '@/services/monetaryService';
+import { MonetaryService } from '@/services/MonetaryService';
 
 export function MoneyInput({
     value,

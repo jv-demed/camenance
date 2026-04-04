@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { financialTagRepository } from '@/repositories/FinancialTagRepository';
 import { financialCategoryRepository } from '@/repositories/FinancialCategoryRepository';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { ICONS } from '@/assets/icons';
 import { FinancialTagModel } from '@/models/FinancialTagModel';
 import { FinancialCategoryModel } from '@/models/FinancialCategoryModel';

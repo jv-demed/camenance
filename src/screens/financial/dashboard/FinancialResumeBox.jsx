@@ -1,4 +1,4 @@
-import { FinancialValueBox } from '@/screens/financial/FinancialValueBox';
+import { FinancialValueBox } from './FinancialValueBox';
 
 export function FinancialResumeBox({
     expenses,

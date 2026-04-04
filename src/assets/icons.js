@@ -18,9 +18,10 @@ import {
     IoChevronForward,
 } from 'react-icons/io5';
 import { 
-    FaCheck, 
-    FaCircleArrowLeft, 
-    FaCircleArrowRight 
+    FaCheck,
+    FaCircleArrowLeft,
+    FaCircleArrowRight,
+    FaRotateLeft,
 } from 'react-icons/fa6';
 
 export const ICONS = {
@@ -44,4 +45,5 @@ export const ICONS = {
     viewList: LuList,
     spinLoader: AiOutlineLoading3Quarters,
     trash: FiTrash2,
+    undo: FaRotateLeft,
 }

@@ -1,18 +1,22 @@
 'use client'
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { payeeRepository } from '@/repositories/PayeeRepository';
 import { sourceRepository } from '@/repositories/SourceRepository';
-import { expenseRepository } from '@/repositories/ExpenseRepository';
-import { incomeRepository } from '@/repositories/IncomeRepository';
+import { recurringTransactionRepository } from '@/repositories/RecurringTransactionRepository';
 import { ICONS } from '@/assets/icons';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { PayeeModel } from '@/models/PayeeModel';
 import { SourceModel } from '@/models/SourceModel';
-import { ExpenseModel } from '@/models/ExpenseModel';
-import { IncomeModel } from '@/models/IncomeModel';
+import { RecurringTransactionModel } from '@/models/RecurringTransactionModel';
 import { FINANCIAL_CATEGORY_TYPES, FINANCIAL_CATEGORY_TYPES_OPTIONS } from '@/enums/FinancialCategoryTypes';
 import { PAYMENT_TYPES, PAYMENT_TYPES_OPTIONS } from '@/enums/PaymentTypes';
 import { INCOME_TYPES, INCOME_TYPES_OPTIONS } from '@/enums/IncomeTypes';
+import {
+    RECURRING_FREQUENCY,
+    RECURRING_FREQUENCY_OPTIONS,
+    DAYS_OF_WEEK_OPTIONS,
+    MONTH_DAY_OPTIONS,
+} from '@/enums/RecurringFrequency';
 import { Form } from '@/components/containers/Form';
 import { AddInput } from '@/components/inputs/AddInput';
 import { DateInput } from '@/components/inputs/DateInput';
@@ -22,31 +26,36 @@ import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { SelectInput } from '@/components/inputs/SelectInput';
 import { TextAreaInput } from '@/components/inputs/TextAreaInput';
 import { ActionsSection } from '@/components/containers/ActionsSection';
-import { TransactionCategorySection } from '@/screens/financial/TransactionCategorySection';
+import { TransactionCategorySection } from '@/screens/financial/transactions/TransactionCategorySection';
 
-export function TransactionModal({
+export function RecurringTransactionModal({
     isOpen,
     onClose,
     record,
     setRecord,
-    expensesRefresh,
-    incomesRefresh,
+    refresh,
     payees,
     sources,
     categories,
     tags,
+    creditCards,
     user
 }) {
 
-    if(!isOpen) return null;
+    if (!isOpen) return null;
 
     const [categoryType, setCategoryType] = useState(
-        record._isIncome ? FINANCIAL_CATEGORY_TYPES.INCOME : FINANCIAL_CATEGORY_TYPES.EXPENSE
+        record.type ?? FINANCIAL_CATEGORY_TYPES.EXPENSE
     );
 
     const isIncome = categoryType === FINANCIAL_CATEGORY_TYPES.INCOME;
+    const frequency = record.frequency || RECURRING_FREQUENCY.MONTHLY;
+    const isCredit = !isIncome && (record.paymentType || PAYMENT_TYPES.DEBIT) === PAYMENT_TYPES.CREDIT;
 
-
+    const creditCardOptions = useMemo(() =>
+        (creditCards?.list || []).map(card => ({ value: card.id, label: card.name })),
+        [creditCards?.list]
+    );
 
     async function handleAddPayee(newPayee) {
         const payee = new PayeeModel({ ...newPayee, userId: user.id });
@@ -60,25 +69,52 @@ export function TransactionModal({
         return saved?.id;
     }
 
+    function buildPayload() {
+        if (isIncome) {
+            return {
+                ...record,
+                type: categoryType,
+                frequency,
+                paymentType: null,
+                creditCardId: null,
+                payeeId: null,
+            };
+        } else {
+            return {
+                ...record,
+                type: categoryType,
+                frequency,
+                incomeType: null,
+                sourceId: null,
+            };
+        }
+    }
+
     async function handleInsert() {
         try {
-            if(isIncome) {
-                const model = new IncomeModel({ ...record, userId: user.id });
-                await incomeRepository.insert(model);
-                incomesRefresh?.();
-            } else {
-                // Lógica para despesas, incluindo crédito parcelado
-                const model = new ExpenseModel({
-                    ...record,
-                    paymentType: record.paymentType || PAYMENT_TYPES.DEBIT,
-                    userId: user.id
-                });
-                await expenseRepository.insert(model);
-                expensesRefresh?.();
-            }
+            const model = new RecurringTransactionModel({
+                ...buildPayload(),
+                userId: user.id,
+                realizedDates: [],
+                skippedDates: [],
+            });
+            await recurringTransactionRepository.insert(model);
+            refresh?.();
             AlertService.fastSuccess();
             onClose();
-        } catch(e) {
+        } catch (e) {
+            AlertService.error(e.message);
+        }
+    }
+
+    async function handleUpdate() {
+        try {
+            const model = new RecurringTransactionModel(buildPayload());
+            await recurringTransactionRepository.update(record.id, model);
+            refresh?.();
+            AlertService.fastSuccess();
+            onClose();
+        } catch (e) {
             AlertService.error(e.message);
         }
     }
@@ -87,41 +123,16 @@ export function TransactionModal({
         const confirmed = await AlertService.confirm('Esta ação não pode ser desfeita.');
         if (!confirmed) return;
         try {
-            if (isIncome) {
-                await incomeRepository.delete(record.id);
-                incomesRefresh?.();
-            } else {
-                await expenseRepository.delete(record.id);
-                expensesRefresh?.();
-            }
+            await recurringTransactionRepository.delete(record.id);
+            refresh?.();
             AlertService.fastSuccess();
             onClose();
-        } catch(e) {
+        } catch (e) {
             AlertService.error(e.message);
         }
     }
 
-    async function handleUpdate() {
-        try {
-            if(isIncome) {
-                const model = new IncomeModel({ ...record });
-                await incomeRepository.update(record.id, model);
-                incomesRefresh?.();
-            } else {
-                const model = new ExpenseModel({ ...record });
-                await expenseRepository.update(record.id, model);
-                expensesRefresh?.();
-            }
-            AlertService.fastSuccess();
-            onClose();
-        } catch(e) {
-            AlertService.error(e.message);
-        }
-    }
-
-    const title = record.id
-        ? (isIncome ? 'Editar Ganho' : 'Editar Gasto')
-        : (isIncome ? 'Novo Ganho' : 'Novo Gasto');
+    const title = record.id ? 'Editar Recorrência' : 'Nova Recorrência';
 
     return (
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
@@ -149,17 +160,46 @@ export function TransactionModal({
                                         options={INCOME_TYPES_OPTIONS}
                                         value={record.incomeType || INCOME_TYPES.PIX}
                                         setValue={e => setRecord({ ...record, incomeType: e })}
-                                        label='Tipo de recebimento'
+                                        placeholder='Tipo de recebimento'
                                     />
                                 ) : (
                                     <SelectInput
-                                        options={PAYMENT_TYPES_OPTIONS.filter(o => o.value !== PAYMENT_TYPES.CREDIT)}
+                                        options={PAYMENT_TYPES_OPTIONS}
                                         value={record.paymentType || PAYMENT_TYPES.DEBIT}
-                                        setValue={e => setRecord({ ...record, paymentType: e })}
-                                        label='Tipo de pagamento'
+                                        setValue={e => setRecord({ ...record, paymentType: e, creditCardId: e === PAYMENT_TYPES.CREDIT ? (creditCardOptions[0]?.value ?? null) : null })}
+                                        placeholder='Tipo de pagamento'
                                     />
                                 )}
                             </div>
+                        </div>
+                        <div className='flex gap-1 w-full'>
+                            <div className='flex-1'>
+                                <SelectInput
+                                    options={RECURRING_FREQUENCY_OPTIONS}
+                                    value={frequency}
+                                    setValue={e => setRecord({ ...record, frequency: e })}
+                                />
+                            </div>
+                            {frequency === RECURRING_FREQUENCY.WEEKLY && (
+                                <div className='flex-1'>
+                                    <SelectInput
+                                        options={DAYS_OF_WEEK_OPTIONS}
+                                        value={record.dayOfWeek ?? 1}
+                                        setValue={e => setRecord({ ...record, dayOfWeek: e })}
+                                        placeholder='Dia da semana'
+                                    />
+                                </div>
+                            )}
+                            {frequency === RECURRING_FREQUENCY.MONTHLY && (
+                                <div className='flex-1'>
+                                    <SelectInput
+                                        options={MONTH_DAY_OPTIONS}
+                                        value={record.dayOfMonth ?? '1'}
+                                        setValue={e => setRecord({ ...record, dayOfMonth: e })}
+                                        placeholder='Dia do mês'
+                                    />
+                                </div>
+                            )}
                         </div>
                         <div className='flex gap-1 w-full'>
                             <TextInput placeholder='Título'
@@ -167,8 +207,8 @@ export function TransactionModal({
                                 setValue={e => setRecord({ ...record, title: e })}
                             />
                             <DateInput
-                                value={record.date}
-                                setValue={e => setRecord({ ...record, date: e })}
+                                value={record.startDate}
+                                setValue={e => setRecord({ ...record, startDate: e })}
                             />
                         </div>
                         <TextAreaInput placeholder='Descrição'
@@ -196,6 +236,14 @@ export function TransactionModal({
                                 setValue={e => setRecord({ ...record, amount: e })}
                             />
                         </div>
+                        {isCredit && (
+                            <SelectInput
+                                options={creditCardOptions}
+                                value={record.creditCardId}
+                                setValue={e => setRecord({ ...record, creditCardId: e })}
+                                placeholder='Cartão de crédito'
+                            />
+                        )}
                         <TransactionCategorySection
                             record={record}
                             setRecord={setRecord}
@@ -221,9 +269,9 @@ export function TransactionModal({
                                 </>
                             ) : (
                                 <DefaultBtn
-                                    text={isIncome ? 'Criar ganho' : 'Criar gasto'}
+                                    text='Criar recorrência'
                                     icon={ICONS.add}
-                                    width='150px'
+                                    width='180px'
                                     onClick={handleInsert}
                                 />
                             )}

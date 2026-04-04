@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ICONS } from '@/assets/icons';
 import { creditCardRepository } from '@/repositories/CreditCardRepository';
 import { CreditCardModel } from '@/models/CreditCardModel';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { TextInput } from '@/components/inputs/TextInput';
 import { NumberInput } from '@/components/inputs/NumberInput';
 import { ColorInput } from '@/components/inputs/ColorInput';

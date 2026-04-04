@@ -4,8 +4,8 @@ import { DateService } from '@/services/DateService';
 import { ICONS } from '@/assets/icons';
 import { TextInput } from '@/components/inputs/TextInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
-import { TransactionCard } from '@/screens/financial/TransactionCard';
-import { TransactionModal } from '@/screens/financial/TransactionModal';
+import { TransactionCard } from './TransactionCard';
+import { TransactionModal } from './TransactionModal';
 
 export function TransactionList({
     expenses,

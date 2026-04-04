@@ -3,13 +3,14 @@ import { expenseRepository } from '@/repositories/ExpenseRepository';
 import { ExpenseModel } from '@/models/ExpenseModel';
 import { CreditCardService } from '@/services/CreditCardService';
 import { DateService } from '@/services/DateService';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
+import { LocalStorageService } from '@/services/LocalStorageService';
 import { PAYMENT_TYPES } from '@/enums/PaymentTypes';
 import { ICONS } from '@/assets/icons';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { TextInput } from '@/components/inputs/TextInput';
-import { CreditPurchaseModal } from '@/screens/financial/CreditPurchaseModal';
-import { CreditPurchaseCard } from '@/screens/financial/CreditPurchaseCard';
+import { CreditPurchaseModal } from './CreditPurchaseModal';
+import { CreditPurchaseCard } from './CreditPurchaseCard';
 import { SpinLoader } from '@/components/elements/SpinLoader';
 
 const emptyPurchase = {
@@ -153,7 +154,14 @@ export function CreditPurchasesList({
         }
     }
 
-    const [viewMode, setViewMode] = useState('card');
+    const [viewMode, setViewMode] = useState(
+        () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_CREDIT_VIEW, 'card')
+    );
+
+    function handleViewModeChange(mode) {
+        setViewMode(mode);
+        LocalStorageService.set(LocalStorageService.KEYS.FINANCIAL_CREDIT_VIEW, mode);
+    }
     const [payingAllKey, setPayingAllKey] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalRecord, setModalRecord] = useState(emptyPurchase);
@@ -211,7 +219,7 @@ export function CreditPurchasesList({
                     ].map(({ key, Icon }) => (
                         <button
                             key={key}
-                            onClick={() => setViewMode(key)}
+                            onClick={() => handleViewModeChange(key)}
                             className={`
                                 p-1 rounded-lg transition-all duration-200
                                 ${viewMode === key

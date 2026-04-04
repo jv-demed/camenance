@@ -1,7 +1,7 @@
 'use client'
 import { useMemo } from 'react';
 import { ICONS } from '@/assets/icons';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { InstallmentPurchaseModel } from '@/models/InstallmentPurchaseModel';
 import { installmentPurchaseRepository } from '@/repositories/InstallmentPurchaseRepository';
 import { PayeeModel } from '@/models/PayeeModel';
@@ -17,7 +17,7 @@ import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { SelectInput } from '@/components/inputs/SelectInput';
 import { TextAreaInput } from '@/components/inputs/TextAreaInput';
 import { ActionsSection } from '@/components/containers/ActionsSection';
-import { TransactionCategorySection } from '@/screens/financial/TransactionCategorySection';
+import { TransactionCategorySection } from '@/screens/financial/transactions/TransactionCategorySection';
 
 export function CreditPurchaseModal({
     isOpen,
