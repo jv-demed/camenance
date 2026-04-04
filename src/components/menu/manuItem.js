@@ -6,6 +6,10 @@ export const MENU_ITEMS = [
         icon: ICONS.finances,
         url: '/'
     },{
+        name: 'Amizades',
+        icon: ICONS.friends,
+        url: '/friendships'
+    },{
         name: 'Configurações',
         icon: ICONS.settings,
         url: '/settings'
