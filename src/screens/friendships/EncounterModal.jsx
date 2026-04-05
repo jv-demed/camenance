@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { EncounterModel } from '@/models/EncounterModel';
 import { LocationModel } from '@/models/LocationModel';
 import { EncounterPhotoModel } from '@/models/EncounterPhotoModel';
@@ -7,7 +7,8 @@ import { encounterRepository } from '@/repositories/EncounterRepository';
 import { locationRepository } from '@/repositories/LocationRepository';
 import { encounterPhotoRepository } from '@/repositories/EncounterPhotoRepository';
 import { StorageService } from '@/services/StorageService';
-import { AlertService } from '@/services/alertService';
+import { BucketNames } from '@/assets/BucketNames';
+import { AlertService } from '@/services/AlertService';
 import { ICONS } from '@/assets/icons';
 import { Form } from '@/components/containers/Form';
 import { ActionsSection } from '@/components/containers/ActionsSection';
@@ -28,14 +29,31 @@ export function EncounterModal({
     encountersRefresh,
     user,
 }) {
-
-    if (!isOpen) return null;
-
     const isEdit = !!record.id;
     const [photoFiles, setPhotoFiles] = useState([]);
+    const [existingPhotos, setExistingPhotos] = useState([]);
 
-    // Amigos selecionados: array de ids
-    const friendIds = record.friendIds || (preselectedFriend ? [preselectedFriend.id] : []);
+    useEffect(() => {
+        if (isOpen && isEdit && record.id) {
+            encounterPhotoRepository
+                .findAll({ encounterId: record.id })
+                .then(async photos => {
+                    const withUrls = await Promise.all(
+                        photos.map(async p => ({
+                            ...p,
+                            url: await StorageService.getUrl(p.bucket, p.path),
+                        }))
+                    );
+                    setExistingPhotos(withUrls);
+                })
+                .catch(() => setExistingPhotos([]));
+        } else {
+            setExistingPhotos([]);
+        }
+        setPhotoFiles([]);
+    }, [isOpen, record.id]);
+
+    if (!isOpen) return null;
 
     function toggleFriend(id) {
         const current = record.friendIds || (preselectedFriend ? [preselectedFriend.id] : []);
@@ -62,7 +80,7 @@ export function EncounterModal({
 
             if (photoFiles.length > 0 && saved?.id) {
                 await Promise.all(photoFiles.map(async file => {
-                    const { bucket, path } = await StorageService.upload(user.id, saved.id, file);
+                    const { bucket, path } = await StorageService.upload(BucketNames.ENCOUNTER_PHOTOS, user.id, saved.id, file);
                     const photo = new EncounterPhotoModel({ encounterId: saved.id, userId: user.id, bucket, path });
                     await encounterPhotoRepository.insert(photo);
                 }));
@@ -83,7 +101,7 @@ export function EncounterModal({
 
             if (photoFiles.length > 0) {
                 await Promise.all(photoFiles.map(async file => {
-                    const { bucket, path } = await StorageService.upload(user.id, record.id, file);
+                    const { bucket, path } = await StorageService.upload(BucketNames.ENCOUNTER_PHOTOS, user.id, record.id, file);
                     const photo = new EncounterPhotoModel({ encounterId: record.id, userId: user.id, bucket, path });
                     await encounterPhotoRepository.insert(photo);
                 }));
@@ -119,23 +137,32 @@ export function EncounterModal({
         setPhotoFiles(prev => prev.filter((_, i) => i !== index));
     }
 
+    const selectedFriendIds = record.friendIds || (preselectedFriend ? [preselectedFriend.id] : []);
+    const hasPhotos = existingPhotos.length > 0 || photoFiles.length > 0;
+
     return (
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
-            <div className='bg-white rounded-xl w-full max-w-md flex flex-col overflow-hidden max-h-[90vh]'>
-                <header className='flex items-center justify-between px-6 py-4 border-b border-gray-200'>
-                    <h2 className='text-lg'>{isEdit ? 'Editar encontro' : 'Registrar encontro'}</h2>
-                    <span onClick={onClose} className='text-2xl cursor-pointer text-gray-500 hover:text-gray-800'>
+            <div className='bg-white rounded-2xl w-full max-w-md flex flex-col overflow-hidden max-h-[90vh] shadow-xl'>
+
+                {/* Header */}
+                <header className='flex items-center justify-between px-6 py-4 border-b border-border'>
+                    <h2 className='font-semibold text-gray-800'>
+                        {isEdit ? 'Editar encontro' : 'Registrar encontro'}
+                    </h2>
+                    <button onClick={onClose} className='text-gray-400 hover:text-gray-700 transition-colors text-xl'>
                         <ICONS.close />
-                    </span>
+                    </button>
                 </header>
-                <div className='px-6 py-4 overflow-y-auto'>
+
+                <div className='px-6 py-5 overflow-y-auto'>
                     <Form>
-                        {/* Seleção de amigos */}
-                        <div className='flex flex-col gap-1'>
-                            <label className='text-sm text-gray-500'>Amigos presentes</label>
-                            <div className='flex flex-wrap gap-2'>
+
+                        {/* Amigos */}
+                        <div className='flex flex-col gap-2 w-full'>
+                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Amigos presentes</span>
+                            <div className='flex flex-wrap gap-1.5'>
                                 {friends.map(f => {
-                                    const selected = (record.friendIds || (preselectedFriend ? [preselectedFriend.id] : [])).includes(f.id);
+                                    const selected = selectedFriendIds.includes(f.id);
                                     return (
                                         <button
                                             key={f.id}
@@ -145,7 +172,7 @@ export function EncounterModal({
                                                 px-3 py-1.5 rounded-lg text-sm border transition-all
                                                 ${selected
                                                     ? 'bg-primary text-white border-primary'
-                                                    : 'bg-white text-gray-600 border-border hover:border-primary'
+                                                    : 'text-gray-500 border-border hover:border-primary hover:text-primary'
                                                 }
                                             `}
                                         >
@@ -156,51 +183,58 @@ export function EncounterModal({
                             </div>
                         </div>
 
-                        <div className='flex gap-2'>
-                            <div className='flex-1'>
-                                <AddInput
-                                    placeholder='Local'
-                                    data={locations}
-                                    value={record.locationId}
-                                    setValue={v => setRecord({ ...record, locationId: v })}
-                                    onCreate={handleAddLocation}
-                                />
-                            </div>
-                            <DateInput
-                                value={record.date || ''}
-                                setValue={v => setRecord({ ...record, date: v })}
-                                width='140px'
+                        {/* Local */}
+                        <div className='flex flex-col gap-1.5 w-full'>
+                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Local</span>
+                            <AddInput
+                                placeholder='Onde foi?'
+                                data={locations}
+                                value={record.locationId}
+                                setValue={v => setRecord({ ...record, locationId: v })}
+                                onCreate={handleAddLocation}
                             />
                         </div>
 
-                        <TextAreaInput
-                            placeholder='Notas sobre o encontro'
-                            value={record.notes || ''}
-                            setValue={v => setRecord({ ...record, notes: v })}
-                        />
+                        {/* Data */}
+                        <div className='flex flex-col gap-1.5 w-full'>
+                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Data</span>
+                            <DateInput
+                                value={record.date || ''}
+                                setValue={v => setRecord({ ...record, date: v })}
+                                width='100%'
+                            />
+                        </div>
 
-                        {/* Upload de fotos */}
-                        <div className='flex flex-col gap-2'>
-                            <label className='text-sm text-gray-500'>Fotos</label>
-                            <label className='flex items-center gap-2 px-3 py-2 border border-dashed border-border rounded-xl cursor-pointer hover:border-primary text-sm text-gray-500 hover:text-primary transition-colors'>
-                                <ICONS.add className='text-lg' />
-                                <span>Adicionar fotos</span>
-                                <input
-                                    type='file'
-                                    accept='image/*'
-                                    multiple
-                                    className='hidden'
-                                    onChange={handlePhotoChange}
-                                />
-                            </label>
-                            {photoFiles.length > 0 && (
-                                <div className='flex flex-wrap gap-2'>
+                        {/* Notas */}
+                        <div className='flex flex-col gap-1.5 w-full'>
+                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Notas</span>
+                            <TextAreaInput
+                                placeholder='Como foi o encontro?'
+                                value={record.notes || ''}
+                                setValue={v => setRecord({ ...record, notes: v })}
+                            />
+                        </div>
+
+                        {/* Fotos */}
+                        <div className='flex flex-col gap-2 w-full'>
+                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Fotos</span>
+
+                            {hasPhotos && (
+                                <div className='grid grid-cols-4 gap-2'>
+                                    {existingPhotos.map(photo => (
+                                        <img
+                                            key={photo.id}
+                                            src={photo.url}
+                                            alt='foto do encontro'
+                                            className='w-full aspect-square object-cover rounded-xl border border-border'
+                                        />
+                                    ))}
                                     {photoFiles.map((file, i) => (
                                         <div key={i} className='relative'>
                                             <img
                                                 src={URL.createObjectURL(file)}
                                                 alt={file.name}
-                                                className='w-16 h-16 object-cover rounded-lg border border-border'
+                                                className='w-full aspect-square object-cover rounded-xl border border-border'
                                             />
                                             <button
                                                 type='button'
@@ -213,6 +247,18 @@ export function EncounterModal({
                                     ))}
                                 </div>
                             )}
+
+                            <label className='flex items-center justify-center gap-2 px-3 py-2.5 border border-dashed border-border rounded-xl cursor-pointer hover:border-primary text-sm text-gray-400 hover:text-primary transition-colors'>
+                                <ICONS.add className='text-lg' />
+                                <span>Adicionar fotos</span>
+                                <input
+                                    type='file'
+                                    accept='image/*'
+                                    multiple
+                                    className='hidden'
+                                    onChange={handlePhotoChange}
+                                />
+                            </label>
                         </div>
 
                         <ActionsSection>
@@ -240,6 +286,7 @@ export function EncounterModal({
                                 />
                             )}
                         </ActionsSection>
+
                     </Form>
                 </div>
             </div>

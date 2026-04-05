@@ -93,6 +93,12 @@ export function Friendships() {
         setIsEncounterModalOpen(true);
     }
 
+    function openEditEncounter(encounter) {
+        setEncounterRecord({ ...encounter });
+        setPreselectedFriend(null);
+        setIsEncounterModalOpen(true);
+    }
+
     function closeEncounterModal() {
         setIsEncounterModalOpen(false);
         setEncounterRecord({});
@@ -136,8 +142,11 @@ export function Friendships() {
                         {activeTab === 'timeline' && (
                             <FriendshipTimeline
                                 timelineItems={timelineItems}
+                                encounters={encounters.list}
+                                friends={friends.list}
                                 loading={false}
                                 onRegisterEncounter={openNewEncounter}
+                                onEditEncounter={openEditEncounter}
                             />
                         )}
                         {activeTab === 'friends' && (

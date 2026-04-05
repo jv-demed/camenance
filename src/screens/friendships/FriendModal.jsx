@@ -4,7 +4,7 @@ import { FriendModel } from '@/models/FriendModel';
 import { friendRepository } from '@/repositories/FriendRepository';
 import { FRIENDSHIP_LEVEL, FRIENDSHIP_LEVEL_OPTIONS } from '@/enums/FriendshipLevelTypes';
 import { MAINTENANCE, MAINTENANCE_OPTIONS } from '@/enums/MaintenanceTypes';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { ICONS } from '@/assets/icons';
 import { Form } from '@/components/containers/Form';
 import { ActionsSection } from '@/components/containers/ActionsSection';
