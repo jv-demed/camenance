@@ -9,17 +9,19 @@ import { financialTagRepository } from '@/repositories/FinancialTagRepository';
 import { financialCategoryRepository } from '@/repositories/FinancialCategoryRepository';
 import { creditCardRepository } from '@/repositories/CreditCardRepository';
 import { installmentPurchaseRepository } from '@/repositories/InstallmentPurchaseRepository';
+import { recurringTransactionRepository } from '@/repositories/RecurringTransactionRepository';
 import { DATE_FILTER } from '@/enums/DateFilters';
 import { FinancialService } from '@/services/FinancialService';
+import { LocalStorageService } from '@/services/LocalStorageService';
 import { Main } from '@/components/containers/Main';
 import { PageHeader } from '@/components/elements/PageHeader';
 import { SpinLoader } from '@/components/elements/SpinLoader';
-import { TransactionList } from '@/screens/financial/TransactionList';
-import { FinancialFilters } from '@/screens/financial/FinancialFilters';
-import { FinancialResumeBox } from '@/screens/financial/FinancialResumeBox';
+import { TransactionList } from '@/screens/financial/transactions/TransactionList';
+import { FinancialFilters } from '@/screens/financial/dashboard/FinancialFilters';
 import { FinancialSettingsModal } from '@/screens/financial/settings/FinancialSettingsModal';
-import { FinancialDashboard } from '@/screens/financial/FinancialDashboard';
-import { CreditPurchasesList } from '@/screens/financial/CreditPurchasesList';
+import { FinancialDashboard } from '@/screens/financial/dashboard/FinancialDashboard';
+import { CreditPurchasesList } from '@/screens/financial/credit/CreditPurchasesList';
+import { RecurringTransactionsList } from '@/screens/financial/recurring/RecurringTransactionsList';
 import { IconBtn } from '@/components/buttons/IconBtn';
 import { ICONS } from '@/assets/icons';
 
@@ -75,6 +77,12 @@ export function Financial() {
         filters: { userId: user.id }
     });
 
+    const recurringTransactions = useDataList({
+        repository: recurringTransactionRepository,
+        order: { column: 'title', ascending: true },
+        filters: { userId: user.id }
+    });
+
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         !expenses.loading &&
@@ -85,18 +93,30 @@ export function Financial() {
         !tags.loading &&
         !creditCards.loading &&
         !installmentPurchases.loading &&
+        !recurringTransactions.loading &&
         setIsLoading(false);
-    }, [expenses, incomes, payees, sources, categories, tags, creditCards, installmentPurchases]);
+    }, [expenses, incomes, payees, sources, categories, tags, creditCards, installmentPurchases, recurringTransactions]);
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('dashboard');
 
-    const [isRelative, setIsRelative] = useState(false);
-    const [dateFilter, setDateFilter] = useState(DATE_FILTER.MONTHLY);
+    const [isRelative, setIsRelative] = useState(
+        () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_IS_RELATIVE, false)
+    );
+    const [dateFilter, setDateFilter] = useState(
+        () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_DATE_FILTER, DATE_FILTER.MONTHLY)
+    );
 
     function handleDateFilterChange(filter) {
         setDateFilter(filter);
+        LocalStorageService.set(LocalStorageService.KEYS.FINANCIAL_DATE_FILTER, filter);
         setIsRelative(false);
+        LocalStorageService.set(LocalStorageService.KEYS.FINANCIAL_IS_RELATIVE, false);
+    }
+
+    function handleIsRelativeChange(value) {
+        setIsRelative(value);
+        LocalStorageService.set(LocalStorageService.KEYS.FINANCIAL_IS_RELATIVE, value);
     }
 
     const [startDate, setStartDate] = useState();
@@ -140,7 +160,7 @@ export function Financial() {
                             dateFilter={dateFilter}
                             setDateFilter={handleDateFilterChange}
                             isRelative={isRelative}
-                            setIsRelative={setIsRelative}
+                            setIsRelative={handleIsRelativeChange}
                             startDate={startDate}
                             endDate={endDate}
                         />
@@ -153,14 +173,11 @@ export function Financial() {
                         overflow-hidden
                     `}>
                         <div className="flex flex-col gap-3 flex-1 min-w-0 overflow-hidden">
-                            <FinancialResumeBox
-                                expenses={filteredExpenses}
-                                incomes={filteredIncomes}
-                            />
                             <div className="flex gap-1 border-b border-white/15 pb-1">
                                 {[
                                     { key: 'dashboard', label: 'Dashboard' },
                                     { key: 'credit', label: 'Crédito' },
+                                    { key: 'recurring', label: 'Recorrentes' },
                                 ].map(tab => (
                                     <button
                                         key={tab.key}
@@ -197,6 +214,21 @@ export function Financial() {
                                     user={user}
                                     installmentPurchasesRefresh={installmentPurchases.refresh}
                                     expensesRefresh={expenses.refresh}
+                                />
+                            )}
+                            {activeTab === 'recurring' && (
+                                <RecurringTransactionsList
+                                    recurringTransactions={recurringTransactions}
+                                    payees={payees}
+                                    sources={sources}
+                                    categories={categories}
+                                    tags={tags}
+                                    creditCards={creditCards}
+                                    user={user}
+                                    recurringRefresh={recurringTransactions.refresh}
+                                    expensesRefresh={expenses.refresh}
+                                    incomesRefresh={incomes.refresh}
+                                    installmentPurchasesRefresh={installmentPurchases.refresh}
                                 />
                             )}
                         </div>

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { DateService } from '@/services/DateService';
-import { MonetaryService } from '@/services/monetaryService';
+import { MonetaryService } from '@/services/MonetaryService';
 import { ICONS } from '@/assets/icons';
 import { PAYMENT_TYPES_LABELS } from '@/enums/PaymentTypes';
 import { INCOME_TYPES_LABELS } from '@/enums/IncomeTypes';
 import { TagBox } from '@/components/elements/TagBox';
-import { TransactionModal } from '@/screens/financial/TransactionModal';
+import { TransactionModal } from './TransactionModal';
 
 export function TransactionCard({
     record,

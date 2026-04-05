@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { ICONS } from '@/assets/icons';
 import { SpinLoader } from '@/components/elements/SpinLoader';
 

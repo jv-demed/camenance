@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ICONS } from '@/assets/icons';
 import { financialTagRepository } from '@/repositories/FinancialTagRepository';
 import { FinancialTagModel } from '@/models/FinancialTagModel';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { ColorService } from '@/services/ColorService';
 import { TextInput } from '@/components/inputs/TextInput';
 import { ColorInput } from '@/components/inputs/ColorInput';

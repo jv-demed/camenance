@@ -1,4 +1,4 @@
-import { MonetaryService } from '@/services/monetaryService';
+import { MonetaryService } from '@/services/MonetaryService';
 
 export function FinancialValueBox({
     title,

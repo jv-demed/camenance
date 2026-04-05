@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ICONS } from '@/assets/icons';
 import { sourceRepository } from '@/repositories/SourceRepository';
 import { SourceModel } from '@/models/SourceModel';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { TextInput } from '@/components/inputs/TextInput';
 import { IconBtn } from '@/components/buttons/IconBtn';
 import { SearchBar } from '@/components/inputs/SearchBar';

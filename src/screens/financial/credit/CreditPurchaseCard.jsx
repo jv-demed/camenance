@@ -1,6 +1,6 @@
 import { ICONS } from '@/assets/icons';
 import { DateService } from '@/services/DateService';
-import { MonetaryService } from '@/services/monetaryService';
+import { MonetaryService } from '@/services/MonetaryService';
 import { TagBox } from '@/components/elements/TagBox';
 
 export function CreditPurchaseCard({

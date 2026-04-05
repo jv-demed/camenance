@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ICONS } from '@/assets/icons';
 import { payeeRepository } from '@/repositories/PayeeRepository';
 import { PayeeModel } from '@/models/PayeeModel';
-import { AlertService } from '@/services/alertService';
+import { AlertService } from '@/services/AlertService';
 import { TextInput } from '@/components/inputs/TextInput';
 import { IconBtn } from '@/components/buttons/IconBtn';
 import { SearchBar } from '@/components/inputs/SearchBar';
