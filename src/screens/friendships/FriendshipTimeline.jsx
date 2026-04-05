@@ -1,32 +1,13 @@
 'use client'
-import { useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { URGENCY_COLORS, URGENCY_STATUS } from '@/services/FriendshipService';
-import { FRIENDSHIP_LEVEL_LABELS } from '@/enums/FriendshipLevelTypes';
-import { MAINTENANCE_LABELS } from '@/enums/MaintenanceTypes';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { SpinLoader } from '@/components/elements/SpinLoader';
+import { StorageService } from '@/services/StorageService';
 
-const URGENCY_LABELS = {
-    [URGENCY_STATUS.OVERDUE]: 'Atrasado',
-    [URGENCY_STATUS.SOON]: 'Em breve',
-    [URGENCY_STATUS.OK]: 'Ok',
-};
-
-function formatDaysSince(days) {
-    if (days === null || days === undefined) return 'Nunca se encontraram';
-    if (days === 0) return 'Hoje';
-    if (days === 1) return 'Ontem';
-    return `Há ${days} dias`;
-}
-
-const ITEMS_PER_ROW = 6;
-const ROW_HEIGHT = 80;
-
-function getInitials(name = '') {
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return name.slice(0, 2).toUpperCase();
-}
+const ITEMS_PER_ROW = 3;
+const ROW_HEIGHT = 160;
+const BUBBLE_TOP  = 8;   // pt-2 — distância do topo até o início da bolinha
+const LINE_Y = BUBBLE_TOP + 20; // centro da bolinha (h-10/2 = 20px)
+const CORNER_R = 22;
 
 function formatShortDate(dateStr) {
     if (!dateStr) return '?';
@@ -34,67 +15,86 @@ function formatShortDate(dateStr) {
     return `${parseInt(day)}/${parseInt(month)}`;
 }
 
-function FriendBubble({ friend, urgency, daysSince, onClick }) {
-    const [cardPos, setCardPos] = useState(null);
-    const btnRef = useRef(null);
-    const color = URGENCY_COLORS[urgency];
+function buildPath(numRows, W) {
+    if (!numRows || !W) return '';
+    const H = ROW_HEIGHT;
+    const Y = LINE_Y;
+    const R = CORNER_R;
+    let d = '';
 
-    function handleMouseEnter() {
-        if (btnRef.current) {
-            const rect = btnRef.current.getBoundingClientRect();
-            setCardPos({
-                bottom: window.innerHeight - rect.top + 8,
-                left: rect.left + rect.width / 2,
-            });
+    for (let i = 0; i < numRows; i++) {
+        const y = i * H + Y;
+        const reversed = i % 2 === 0;
+        const last = i === numRows - 1;
+
+        if (i === 0) d += reversed ? `M ${W} ${y}` : `M 0 ${y}`;
+
+        if (reversed) {
+            d += ` L ${R} ${y}`;
+            if (!last) {
+                d += ` Q 0 ${y} 0 ${y + R}`;
+                d += ` L 0 ${y + H - R}`;
+                d += ` Q 0 ${y + H} ${R} ${y + H}`;
+            }
+        } else {
+            d += ` L ${W - R} ${y}`;
+            if (!last) {
+                d += ` Q ${W} ${y} ${W} ${y + R}`;
+                d += ` L ${W} ${y + H - R}`;
+                d += ` Q ${W} ${y + H} ${W - R} ${y + H}`;
+            }
         }
     }
-
-    return (
-        <div className='shrink-0' onMouseEnter={handleMouseEnter} onMouseLeave={() => setCardPos(null)}>
-            {cardPos && createPortal(
-                <div
-                    className='fixed z-[9999] w-44 bg-white rounded-xl shadow-lg border border-border p-3 pointer-events-none'
-                    style={{ bottom: cardPos.bottom, left: cardPos.left, transform: 'translateX(-50%)' }}
-                >
-                    <p className='font-semibold text-gray-800 text-sm truncate'>{friend.name}</p>
-                    <p className='text-xs text-gray-400 mt-0.5'>{FRIENDSHIP_LEVEL_LABELS[friend.friendshipLevel]}</p>
-                    <p className='text-xs text-gray-400'>Manutenção {MAINTENANCE_LABELS[friend.maintenance]}</p>
-                    <p className='text-xs mt-1.5 font-medium' style={{ color }}>
-                        {formatDaysSince(daysSince)} · {URGENCY_LABELS[urgency]}
-                    </p>
-                </div>,
-                document.body
-            )}
-            <button
-                ref={btnRef}
-                onClick={onClick}
-                className='w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold text-white transition-transform hover:scale-110'
-                style={{ backgroundColor: color, boxShadow: `0 0 0 2px white, 0 0 0 3px ${color}` }}
-            >
-                {getInitials(friend.name)}
-            </button>
-        </div>
-    );
+    return d;
 }
 
-function EncounterBubble({ encounter, friendsMap, onClick }) {
+function EncounterBubble({ encounter, friendsMap, photo, onClick }) {
+    const [thumbUrl, setThumbUrl] = useState(null);
+
+    useEffect(() => {
+        if (!photo) return;
+        StorageService.getUrl(photo.bucket, photo.path)
+            .then(setThumbUrl)
+            .catch(() => setThumbUrl(null));
+    }, [photo]);
+
     const friendNames = (encounter.friendIds || [])
         .map(id => friendsMap[id]?.name || '?')
         .join(', ');
 
     return (
-        <button
-            onClick={onClick}
-            title={`${formatShortDate(encounter.date)} — ${friendNames}`}
-            className='shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-gray-400 bg-white border-2 border-border hover:border-primary hover:text-primary transition-colors'
-            style={{ fontSize: 10 }}
-        >
-            {formatShortDate(encounter.date)}
-        </button>
+        <div className='flex flex-col items-center gap-1 shrink-0'>
+            <button
+                onClick={onClick}
+                title={`${formatShortDate(encounter.date)} — ${friendNames}`}
+                className='w-10 h-10 rounded-full flex items-center justify-center text-gray-400 bg-white border-2 border-border hover:border-primary hover:text-primary transition-colors'
+                style={{ fontSize: 10 }}
+            >
+                {formatShortDate(encounter.date)}
+            </button>
+
+            {thumbUrl && (
+                <img
+                    src={thumbUrl}
+                    alt={friendNames}
+                    className='w-32 h-24 object-cover rounded-xl'
+                />
+            )}
+        </div>
     );
 }
 
-export function FriendshipTimeline({ timelineItems, encounters = [], friends = [], loading, onRegisterEncounter, onEditEncounter }) {
+export function FriendshipTimeline({ encounters = [], friends = [], photosByEncounter = {}, loading, onEditEncounter }) {
+
+    const containerRef = useRef(null);
+    const [containerWidth, setContainerWidth] = useState(0);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const ro = new ResizeObserver(([entry]) => setContainerWidth(entry.contentRect.width));
+        ro.observe(containerRef.current);
+        return () => ro.disconnect();
+    }, []);
 
     const friendsMap = useMemo(() => {
         const map = {};
@@ -104,99 +104,55 @@ export function FriendshipTimeline({ timelineItems, encounters = [], friends = [
 
     if (loading) return <SpinLoader />;
 
-    if (timelineItems.length === 0 && encounters.length === 0) {
+    if (encounters.length === 0) {
         return (
             <p className='text-gray-400 text-sm text-center py-8'>
-                Nenhum amigo para mostrar na timeline. Cadastre amigos com manutenção habilitada.
-            </p>
-        );
-    }
-
-    const priorityItems = timelineItems.filter(
-        ({ urgency }) => urgency === URGENCY_STATUS.OVERDUE || urgency === URGENCY_STATUS.SOON
-    );
-
-    const allNodes = [
-        ...priorityItems.map(({ friend, urgency, daysSince }) => ({
-            kind: 'friend',
-            id: `friend-${friend.id}`,
-            friend,
-            urgency,
-            daysSince,
-        })),
-        ...encounters.map(enc => ({
-            kind: 'encounter',
-            id: `enc-${enc.id}`,
-            encounter: enc,
-        })),
-    ];
-
-    if (allNodes.length === 0) {
-        return (
-            <p className='text-gray-400 text-sm text-center py-8'>
-                Nenhum dado para mostrar.
+                Nenhum encontro registrado ainda.
             </p>
         );
     }
 
     const rows = [];
-    for (let i = 0; i < allNodes.length; i += ITEMS_PER_ROW) {
-        rows.push(allNodes.slice(i, i + ITEMS_PER_ROW));
+    for (let i = 0; i < encounters.length; i += ITEMS_PER_ROW) {
+        rows.push(encounters.slice(i, i + ITEMS_PER_ROW));
     }
 
     return (
-        <div className='relative w-full'>
-            {rows.map((rowNodes, rowIdx) => {
-                const isReversed = rowIdx % 2 === 0;
-                const isLast = rowIdx === rows.length - 1;
-                const mid = ROW_HEIGHT / 2;
+        <div ref={containerRef} className='relative w-full' style={{ minHeight: rows.length * ROW_HEIGHT }}>
 
-                return (
-                    <div key={rowIdx} className='relative' style={{ height: ROW_HEIGHT }}>
+            {containerWidth > 0 && (
+                <svg
+                    className='absolute inset-0 pointer-events-none'
+                    width={containerWidth}
+                    height={rows.length * ROW_HEIGHT}
+                >
+                    <path
+                        d={buildPath(rows.length, containerWidth)}
+                        fill='none'
+                        strokeWidth='1.5'
+                        strokeLinecap='round'
+                        style={{ stroke: 'var(--color-border)' }}
+                    />
+                </svg>
+            )}
 
-                        {/* Linha horizontal */}
-                        <div
-                            className='absolute left-0 right-0 bg-border'
-                            style={{ top: mid, height: 1 }}
+            {rows.map((rowEncs, rowIdx) => (
+                <div
+                    key={rowIdx}
+                    className={`relative flex items-start justify-around px-2 ${rowIdx % 2 === 0 ? 'flex-row-reverse' : ''}`}
+                    style={{ height: ROW_HEIGHT, paddingTop: BUBBLE_TOP }}
+                >
+                    {rowEncs.map(enc => (
+                        <EncounterBubble
+                            key={enc.id}
+                            encounter={enc}
+                            friendsMap={friendsMap}
+                            photo={photosByEncounter[enc.id]?.[0] ?? null}
+                            onClick={() => onEditEncounter(enc)}
                         />
-
-                        {/* Bolinhas */}
-                        <div className={`absolute inset-0 flex items-center justify-around px-2 ${isReversed ? 'flex-row-reverse' : ''}`}>
-                            {rowNodes.map(node =>
-                                node.kind === 'friend' ? (
-                                    <FriendBubble
-                                        key={node.id}
-                                        friend={node.friend}
-                                        urgency={node.urgency}
-                                        daysSince={node.daysSince}
-                                        onClick={() => onRegisterEncounter(node.friend)}
-                                    />
-                                ) : (
-                                    <EncounterBubble
-                                        key={node.id}
-                                        encounter={node.encounter}
-                                        friendsMap={friendsMap}
-                                        onClick={() => onEditEncounter(node.encounter)}
-                                    />
-                                )
-                            )}
-                        </div>
-
-                        {/* Conector vertical para a próxima fila */}
-                        {!isLast && (
-                            <div
-                                className='absolute bg-border'
-                                style={{
-                                    [isReversed ? 'left' : 'right']: 0,
-                                    top: mid,
-                                    height: ROW_HEIGHT,
-                                    width: 1,
-                                }}
-                            />
-                        )}
-                    </div>
-                );
-            })}
+                    ))}
+                </div>
+            ))}
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { useUser } from '@/context/UserContext';
 import { useDataList } from '@/hooks/useDataList';
 import { friendRepository } from '@/repositories/FriendRepository';
 import { encounterRepository } from '@/repositories/EncounterRepository';
+import { encounterPhotoRepository } from '@/repositories/EncounterPhotoRepository';
 import { locationRepository } from '@/repositories/LocationRepository';
 import { FriendshipService } from '@/services/FriendshipService';
 import { Main } from '@/components/containers/Main';
@@ -14,6 +15,7 @@ import { ICONS } from '@/assets/icons';
 import { FriendsList } from '@/screens/friendships/FriendsList';
 import { FriendModal } from '@/screens/friendships/FriendModal';
 import { FriendshipTimeline } from '@/screens/friendships/FriendshipTimeline';
+import { FriendPriorityBoxes } from '@/screens/friendships/FriendPriorityBoxes';
 import { EncounterModal } from '@/screens/friendships/EncounterModal';
 
 const TABS = [
@@ -42,6 +44,20 @@ export function Friendships() {
         order: { column: 'name', ascending: true },
         filters: { userId: user.id },
     });
+
+    const photos = useDataList({
+        repository: encounterPhotoRepository,
+        filters: { userId: user.id },
+    });
+
+    const photosByEncounter = useMemo(() => {
+        const map = {};
+        photos.list.forEach(p => {
+            if (!map[p.encounterId]) map[p.encounterId] = [];
+            map[p.encounterId].push(p);
+        });
+        return map;
+    }, [photos.list]);
 
     const isLoading = friends.loading || encounters.loading;
 
@@ -138,23 +154,32 @@ export function Friendships() {
                     </div>
 
                     {/* Conteúdo da aba */}
-                    <div className='flex-1 overflow-y-auto pb-4'>
+                    <div className='flex-1 overflow-hidden pb-4'>
                         {activeTab === 'timeline' && (
-                            <FriendshipTimeline
-                                timelineItems={timelineItems}
-                                encounters={encounters.list}
-                                friends={friends.list}
-                                loading={false}
-                                onRegisterEncounter={openNewEncounter}
-                                onEditEncounter={openEditEncounter}
-                            />
+                            <div className='flex gap-12 h-full'>
+                                <FriendPriorityBoxes
+                                    timelineItems={timelineItems}
+                                    onRegisterEncounter={openNewEncounter}
+                                />
+                                <div className='flex-1 overflow-y-auto'>
+                                    <FriendshipTimeline
+                                        encounters={encounters.list}
+                                        friends={friends.list}
+                                        photosByEncounter={photosByEncounter}
+                                        loading={false}
+                                        onEditEncounter={openEditEncounter}
+                                    />
+                                </div>
+                            </div>
                         )}
                         {activeTab === 'friends' && (
-                            <FriendsList
-                                friends={friends.list}
-                                onEdit={openEditFriend}
-                                onRegisterEncounter={openNewEncounter}
-                            />
+                            <div className='overflow-y-auto h-full'>
+                                <FriendsList
+                                    friends={friends.list}
+                                    onEdit={openEditFriend}
+                                    onRegisterEncounter={openNewEncounter}
+                                />
+                            </div>
                         )}
                     </div>
                 </div>
