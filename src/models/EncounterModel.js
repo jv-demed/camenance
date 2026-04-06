@@ -7,6 +7,7 @@ export class EncounterModel extends BaseModel {
         createdAt: 'created_at',
         updatedAt: 'updated_at',
         userId: 'user_id',
+        title: 'title',
         date: 'date',
         locationId: 'location_id',
         notes: 'notes',

@@ -12,10 +12,12 @@ import { AlertService } from '@/services/AlertService';
 import { ICONS } from '@/assets/icons';
 import { Form } from '@/components/containers/Form';
 import { ActionsSection } from '@/components/containers/ActionsSection';
+import { TextInput } from '@/components/inputs/TextInput';
 import { DateInput } from '@/components/inputs/DateInput';
 import { TextAreaInput } from '@/components/inputs/TextAreaInput';
 import { AddInput } from '@/components/inputs/AddInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
+import { PhotoCropModal } from '@/screens/friendships/PhotoCropModal';
 
 export function EncounterModal({
     isOpen,
@@ -27,11 +29,14 @@ export function EncounterModal({
     locations,
     locationsRefresh,
     encountersRefresh,
+    photosRefresh,
     user,
 }) {
     const isEdit = !!record.id;
     const [photoFiles, setPhotoFiles] = useState([]);
     const [existingPhotos, setExistingPhotos] = useState([]);
+    const [photosToDelete, setPhotosToDelete] = useState([]);
+    const [cropImageSrc, setCropImageSrc] = useState(null);
 
     useEffect(() => {
         if (isOpen && isEdit && record.id) {
@@ -51,6 +56,7 @@ export function EncounterModal({
             setExistingPhotos([]);
         }
         setPhotoFiles([]);
+        setPhotosToDelete([]);
     }, [isOpen, record.id]);
 
     if (!isOpen) return null;
@@ -87,6 +93,7 @@ export function EncounterModal({
             }
 
             encountersRefresh?.();
+            photosRefresh?.();
             AlertService.fastSuccess();
             onClose();
         } catch (e) {
@@ -99,6 +106,10 @@ export function EncounterModal({
             const model = new EncounterModel({ ...record });
             await encounterRepository.update(record.id, model);
 
+            if (photosToDelete.length > 0) {
+                await Promise.all(photosToDelete.map(p => encounterPhotoRepository.delete(p.id)));
+            }
+
             if (photoFiles.length > 0) {
                 await Promise.all(photoFiles.map(async file => {
                     const { bucket, path } = await StorageService.upload(BucketNames.ENCOUNTER_PHOTOS, user.id, record.id, file);
@@ -108,6 +119,7 @@ export function EncounterModal({
             }
 
             encountersRefresh?.();
+            photosRefresh?.();
             AlertService.fastSuccess();
             onClose();
         } catch (e) {
@@ -121,6 +133,7 @@ export function EncounterModal({
         try {
             await encounterRepository.delete(record.id);
             encountersRefresh?.();
+            photosRefresh?.();
             AlertService.fastSuccess();
             onClose();
         } catch (e) {
@@ -129,25 +142,34 @@ export function EncounterModal({
     }
 
     function handlePhotoChange(e) {
-        const files = Array.from(e.target.files);
-        setPhotoFiles(prev => [...prev, ...files]);
+        const file = e.target.files[0];
+        if (file) setCropImageSrc(URL.createObjectURL(file));
     }
 
-    function removePhotoFile(index) {
-        setPhotoFiles(prev => prev.filter((_, i) => i !== index));
+    function handleCropConfirm(file) {
+        setPhotoFiles([file]);
+        setCropImageSrc(null);
+    }
+
+    function removeExistingPhoto(photo) {
+        setExistingPhotos([]);
+        setPhotosToDelete(prev => [...prev, photo]);
     }
 
     const selectedFriendIds = record.friendIds || (preselectedFriend ? [preselectedFriend.id] : []);
-    const hasPhotos = existingPhotos.length > 0 || photoFiles.length > 0;
+    const existingPhoto = existingPhotos[0] ?? null;
+    const newPhotoFile = photoFiles[0] ?? null;
+    const hasPhoto = !!existingPhoto || !!newPhotoFile;
 
     return (
+        <>
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
             <div className='bg-white rounded-2xl w-full max-w-md flex flex-col overflow-hidden max-h-[90vh] shadow-xl'>
 
                 {/* Header */}
                 <header className='flex items-center justify-between px-6 py-4 border-b border-border'>
                     <h2 className='font-semibold text-gray-800'>
-                        {isEdit ? 'Editar encontro' : 'Registrar encontro'}
+                        {isEdit ? 'Editar rolê' : 'Registrar rolê'}
                     </h2>
                     <button onClick={onClose} className='text-gray-400 hover:text-gray-700 transition-colors text-xl'>
                         <ICONS.close />
@@ -156,6 +178,37 @@ export function EncounterModal({
 
                 <div className='px-6 py-5 overflow-y-auto'>
                     <Form>
+
+                        {/* Título */}
+                        <div className='flex flex-col gap-1.5 w-full'>
+                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Título</span>
+                            <TextInput
+                                placeholder='Dê um título para o rolê'
+                                value={record.title || ''}
+                                setValue={v => setRecord({ ...record, title: v })}
+                            />
+                        </div>
+
+                        {/* Local + Data */}
+                        <div className='flex gap-3 w-full'>
+                            <div className='flex flex-col gap-1.5 flex-1'>
+                                <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Local</span>
+                                <AddInput
+                                    placeholder='Onde foi?'
+                                    data={locations}
+                                    value={record.locationId}
+                                    setValue={v => setRecord({ ...record, locationId: v })}
+                                    onCreate={handleAddLocation}
+                                />
+                            </div>
+                            <div className='flex flex-col gap-1.5'>
+                                <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Data</span>
+                                <DateInput
+                                    value={record.date || ''}
+                                    setValue={v => setRecord({ ...record, date: v })}
+                                />
+                            </div>
+                        </div>
 
                         {/* Amigos */}
                         <div className='flex flex-col gap-2 w-full'>
@@ -183,82 +236,62 @@ export function EncounterModal({
                             </div>
                         </div>
 
-                        {/* Local */}
-                        <div className='flex flex-col gap-1.5 w-full'>
-                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Local</span>
-                            <AddInput
-                                placeholder='Onde foi?'
-                                data={locations}
-                                value={record.locationId}
-                                setValue={v => setRecord({ ...record, locationId: v })}
-                                onCreate={handleAddLocation}
-                            />
-                        </div>
-
-                        {/* Data */}
-                        <div className='flex flex-col gap-1.5 w-full'>
-                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Data</span>
-                            <DateInput
-                                value={record.date || ''}
-                                setValue={v => setRecord({ ...record, date: v })}
-                                width='100%'
-                            />
-                        </div>
-
                         {/* Notas */}
                         <div className='flex flex-col gap-1.5 w-full'>
                             <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Notas</span>
                             <TextAreaInput
-                                placeholder='Como foi o encontro?'
+                                placeholder='Como foi o rolê?'
                                 value={record.notes || ''}
                                 setValue={v => setRecord({ ...record, notes: v })}
                             />
                         </div>
 
-                        {/* Fotos */}
+                        {/* Foto */}
                         <div className='flex flex-col gap-2 w-full'>
-                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Fotos</span>
+                            <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>Foto</span>
 
-                            {hasPhotos && (
-                                <div className='grid grid-cols-4 gap-2'>
-                                    {existingPhotos.map(photo => (
-                                        <img
-                                            key={photo.id}
-                                            src={photo.url}
-                                            alt='foto do encontro'
-                                            className='w-full aspect-square object-cover rounded-xl border border-border'
-                                        />
-                                    ))}
-                                    {photoFiles.map((file, i) => (
-                                        <div key={i} className='relative'>
-                                            <img
-                                                src={URL.createObjectURL(file)}
-                                                alt={file.name}
-                                                className='w-full aspect-square object-cover rounded-xl border border-border'
-                                            />
-                                            <button
-                                                type='button'
-                                                onClick={() => removePhotoFile(i)}
-                                                className='absolute -top-1.5 -right-1.5 bg-error text-white rounded-full w-5 h-5 flex items-center justify-center text-xs'
-                                            >
-                                                <ICONS.close />
-                                            </button>
-                                        </div>
-                                    ))}
+                            {existingPhoto ? (
+                                <div className='relative'>
+                                    <img
+                                        src={existingPhoto.url}
+                                        alt='foto do rolê'
+                                        className='w-full aspect-square object-cover rounded-xl border border-border'
+                                    />
+                                    <button
+                                        type='button'
+                                        onClick={() => removeExistingPhoto(existingPhoto)}
+                                        className='absolute top-2 right-2 bg-error text-white rounded-full w-6 h-6 flex items-center justify-center'
+                                    >
+                                        <ICONS.close />
+                                    </button>
                                 </div>
+                            ) : newPhotoFile ? (
+                                <div className='relative'>
+                                    <img
+                                        src={URL.createObjectURL(newPhotoFile)}
+                                        alt={newPhotoFile.name}
+                                        className='w-full aspect-square object-cover rounded-xl border border-border'
+                                    />
+                                    <button
+                                        type='button'
+                                        onClick={() => setPhotoFiles([])}
+                                        className='absolute top-2 right-2 bg-error text-white rounded-full w-6 h-6 flex items-center justify-center'
+                                    >
+                                        <ICONS.close />
+                                    </button>
+                                </div>
+                            ) : (
+                                <label className='flex items-center justify-center gap-2 px-3 py-2.5 border border-dashed border-border rounded-xl cursor-pointer hover:border-primary text-sm text-gray-400 hover:text-primary transition-colors'>
+                                    <ICONS.add className='text-lg' />
+                                    <span>Adicionar foto</span>
+                                    <input
+                                        type='file'
+                                        accept='image/*'
+                                        className='hidden'
+                                        onChange={handlePhotoChange}
+                                    />
+                                </label>
                             )}
-
-                            <label className='flex items-center justify-center gap-2 px-3 py-2.5 border border-dashed border-border rounded-xl cursor-pointer hover:border-primary text-sm text-gray-400 hover:text-primary transition-colors'>
-                                <ICONS.add className='text-lg' />
-                                <span>Adicionar fotos</span>
-                                <input
-                                    type='file'
-                                    accept='image/*'
-                                    multiple
-                                    className='hidden'
-                                    onChange={handlePhotoChange}
-                                />
-                            </label>
                         </div>
 
                         <ActionsSection>
@@ -291,5 +324,14 @@ export function EncounterModal({
                 </div>
             </div>
         </div>
+
+        {cropImageSrc && (
+            <PhotoCropModal
+                imageSrc={cropImageSrc}
+                onConfirm={handleCropConfirm}
+                onCancel={() => setCropImageSrc(null)}
+            />
+        )}
+        </>
     );
 }

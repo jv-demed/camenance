@@ -1,5 +1,5 @@
-import { MAINTENANCE, MAINTENANCE_FREQUENCY_DAYS, MAINTENANCE_WEIGHTS } from '@/enums/MaintenanceTypes';
-import { FRIENDSHIP_LEVEL_WEIGHTS } from '@/enums/FriendshipLevelTypes';
+import { MAINTENANCE, MAINTENANCE_BASE_FREQUENCY, MAINTENANCE_WEIGHTS } from '@/enums/MaintenanceTypes';
+import { FRIENDSHIP_LEVEL_FREQ_MULTIPLIER, FRIENDSHIP_LEVEL_WEIGHTS } from '@/enums/FriendshipLevelTypes';
 
 export const URGENCY_STATUS = Object.freeze({
     OVERDUE: 'overdue',
@@ -61,7 +61,9 @@ export const FriendshipService = {
     getUrgencyStatus(friend, daysSince) {
         if (friend.maintenance === MAINTENANCE.NO_MAINTENANCE) return null;
 
-        const frequency = MAINTENANCE_FREQUENCY_DAYS[friend.maintenance];
+        const baseFreq = MAINTENANCE_BASE_FREQUENCY[friend.maintenance];
+        const freqMultiplier = FRIENDSHIP_LEVEL_FREQ_MULTIPLIER[friend.friendshipLevel] ?? 1;
+        const frequency = Math.round(baseFreq * freqMultiplier);
         const days = daysSince ?? 0;
         const ratio = days / frequency;
 

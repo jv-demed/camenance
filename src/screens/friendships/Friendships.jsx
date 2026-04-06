@@ -83,6 +83,12 @@ export function Friendships() {
     const [isFriendModalOpen, setIsFriendModalOpen] = useState(false);
     const [friendRecord, setFriendRecord] = useState({});
 
+    const getTodayLocal = () => {
+        const d = new Date();
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        return d.toISOString().split('T')[0];
+    };
+
     function openNewFriend() {
         setFriendRecord({});
         setIsFriendModalOpen(true);
@@ -104,7 +110,7 @@ export function Friendships() {
     const [preselectedFriend, setPreselectedFriend] = useState(null);
 
     function openNewEncounter(friend = null) {
-        setEncounterRecord({});
+        setEncounterRecord({ date: getTodayLocal() });
         setPreselectedFriend(friend);
         setIsEncounterModalOpen(true);
     }
@@ -125,32 +131,47 @@ export function Friendships() {
         <Main>
             {isLoading ? <SpinLoader /> : (
                 <div className='flex flex-col gap-3 w-full h-screen max-h-screen overflow-hidden'>
-                    <PageHeader title='Amizades'>
-                        <DefaultBtn
-                            text='Novo amigo'
-                            icon={ICONS.add}
-                            width='140px'
-                            onClick={async () => openNewFriend()}
-                        />
-                    </PageHeader>
+                    <PageHeader title='Amizades' />
 
-                    {/* Abas */}
-                    <div className='flex gap-1 border-b border-white/15 pb-1'>
-                        {TABS.map(tab => (
-                            <button
-                                key={tab.key}
-                                onClick={() => setActiveTab(tab.key)}
-                                className={`
-                                    px-4 py-1.5 rounded-lg text-sm transition-all duration-200
-                                    ${activeTab === tab.key
-                                        ? 'bg-white text-gray-500 font-semibold'
-                                        : 'text-gray-400 hover:text-white'
-                                    }
-                                `}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
+                    {/* Abas e Ações */}
+                    <div className='flex items-center justify-between border-b border-white/15 pb-2'>
+                        {/* Abas */}
+                        <div className='flex gap-1'>
+                            {TABS.map(tab => (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setActiveTab(tab.key)}
+                                    className={`
+                                        px-4 py-1.5 rounded-lg text-sm transition-all duration-200
+                                        ${activeTab === tab.key
+                                            ? 'bg-white text-gray-700 font-semibold shadow-sm'
+                                            : 'text-gray-400 hover:text-white'
+                                        }
+                                    `}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Ações (botão do lado direito) */}
+                        <div className="flex-shrink-0">
+                            {activeTab === 'timeline' ? (
+                                <DefaultBtn
+                                    text='Novo rolê'
+                                    icon={ICONS.add}
+                                    width='160px'
+                                    onClick={() => openNewEncounter()}
+                                />
+                            ) : (
+                                <DefaultBtn
+                                    text='Novo amigo'
+                                    icon={ICONS.add}
+                                    width='160px'
+                                    onClick={() => openNewFriend()}
+                                />
+                            )}
+                        </div>
                     </div>
 
                     {/* Conteúdo da aba */}
@@ -161,7 +182,7 @@ export function Friendships() {
                                     timelineItems={timelineItems}
                                     onRegisterEncounter={openNewEncounter}
                                 />
-                                <div className='flex-1 overflow-y-auto'>
+                                <div className='flex-1 overflow-y-auto pr-4'>
                                     <FriendshipTimeline
                                         encounters={encounters.list}
                                         friends={friends.list}
@@ -173,7 +194,7 @@ export function Friendships() {
                             </div>
                         )}
                         {activeTab === 'friends' && (
-                            <div className='overflow-y-auto h-full'>
+                            <div className='overflow-y-auto h-full pr-4 pl-1'>
                                 <FriendsList
                                     friends={friends.list}
                                     onEdit={openEditFriend}
@@ -204,6 +225,7 @@ export function Friendships() {
                 locations={locations}
                 locationsRefresh={locations.refresh}
                 encountersRefresh={encounters.refresh}
+                photosRefresh={photos.refresh}
                 user={user}
             />
         </Main>

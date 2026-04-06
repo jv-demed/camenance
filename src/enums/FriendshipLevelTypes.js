@@ -16,6 +16,14 @@ export const FRIENDSHIP_LEVEL_WEIGHTS = Object.freeze({
     [FRIENDSHIP_LEVEL.BEST_FRIEND]: 2.0,
 });
 
+// Multiplicador sobre MAINTENANCE_BASE_FREQUENCY para calcular a frequência ideal de encontros.
+// Range: 2× (Melhor=1.0 → Amigo=2.0), menor que o range da manutenção (4.5×).
+export const FRIENDSHIP_LEVEL_FREQ_MULTIPLIER = Object.freeze({
+    [FRIENDSHIP_LEVEL.BEST_FRIEND]: 1.0,
+    [FRIENDSHIP_LEVEL.GREAT_FRIEND]: 4 / 3,
+    [FRIENDSHIP_LEVEL.FRIEND]: 2.0,
+});
+
 export const FRIENDSHIP_LEVEL_OPTIONS = Object.freeze(
     Object.values(FRIENDSHIP_LEVEL).map(value => ({
         value,

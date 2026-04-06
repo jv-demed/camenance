@@ -17,7 +17,7 @@ export function FriendCard({ friend, onEdit, onRegisterEncounter }) {
             <div className='flex items-center gap-2 shrink-0'>
                 <button
                     onClick={onRegisterEncounter}
-                    title='Registrar encontro'
+                    title='Registrar rolê'
                     className='p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors text-lg'
                 >
                     <ICONS.add />

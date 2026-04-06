@@ -38,7 +38,7 @@ export function TimelineCard({ friend, daysSince, urgency, onRegisterEncounter }
             </div>
             <button
                 onClick={onRegisterEncounter}
-                title='Registrar encontro'
+                title='Registrar rolê'
                 className='shrink-0 p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors text-lg'
             >
                 <ICONS.add />

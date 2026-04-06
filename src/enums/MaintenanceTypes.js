@@ -12,12 +12,14 @@ export const MAINTENANCE_LABELS = Object.freeze({
     [MAINTENANCE.HIGH]: 'Alta',
 });
 
-// Frequência ideal em dias para cada nível
-export const MAINTENANCE_FREQUENCY_DAYS = Object.freeze({
+// Frequência base em dias por nível de manutenção (para melhor amigo).
+// O valor final é multiplicado pelo FRIENDSHIP_LEVEL_FREQ_MULTIPLIER do amigo.
+// Range: 4.5× (Alta=30 → Baixa=135), garantindo mais peso que a amizade (range 2×).
+export const MAINTENANCE_BASE_FREQUENCY = Object.freeze({
     [MAINTENANCE.NO_MAINTENANCE]: null, // não aparece na timeline
-    [MAINTENANCE.LOW]: 90,
-    [MAINTENANCE.MEDIUM]: 30,
-    [MAINTENANCE.HIGH]: 14,
+    [MAINTENANCE.LOW]: 135,
+    [MAINTENANCE.MEDIUM]: 75,
+    [MAINTENANCE.HIGH]: 30,
 });
 
 // Peso multiplicador para o score de priorização
