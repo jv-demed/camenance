@@ -7,5 +7,9 @@ export const TableNames = Object.freeze({
     PAYEES: 'camenance_payees',
     CREDIT_CARDS: 'camenance_credit_cards',
     INSTALLMENT_PURCHASES: 'camenance_installment_purchases',
-    RECURRING_TRANSACTIONS: 'camenance_recurring_transactions'
+    RECURRING_TRANSACTIONS: 'camenance_recurring_transactions',
+    FRIENDS: 'camenance_friends',
+    ENCOUNTERS: 'camenance_encounters',
+    LOCATIONS: 'camenance_locations',
+    ENCOUNTER_PHOTOS: 'camenance_encounter_photos',
 });
