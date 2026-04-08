@@ -39,6 +39,7 @@ export function RecurringTransactionModal({
     categories,
     tags,
     creditCards,
+    benefitTypes,
     user
 }) {
 
@@ -50,7 +51,14 @@ export function RecurringTransactionModal({
 
     const isIncome = categoryType === FINANCIAL_CATEGORY_TYPES.INCOME;
     const frequency = record.frequency || RECURRING_FREQUENCY.MONTHLY;
-    const isCredit = !isIncome && (record.paymentType || PAYMENT_TYPES.DEBIT) === PAYMENT_TYPES.CREDIT;
+    const currentPaymentType = record.paymentType || PAYMENT_TYPES.DEBIT;
+    const isCredit = !isIncome && currentPaymentType === PAYMENT_TYPES.CREDIT;
+
+    const isBenefitIncome = isIncome && (record.incomeType || INCOME_TYPES.PIX) === INCOME_TYPES.BENEFITS;
+    const isBenefitExpense = !isIncome && currentPaymentType === PAYMENT_TYPES.BENEFITS;
+    const showBenefitSelector = isBenefitIncome || isBenefitExpense;
+
+    const benefitTypeOptions = (benefitTypes?.list || []).map(b => ({ value: b.id, label: b.title }));
 
     const creditCardOptions = useMemo(() =>
         (creditCards?.list || []).map(card => ({ value: card.id, label: card.name })),
@@ -78,6 +86,7 @@ export function RecurringTransactionModal({
                 paymentType: null,
                 creditCardId: null,
                 payeeId: null,
+                benefitTypeId: isBenefitIncome ? (record.benefitTypeId ?? null) : null,
             };
         } else {
             return {
@@ -86,6 +95,7 @@ export function RecurringTransactionModal({
                 frequency,
                 incomeType: null,
                 sourceId: null,
+                benefitTypeId: isBenefitExpense ? (record.benefitTypeId ?? null) : null,
             };
         }
     }
@@ -159,14 +169,14 @@ export function RecurringTransactionModal({
                                     <SelectInput
                                         options={INCOME_TYPES_OPTIONS}
                                         value={record.incomeType || INCOME_TYPES.PIX}
-                                        setValue={e => setRecord({ ...record, incomeType: e })}
+                                        setValue={e => setRecord({ ...record, incomeType: e, benefitTypeId: e === INCOME_TYPES.BENEFITS ? record.benefitTypeId : null })}
                                         placeholder='Tipo de recebimento'
                                     />
                                 ) : (
                                     <SelectInput
                                         options={PAYMENT_TYPES_OPTIONS}
                                         value={record.paymentType || PAYMENT_TYPES.DEBIT}
-                                        setValue={e => setRecord({ ...record, paymentType: e, creditCardId: e === PAYMENT_TYPES.CREDIT ? (creditCardOptions[0]?.value ?? null) : null })}
+                                        setValue={e => setRecord({ ...record, paymentType: e, creditCardId: e === PAYMENT_TYPES.CREDIT ? (creditCardOptions[0]?.value ?? null) : null, benefitTypeId: e === PAYMENT_TYPES.BENEFITS ? record.benefitTypeId : null })}
                                         placeholder='Tipo de pagamento'
                                     />
                                 )}
@@ -201,6 +211,14 @@ export function RecurringTransactionModal({
                                 </div>
                             )}
                         </div>
+                        {showBenefitSelector && (
+                            <SelectInput
+                                options={benefitTypeOptions}
+                                value={record.benefitTypeId}
+                                setValue={e => setRecord({ ...record, benefitTypeId: e })}
+                                placeholder='Tipo de benefício'
+                            />
+                        )}
                         <div className='flex gap-1 w-full'>
                             <TextInput placeholder='Título'
                                 value={record.title}

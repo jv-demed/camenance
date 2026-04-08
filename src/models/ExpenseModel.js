@@ -19,7 +19,8 @@ export class ExpenseModel extends BaseModel {
         installmentGroupId: 'installment_group_id',
         installmentNumber: 'installment_number',
         installmentTotal: 'installment_total',
-        dueDate: 'due_date'
+        dueDate: 'due_date',
+        benefitTypeId: 'benefit_type_id'
     };
 
 }

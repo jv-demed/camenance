@@ -14,7 +14,8 @@ export class IncomeModel extends BaseModel {
         incomeType: 'income_type',
         categoryId: 'category_id',
         tagIds: 'tag_ids',
-        date: 'date'
+        date: 'date',
+        benefitTypeId: 'benefit_type_id'
     };
 
 }

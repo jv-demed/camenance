@@ -15,6 +15,7 @@ export function TransactionList({
     categories,
     tags,
     creditCards,
+    benefitTypes,
     expensesRefresh,
     incomesRefresh,
     user
@@ -116,6 +117,7 @@ export function TransactionList({
                 categories={categories}
                 tags={tags}
                 creditCards={creditCards}
+                benefitTypes={benefitTypes}
                 user={user}
             />
         </div>

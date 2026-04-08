@@ -35,6 +35,7 @@ export function TransactionModal({
     sources,
     categories,
     tags,
+    benefitTypes,
     user
 }) {
 
@@ -45,6 +46,12 @@ export function TransactionModal({
     );
 
     const isIncome = categoryType === FINANCIAL_CATEGORY_TYPES.INCOME;
+
+    const isBenefitIncome = isIncome && (record.incomeType || INCOME_TYPES.PIX) === INCOME_TYPES.BENEFITS;
+    const isBenefitExpense = !isIncome && (record.paymentType || PAYMENT_TYPES.DEBIT) === PAYMENT_TYPES.BENEFITS;
+    const showBenefitSelector = isBenefitIncome || isBenefitExpense;
+
+    const benefitTypeOptions = (benefitTypes?.list || []).map(b => ({ value: b.id, label: b.title }));
 
 
 
@@ -148,19 +155,27 @@ export function TransactionModal({
                                     <SelectInput
                                         options={INCOME_TYPES_OPTIONS}
                                         value={record.incomeType || INCOME_TYPES.PIX}
-                                        setValue={e => setRecord({ ...record, incomeType: e })}
+                                        setValue={e => setRecord({ ...record, incomeType: e, benefitTypeId: e === INCOME_TYPES.BENEFITS ? record.benefitTypeId : null })}
                                         label='Tipo de recebimento'
                                     />
                                 ) : (
                                     <SelectInput
                                         options={PAYMENT_TYPES_OPTIONS.filter(o => o.value !== PAYMENT_TYPES.CREDIT)}
                                         value={record.paymentType || PAYMENT_TYPES.DEBIT}
-                                        setValue={e => setRecord({ ...record, paymentType: e })}
+                                        setValue={e => setRecord({ ...record, paymentType: e, benefitTypeId: e === PAYMENT_TYPES.BENEFITS ? record.benefitTypeId : null })}
                                         label='Tipo de pagamento'
                                     />
                                 )}
                             </div>
                         </div>
+                        {showBenefitSelector && (
+                            <SelectInput
+                                options={benefitTypeOptions}
+                                value={record.benefitTypeId}
+                                setValue={e => setRecord({ ...record, benefitTypeId: e })}
+                                placeholder='Tipo de benefício'
+                            />
+                        )}
                         <div className='flex gap-1 w-full'>
                             <TextInput placeholder='Título'
                                 value={record.title}

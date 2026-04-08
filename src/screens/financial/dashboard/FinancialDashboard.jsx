@@ -45,6 +45,7 @@ export function FinancialDashboard({
     categories,
     payees,
     sources,
+    benefitTypes,
 }) {
     const expensesByCategory = useMemo(() => {
         const groups = {};
@@ -110,7 +111,7 @@ export function FinancialDashboard({
             [&::-webkit-scrollbar-thumb]:rounded-md
             [&::-webkit-scrollbar-thumb:hover]:bg-gray-400/80
         `}>
-            <FinancialResumeBox expenses={expenses} incomes={incomes} />
+            <FinancialResumeBox expenses={expenses} incomes={incomes} benefitTypes={benefitTypes} />
             <div className="flex gap-4">
                 {expensesByCategory.length > 0 && (
                     <div className="border border-border rounded-2xl p-4 flex-1 min-w-0">

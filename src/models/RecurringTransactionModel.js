@@ -24,6 +24,7 @@ export class RecurringTransactionModel extends BaseModel {
         creditCardId: 'credit_card_id',
         realizedDates: 'realized_dates',
         skippedDates: 'skipped_dates',
+        benefitTypeId: 'benefit_type_id',
     };
 
 }

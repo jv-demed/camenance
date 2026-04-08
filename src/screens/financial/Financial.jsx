@@ -10,6 +10,7 @@ import { financialCategoryRepository } from '@/repositories/FinancialCategoryRep
 import { creditCardRepository } from '@/repositories/CreditCardRepository';
 import { installmentPurchaseRepository } from '@/repositories/InstallmentPurchaseRepository';
 import { recurringTransactionRepository } from '@/repositories/RecurringTransactionRepository';
+import { benefitTypeRepository } from '@/repositories/BenefitTypeRepository';
 import { DATE_FILTER } from '@/enums/DateFilters';
 import { FinancialService } from '@/services/FinancialService';
 import { LocalStorageService } from '@/services/LocalStorageService';
@@ -83,6 +84,12 @@ export function Financial() {
         filters: { userId: user.id }
     });
 
+    const benefitTypes = useDataList({
+        repository: benefitTypeRepository,
+        order: { column: 'title', ascending: true },
+        filters: { userId: user.id }
+    });
+
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         !expenses.loading &&
@@ -94,8 +101,9 @@ export function Financial() {
         !creditCards.loading &&
         !installmentPurchases.loading &&
         !recurringTransactions.loading &&
+        !benefitTypes.loading &&
         setIsLoading(false);
-    }, [expenses, incomes, payees, sources, categories, tags, creditCards, installmentPurchases, recurringTransactions]);
+    }, [expenses, incomes, payees, sources, categories, tags, creditCards, installmentPurchases, recurringTransactions, benefitTypes]);
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -201,6 +209,7 @@ export function Financial() {
                                     categories={categories}
                                     payees={payees}
                                     sources={sources}
+                                    benefitTypes={benefitTypes}
                                 />
                             )}
                             {activeTab === 'credit' && (
@@ -224,6 +233,7 @@ export function Financial() {
                                     categories={categories}
                                     tags={tags}
                                     creditCards={creditCards}
+                                    benefitTypes={benefitTypes}
                                     user={user}
                                     recurringRefresh={recurringTransactions.refresh}
                                     expensesRefresh={expenses.refresh}
@@ -240,6 +250,7 @@ export function Financial() {
                             categories={categories}
                             tags={tags}
                             creditCards={creditCards}
+                            benefitTypes={benefitTypes}
                             expensesRefresh={expenses.refresh}
                             incomesRefresh={incomes.refresh}
                             user={user}
@@ -255,6 +266,7 @@ export function Financial() {
                 payees={payees}
                 sources={sources}
                 creditCards={creditCards}
+                benefitTypes={benefitTypes}
                 user={user}
             />
         </Main>

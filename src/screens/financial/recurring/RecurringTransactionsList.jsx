@@ -46,6 +46,7 @@ export function RecurringTransactionsList({
     categories,
     tags,
     creditCards,
+    benefitTypes,
     user,
     recurringRefresh,
     expensesRefresh,
@@ -94,6 +95,7 @@ export function RecurringTransactionsList({
                     tagIds: record.tagIds || [],
                     date: todaySqlDate,
                     userId: user.id,
+                    benefitTypeId: record.benefitTypeId || null,
                 }));
                 incomesRefresh?.();
             } else if (record.paymentType === PAYMENT_TYPES.CREDIT) {
@@ -121,11 +123,12 @@ export function RecurringTransactionsList({
                     tagIds: record.tagIds || [],
                     date: todaySqlDate,
                     userId: user.id,
+                    benefitTypeId: record.benefitTypeId || null,
                 }));
                 expensesRefresh?.();
             }
             await recurringTransactionRepository.update(record.id, {
-                realizedDates: [...pruneOldDates(record.realizedDates), sqlDate],
+                realizedDates: [...(record.realizedDates || []), sqlDate],
             });
             recurringRefresh?.();
             AlertService.fastSuccess();
@@ -141,7 +144,7 @@ export function RecurringTransactionsList({
         setLoadingKey(`${record.id}-${sqlDate}`);
         try {
             await recurringTransactionRepository.update(record.id, {
-                skippedDates: [...pruneOldDates(record.skippedDates), sqlDate],
+                skippedDates: [...(record.skippedDates || []), sqlDate],
             });
             recurringRefresh?.();
         } catch (e) {
@@ -156,7 +159,7 @@ export function RecurringTransactionsList({
         setLoadingKey(`${record.id}-${sqlDate}`);
         try {
             await recurringTransactionRepository.update(record.id, {
-                skippedDates: pruneOldDates((record.skippedDates || []).filter(d => d !== sqlDate)),
+                skippedDates: (record.skippedDates || []).filter(d => d !== sqlDate),
             });
             recurringRefresh?.();
         } catch (e) {
@@ -292,16 +295,11 @@ export function RecurringTransactionsList({
                 categories={categories}
                 tags={tags}
                 creditCards={creditCards}
+                benefitTypes={benefitTypes}
                 user={user}
             />
         </>
     );
-}
-
-function pruneOldDates(dates) {
-    const now = new Date();
-    const cutoff = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    return (dates || []).filter(d => d.slice(0, 7) >= cutoff);
 }
 
 function buildSections(list, search, typeFilter) {

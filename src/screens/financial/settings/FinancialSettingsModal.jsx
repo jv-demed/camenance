@@ -6,6 +6,7 @@ import { TagsSection } from '@/screens/financial/settings/TagsSection';
 import { PayeesSection } from '@/screens/financial/settings/PayeesSection';
 import { SourcesSection } from '@/screens/financial/settings/SourcesSection';
 import { CreditCardsSection } from '@/screens/financial/settings/CreditCardsSection';
+import { BenefitsSection } from '@/screens/financial/settings/BenefitsSection';
 
 const SECTIONS = [
     { key: 'categories', label: 'Categorias' },
@@ -13,9 +14,10 @@ const SECTIONS = [
     { key: 'payees',     label: 'Beneficiários' },
     { key: 'sources',    label: 'Fontes' },
     { key: 'creditCards', label: 'Cartões' },
+    { key: 'benefits',   label: 'Benefícios' },
 ];
 
-export function FinancialSettingsModal({ isOpen, onClose, categories, tags, payees, sources, creditCards, user }) {
+export function FinancialSettingsModal({ isOpen, onClose, categories, tags, payees, sources, creditCards, benefitTypes, user }) {
 
     if (!isOpen) return null;
 
@@ -28,6 +30,7 @@ export function FinancialSettingsModal({ isOpen, onClose, categories, tags, paye
             case 'payees':     return <PayeesSection payees={payees} user={user} />;
             case 'sources':    return <SourcesSection sources={sources} user={user} />;
             case 'creditCards': return <CreditCardsSection creditCards={creditCards} user={user} />;
+            case 'benefits':   return <BenefitsSection benefitTypes={benefitTypes} user={user} />;
             default:           return null;
         }
     }
