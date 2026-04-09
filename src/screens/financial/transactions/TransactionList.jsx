@@ -1,6 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { DateService } from '@/services/DateService';
+import { PAYMENT_TYPES } from '@/enums/PaymentTypes';
+import { INCOME_TYPES } from '@/enums/IncomeTypes';
 import { ICONS } from '@/assets/icons';
 import { TextInput } from '@/components/inputs/TextInput';
 import { DefaultBtn } from '@/components/buttons/DefaultBtn';
@@ -47,7 +49,9 @@ export function TransactionList({
         tagIds: [],
         payeeId: null,
         sourceId: null,
-        title: ''
+        title: '',
+        paymentType: PAYMENT_TYPES.DEBIT,
+        incomeType: INCOME_TYPES.PIX,
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);

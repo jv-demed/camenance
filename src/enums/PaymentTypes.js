@@ -3,6 +3,7 @@ export const PAYMENT_TYPES = Object.freeze({
     PIX: 'pix',
     CREDIT: 'credit',
     BENEFITS: 'benefits',
+    BOX: 'box',
 });
 
 export const PAYMENT_TYPES_LABELS = Object.freeze({
@@ -10,11 +11,14 @@ export const PAYMENT_TYPES_LABELS = Object.freeze({
     [PAYMENT_TYPES.PIX]: 'Pix',
     [PAYMENT_TYPES.CREDIT]: 'Crédito',
     [PAYMENT_TYPES.BENEFITS]: 'Benefícios',
+    [PAYMENT_TYPES.BOX]: 'Caixinha',
 });
 
 export const PAYMENT_TYPES_OPTIONS = Object.freeze(
-    Object.values(PAYMENT_TYPES).map(value => ({
-        value,
-        label: PAYMENT_TYPES_LABELS[value],
-    }))
+    Object.values(PAYMENT_TYPES)
+        .filter(value => value !== PAYMENT_TYPES.BOX)
+        .map(value => ({
+            value,
+            label: PAYMENT_TYPES_LABELS[value],
+        }))
 );

@@ -12,6 +12,7 @@ import { TextInput } from '@/components/inputs/TextInput';
 import { CreditPurchaseModal } from './CreditPurchaseModal';
 import { CreditPurchaseCard } from './CreditPurchaseCard';
 import { SpinLoader } from '@/components/elements/SpinLoader';
+import { MonetaryService } from '@/services/MonetaryService';
 
 const emptyPurchase = {
     title: '',
@@ -254,6 +255,10 @@ export function CreditPurchasesList({
                             <h4 className='text-xs font-semibold tracking-widest text-gray-400'>
                                 {label}
                             </h4>
+                            <div className='flex items-center gap-2'>
+                                <span className='text-xs font-semibold text-gray-400'>
+                                    {MonetaryService.floatToBr(items.reduce((sum, i) => sum + i.installmentAmount, 0))}
+                                </span>
                             <button
                                 onClick={() => handlePayAll(key, items)}
                                 disabled={payingAllKey === key || isBlocked(key)}
@@ -272,6 +277,7 @@ export function CreditPurchasesList({
                                     : <><ICONS.check size={12} /> Pagar todos</>
                                 }
                             </button>
+                            </div>
                         </div>
                         <ul className='flex flex-col gap-2'>
                             {items.map(({ purchase, installmentNumber, installmentAmount, dueDate }) => (

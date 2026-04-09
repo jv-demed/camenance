@@ -68,10 +68,12 @@ export function TransactionCard({
                             : record.paymentType && ` - ${PAYMENT_TYPES_LABELS[record.paymentType]}`
                         }
                     </span>
-                    <div className='flex items-center gap-0.5'>
-                        <span>{origin?.name}</span>
-                        <ICONS.local />
-                    </div>
+                    {origin && (
+                        <div className='flex items-center gap-0.5'>
+                            <span>{origin.name}</span>
+                            <ICONS.local />
+                        </div>
+                    )}
                 </div>
                 {category && <div className='flex items-center gap-1 mt-2'>
                     <TagBox

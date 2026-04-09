@@ -23,6 +23,7 @@ import { FinancialSettingsModal } from '@/screens/financial/settings/FinancialSe
 import { FinancialDashboard } from '@/screens/financial/dashboard/FinancialDashboard';
 import { CreditPurchasesList } from '@/screens/financial/credit/CreditPurchasesList';
 import { RecurringTransactionsList } from '@/screens/financial/recurring/RecurringTransactionsList';
+import { BoxesList } from '@/screens/financial/boxes/BoxesList';
 import { IconBtn } from '@/components/buttons/IconBtn';
 import { ICONS } from '@/assets/icons';
 
@@ -186,6 +187,7 @@ export function Financial() {
                                     { key: 'dashboard', label: 'Dashboard' },
                                     { key: 'credit', label: 'Crédito' },
                                     { key: 'recurring', label: 'Recorrentes' },
+                                    { key: 'boxes', label: 'Caixinhas' },
                                 ].map(tab => (
                                     <button
                                         key={tab.key}
@@ -223,6 +225,17 @@ export function Financial() {
                                     user={user}
                                     installmentPurchasesRefresh={installmentPurchases.refresh}
                                     expensesRefresh={expenses.refresh}
+                                />
+                            )}
+                            {activeTab === 'boxes' && (
+                                <BoxesList
+                                    user={user}
+                                    payees={payees}
+                                    categories={categories}
+                                    tags={tags}
+                                    benefitTypes={benefitTypes}
+                                    expensesRefresh={expenses.refresh}
+                                    incomesRefresh={incomes.refresh}
                                 />
                             )}
                             {activeTab === 'recurring' && (

@@ -7,7 +7,7 @@ export function TextAreaInput({
 }){
     return (
         <textarea
-            value={value}
+            value={value ?? ''}
             onChange={e => setValue && setValue(e.target.value)}
             placeholder={placeholder}
             required={required}
