@@ -6,7 +6,7 @@ import { BoxService } from '@/services/BoxService';
 import { ICONS } from '@/assets/icons';
 
 export function BoxCard({ box, transactions, onOpen, onEdit }) {
-    const { gross, net, yieldMonth } = useMemo(() => {
+    const { gross, net, yieldMonth, lastDeposit } = useMemo(() => {
         const gross = BoxService.getGrossBalance(transactions);
         const net = BoxService.getNetBalance(transactions);
         const now = new Date();
@@ -14,7 +14,10 @@ export function BoxCard({ box, transactions, onOpen, onEdit }) {
         const yieldMonth = transactions
             .filter(t => t.type === 'yield' && t.date?.startsWith(monthPrefix))
             .reduce((s, t) => s + Number(t.amount), 0);
-        return { gross, net, yieldMonth };
+        const lastDeposit = transactions
+            .filter(t => t.type === 'deposit')
+            .sort((a, b) => (b.date > a.date ? 1 : -1))[0] ?? null;
+        return { gross, net, yieldMonth, lastDeposit };
     }, [transactions]);
 
     const isNubank = box.type === BoxModel.TYPE.NUBANK;
@@ -74,6 +77,13 @@ export function BoxCard({ box, transactions, onOpen, onEdit }) {
                         </span>
                     )}
                 </div>
+
+                {lastDeposit && (
+                    <div className='text-xs text-gray-400'>
+                        Último depósito: {MonetaryService.floatToBr(Number(lastDeposit.amount))} em{' '}
+                        {new Date(lastDeposit.date + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                    </div>
+                )}
 
                 {isNubank && (
                     <div className='flex items-center justify-between'>
