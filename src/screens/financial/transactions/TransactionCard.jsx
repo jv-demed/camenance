@@ -25,7 +25,7 @@ export function TransactionCard({
     const category = categories.list.find(c => c.id == record.categoryId);
     const recordTags = tags.list
         .filter(t => t.categoryId == category?.id)
-        .filter(t => record.tagIds.includes(t.id));
+        .filter(t => record.tagIds?.includes(t.id));
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editRecord, setEditRecord] = useState(record);

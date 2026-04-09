@@ -285,18 +285,3 @@ export function Financial() {
         </Main>
     );
 }
-
-
-/**
- * 34,00 - Rosseti
- * 24,92 - Batata frita
- * 9,99 - Google prox
- * 7,00 - Spotify prox
- * 29,90 - Premiere prox
- * 91,70 - Academia prox
- * 118,40 - Claude prox
- * 33,68 - Berserk
- * 
- * boletos
- * crédito
- */

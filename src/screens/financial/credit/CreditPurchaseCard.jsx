@@ -91,12 +91,19 @@ export function CreditPurchaseCard({
                     </span>
                 </div>
                 <div className='flex items-center justify-between gap-2 text-sm text-gray-500'>
-                    <span>
-                        {dueDate
-                            ? `Vence ${DateService.dateToBrDate(dueDate)}`
-                            : 'Sem vencimento'
-                        }
-                    </span>
+                    <div className='flex items-center gap-2'>
+                        <span>
+                            {dueDate
+                                ? `Vence ${DateService.dateToBrDate(dueDate)}`
+                                : 'Sem vencimento'
+                            }
+                        </span>
+                        {purchase.startDate && (
+                            <span className='text-gray-400'>
+                                · Compra {DateService.dateToBrDate(purchase.startDate)}
+                            </span>
+                        )}
+                    </div>
                     {payee && (
                         <div className='flex items-center gap-0.5'>
                             <span>{payee.name}</span>

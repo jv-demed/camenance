@@ -68,7 +68,7 @@ export function BoxTransactionModal({
                 benefitTypeId: record.benefitTypeId || null,
                 categoryId: record.categoryId || null,
                 payeeId: record.payeeId || null,
-                tagId: record.tagIds?.[0] || null,
+                tagIds: record.tagIds?.length ? record.tagIds : null,
             };
             if (mode === 'deposit') await BoxService.deposit(payload);
             else if (mode === 'withdraw') await BoxService.withdraw(payload);
