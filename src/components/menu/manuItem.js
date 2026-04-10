@@ -10,6 +10,10 @@ export const MENU_ITEMS = [
         icon: ICONS.friends,
         url: '/friendships'
     },{
+        name: 'Filmes',
+        icon: ICONS.movies,
+        url: '/movies'
+    },{
         name: 'Configurações',
         icon: ICONS.settings,
         url: '/settings'

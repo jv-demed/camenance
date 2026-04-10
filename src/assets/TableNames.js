@@ -16,4 +16,5 @@ export const TableNames = Object.freeze({
     ENCOUNTERS: 'camenance_encounters',
     LOCATIONS: 'camenance_locations',
     ENCOUNTER_PHOTOS: 'camenance_encounter_photos',
+    MOVIES: 'camenance_movies',
 });
