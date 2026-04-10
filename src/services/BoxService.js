@@ -115,18 +115,19 @@ export class BoxService {
         });
     }
 
-    static async spend({ box, userId, amount, date, title, description, benefitTypeId, categoryId, payeeId, tagIds }) {
+    static async spend({ box, userId, amount, date, title, description, paymentType, benefitTypeId, categoryId, payeeId, tagIds }) {
         const expense = await expenseRepository.insert({
             userId,
             title: title || `Gasto de ${box.name}`,
             description,
             amount,
             date,
-            paymentType: PAYMENT_TYPES.BOX_SPEND,
+            paymentType: paymentType || PAYMENT_TYPES.DEBIT,
             benefitTypeId: benefitTypeId || null,
             categoryId,
             payeeId,
             tagIds: tagIds || null,
+            boxId: box.id,
         });
 
         return boxTransactionRepository.insert({

@@ -6,7 +6,6 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { MonetaryService } from '@/services/MonetaryService';
-import { FinancialResumeBox } from './FinancialResumeBox';
 
 const CHART_COLORS = [
     '#6366f1', '#f59e0b', '#06b6d4', '#8b5cf6',
@@ -39,14 +38,7 @@ function PieTooltip({ active, payload }) {
     );
 }
 
-export function FinancialDashboard({
-    expenses,
-    incomes,
-    categories,
-    payees,
-    sources,
-    benefitTypes,
-}) {
+export function FinancialDashboard({ expenses, incomes, categories, payees, sources }) {
     const expensesByCategory = useMemo(() => {
         const groups = {};
         expenses.forEach(e => {
@@ -111,7 +103,6 @@ export function FinancialDashboard({
             [&::-webkit-scrollbar-thumb]:rounded-md
             [&::-webkit-scrollbar-thumb:hover]:bg-gray-400/80
         `}>
-            <FinancialResumeBox expenses={expenses} incomes={incomes} benefitTypes={benefitTypes} />
             <div className="flex gap-4">
                 {expensesByCategory.length > 0 && (
                     <div className="border border-border rounded-2xl p-4 flex-1 min-w-0">

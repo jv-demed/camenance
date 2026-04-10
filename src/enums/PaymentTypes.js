@@ -4,7 +4,6 @@ export const PAYMENT_TYPES = Object.freeze({
     CREDIT: 'credit',
     BENEFITS: 'benefits',
     BOX: 'box',
-    BOX_SPEND: 'box_spend',
 });
 
 export const PAYMENT_TYPES_LABELS = Object.freeze({
@@ -13,7 +12,6 @@ export const PAYMENT_TYPES_LABELS = Object.freeze({
     [PAYMENT_TYPES.CREDIT]: 'Crédito',
     [PAYMENT_TYPES.BENEFITS]: 'Benefícios',
     [PAYMENT_TYPES.BOX]: 'Caixinha',
-    [PAYMENT_TYPES.BOX_SPEND]: 'Gasto da Caixinha',
 });
 
 export const PAYMENT_TYPES_OPTIONS = Object.freeze(

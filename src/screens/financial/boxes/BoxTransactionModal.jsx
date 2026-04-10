@@ -43,7 +43,7 @@ export function BoxTransactionModal({
 
     const isBenefit = record.paymentType === PAYMENT_TYPES.BENEFITS;
     const benefitTypeOptions = (benefitTypes?.list || []).map(b => ({ value: b.id, label: b.title }));
-    const spendPaymentOptions = PAYMENT_TYPES_OPTIONS.filter(o => o.value !== PAYMENT_TYPES.CREDIT);
+    const spendPaymentOptions = PAYMENT_TYPES_OPTIONS;
 
     async function handleAddPayee(newPayee) {
         const payee = new PayeeModel({ ...newPayee, userId: user.id });

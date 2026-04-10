@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /a/demed/Documents/Projects/camenance/migrations -type f -name \"*.sql\" -exec cat {} \\\\;)",
+      "Bash(grep -E \"\\\\.js$\")"
+    ]
+  }
+}

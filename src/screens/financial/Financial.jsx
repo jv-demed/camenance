@@ -21,6 +21,8 @@ import { TransactionList } from '@/screens/financial/transactions/TransactionLis
 import { FinancialFilters } from '@/screens/financial/dashboard/FinancialFilters';
 import { FinancialSettingsModal } from '@/screens/financial/settings/FinancialSettingsModal';
 import { FinancialDashboard } from '@/screens/financial/dashboard/FinancialDashboard';
+import { FinancialResumeBox } from '@/screens/financial/dashboard/FinancialResumeBox';
+import { BenefitsBalanceBox } from '@/screens/financial/dashboard/BenefitsBalanceBox';
 import { CreditPurchasesList } from '@/screens/financial/credit/CreditPurchasesList';
 import { RecurringTransactionsList } from '@/screens/financial/recurring/RecurringTransactionsList';
 import { BoxesList } from '@/screens/financial/boxes/BoxesList';
@@ -107,7 +109,7 @@ export function Financial() {
     }, [expenses, incomes, payees, sources, categories, tags, creditCards, installmentPurchases, recurringTransactions, benefitTypes]);
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('dashboard');
+    const [activeTab, setActiveTab] = useState('resumo');
 
     const [isRelative, setIsRelative] = useState(
         () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_IS_RELATIVE, false)
@@ -184,7 +186,8 @@ export function Financial() {
                         <div className="flex flex-col gap-3 flex-1 min-w-0 overflow-hidden">
                             <div className="flex gap-1 border-b border-white/15 pb-1">
                                 {[
-                                    { key: 'dashboard', label: 'Dashboard' },
+                                    { key: 'resumo', label: 'Resumo' },
+                                    { key: 'graficos', label: 'Gráficos' },
                                     { key: 'credit', label: 'Crédito' },
                                     { key: 'recurring', label: 'Recorrentes' },
                                     { key: 'boxes', label: 'Caixinhas' },
@@ -204,14 +207,32 @@ export function Financial() {
                                     </button>
                                 ))}
                             </div>
-                            {activeTab === 'dashboard' && (
+                            {activeTab === 'resumo' && (
+                                <div className='flex flex-col gap-4 overflow-y-auto pr-2 pb-4
+                                    [&::-webkit-scrollbar]:w-1.5
+                                    [&::-webkit-scrollbar-track]:rounded-md
+                                    [&::-webkit-scrollbar-thumb]:bg-gray-400/50
+                                    [&::-webkit-scrollbar-thumb]:rounded-md
+                                    [&::-webkit-scrollbar-thumb:hover]:bg-gray-400/80
+                                '>
+                                    <FinancialResumeBox
+                                        expenses={filteredExpenses}
+                                        incomes={filteredIncomes}
+                                    />
+                                    <BenefitsBalanceBox
+                                        expenses={expenses.list}
+                                        incomes={incomes.list}
+                                        benefitTypes={benefitTypes}
+                                    />
+                                </div>
+                            )}
+                            {activeTab === 'graficos' && (
                                 <FinancialDashboard
                                     expenses={filteredExpenses}
                                     incomes={filteredIncomes}
                                     categories={categories}
                                     payees={payees}
                                     sources={sources}
-                                    benefitTypes={benefitTypes}
                                 />
                             )}
                             {activeTab === 'credit' && (
