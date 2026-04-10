@@ -20,12 +20,12 @@ export class BaseRepository {
         return result ? this.Model.fromDatabase(result) : null;
     }
 
-    async findAll(filters = {}, order = null) {
+    async findAll(filters = {}, order = null, dateRange = null) {
         const mappedFilters = this.#mapFields(filters);
         const mappedOrder = order
             ? { ...order, column: this.Model.fields[order.column] ?? order.column }
             : null;
-        const results = await Crud.findAll(this.table, mappedFilters, mappedOrder);
+        const results = await Crud.findAll(this.table, mappedFilters, mappedOrder, dateRange);
         return this.Model.fromDatabaseList(results);
     }
 

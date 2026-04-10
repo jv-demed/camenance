@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useDataList } from '@/hooks/useDataList';
 import { payeeRepository } from '@/repositories/PayeeRepository';
@@ -26,22 +26,37 @@ import { CreditPurchasesList } from '@/screens/financial/credit/CreditPurchasesL
 import { RecurringTransactionsList } from '@/screens/financial/recurring/RecurringTransactionsList';
 import { BoxesList } from '@/screens/financial/boxes/BoxesList';
 import { IconBtn } from '@/components/buttons/IconBtn';
+import { AlertService } from '@/services/AlertService';
 import { ICONS } from '@/assets/icons';
 
 export function Financial() {
 
     const { user } = useUser();
 
+    const [isRelative, setIsRelative] = useState(
+        () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_IS_RELATIVE, false)
+    );
+    const [dateFilter, setDateFilter] = useState(
+        () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_DATE_FILTER, DATE_FILTER.MONTHLY)
+    );
+
+    const dateRange = useMemo(
+        () => FinancialService.getDateRange({ dateFilter, isRelative }),
+        [dateFilter, isRelative]
+    );
+
     const expenses = useDataList({
         repository: expenseRepository,
         order: { column: 'date', ascending: false },
-        filters: { userId: user.id }
+        filters: { userId: user.id },
+        dateRange
     });
 
     const incomes = useDataList({
         repository: incomeRepository,
         order: { column: 'date', ascending: false },
-        filters: { userId: user.id }
+        filters: { userId: user.id },
+        dateRange
     });
 
     const payees = useDataList({
@@ -74,16 +89,27 @@ export function Financial() {
         filters: { userId: user.id }
     });
 
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('resumo');
+    const [visitedTabs, setVisitedTabs] = useState(new Set(['resumo']));
+
+    function handleTabChange(tab) {
+        setActiveTab(tab);
+        setVisitedTabs(prev => new Set([...prev, tab]));
+    }
+
     const installmentPurchases = useDataList({
         repository: installmentPurchaseRepository,
         order: { column: 'start_date', ascending: false },
-        filters: { userId: user.id }
+        filters: { userId: user.id },
+        delay: !visitedTabs.has('credit')
     });
 
     const recurringTransactions = useDataList({
         repository: recurringTransactionRepository,
         order: { column: 'title', ascending: true },
-        filters: { userId: user.id }
+        filters: { userId: user.id },
+        delay: !visitedTabs.has('recurring')
     });
 
     const benefitTypes = useDataList({
@@ -94,28 +120,16 @@ export function Financial() {
 
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
-        !expenses.loading &&
-        !incomes.loading &&
-        !payees.loading &&
-        !sources.loading &&
-        !categories.loading &&
-        !tags.loading &&
-        !creditCards.loading &&
-        !installmentPurchases.loading &&
-        !recurringTransactions.loading &&
-        !benefitTypes.loading &&
-        setIsLoading(false);
-    }, [expenses, incomes, payees, sources, categories, tags, creditCards, installmentPurchases, recurringTransactions, benefitTypes]);
+        const coreHooks = [expenses, incomes, payees, sources, categories, tags, creditCards, benefitTypes];
+        const allDone = coreHooks.every(h => !h.loading);
+        if(allDone) setIsLoading(false);
+    }, [expenses, incomes, payees, sources, categories, tags, creditCards, benefitTypes]);
 
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('resumo');
-
-    const [isRelative, setIsRelative] = useState(
-        () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_IS_RELATIVE, false)
-    );
-    const [dateFilter, setDateFilter] = useState(
-        () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_DATE_FILTER, DATE_FILTER.MONTHLY)
-    );
+    const hooks = [expenses, incomes, payees, sources, categories, tags, creditCards, benefitTypes, installmentPurchases, recurringTransactions];
+    useEffect(() => {
+        const failed = hooks.find(h => h.error);
+        if(failed) AlertService.error('Erro ao carregar dados. Tente recarregar a página.');
+    }, hooks.map(h => h.error));
 
     function handleDateFilterChange(filter) {
         setDateFilter(filter);
@@ -128,35 +142,6 @@ export function Financial() {
         setIsRelative(value);
         LocalStorageService.set(LocalStorageService.KEYS.FINANCIAL_IS_RELATIVE, value);
     }
-
-    const [startDate, setStartDate] = useState();
-    const [endDate, setEndDate] = useState();
-    const [filteredExpenses, setFilteredExpenses] = useState([]);
-    const [filteredIncomes, setFilteredIncomes] = useState([]);
-
-    useEffect(() => {
-        if(expenses) {
-            const { list, startDate, endDate } = FinancialService.filterExpenses({
-                expenses: expenses.list,
-                isRelative: isRelative,
-                dateFilter: dateFilter
-            });
-            setFilteredExpenses(list);
-            setStartDate(startDate);
-            setEndDate(endDate);
-        }
-    }, [expenses.list, dateFilter, isRelative]);
-
-    useEffect(() => {
-        if(incomes) {
-            const { list } = FinancialService.filterExpenses({
-                expenses: incomes.list,
-                isRelative: isRelative,
-                dateFilter: dateFilter
-            });
-            setFilteredIncomes(list);
-        }
-    }, [incomes.list, dateFilter, isRelative]);
 
     return (
         <Main>
@@ -171,8 +156,8 @@ export function Financial() {
                             setDateFilter={handleDateFilterChange}
                             isRelative={isRelative}
                             setIsRelative={handleIsRelativeChange}
-                            startDate={startDate}
-                            endDate={endDate}
+                            startDate={dateRange.startDate}
+                            endDate={dateRange.endDate}
                         />
                         <IconBtn icon={ICONS.settings}
                             onClick={() => setIsSettingsOpen(true)}
@@ -192,7 +177,7 @@ export function Financial() {
                                 ].map(tab => (
                                     <button
                                         key={tab.key}
-                                        onClick={() => setActiveTab(tab.key)}
+                                        onClick={() => handleTabChange(tab.key)}
                                         className={`
                                             px-4 py-1.5 rounded-lg text-sm transition-all duration-200
                                             ${activeTab === tab.key
@@ -214,23 +199,22 @@ export function Financial() {
                                     [&::-webkit-scrollbar-thumb:hover]:bg-gray-400/80
                                 '>
                                     <FinancialResumeBox
-                                        expenses={filteredExpenses}
-                                        incomes={filteredIncomes}
-                                        allExpenses={expenses.list}
-                                        allIncomes={incomes.list}
+                                        expenses={expenses.list}
+                                        incomes={incomes.list}
                                         benefitTypes={benefitTypes}
                                     />
                                     <FinancialDashboard
-                                        expenses={filteredExpenses}
-                                        incomes={filteredIncomes}
+                                        expenses={expenses.list}
+                                        incomes={incomes.list}
                                         categories={categories}
                                         payees={payees}
                                         sources={sources}
                                     />
                                 </div>
                             )}
-                            {activeTab === 'credit' && (
-                                <CreditPurchasesList
+                            {activeTab === 'credit' && (installmentPurchases.loading
+                                ? <SpinLoader />
+                                : <CreditPurchasesList
                                     installmentPurchases={installmentPurchases}
                                     expenses={expenses.list}
                                     payees={payees}
@@ -253,8 +237,9 @@ export function Financial() {
                                     incomesRefresh={incomes.refresh}
                                 />
                             )}
-                            {activeTab === 'recurring' && (
-                                <RecurringTransactionsList
+                            {activeTab === 'recurring' && (recurringTransactions.loading
+                                ? <SpinLoader />
+                                : <RecurringTransactionsList
                                     recurringTransactions={recurringTransactions}
                                     payees={payees}
                                     sources={sources}
@@ -271,8 +256,8 @@ export function Financial() {
                             )}
                         </div>
                         <TransactionList
-                            expenses={filteredExpenses}
-                            incomes={filteredIncomes}
+                            expenses={expenses.list}
+                            incomes={incomes.list}
                             payees={payees}
                             sources={sources}
                             categories={categories}

@@ -30,10 +30,16 @@ export class Crud {
         return data;
     }
 
-    static async findAll(table, filters = {}, order = null) {
+    static async findAll(table, filters = {}, order = null, dateRange = null) {
         let query = supabase.from(table).select('*');
         for(const key in filters) {
             query = query.eq(key, filters[key]);
+        }
+        if(dateRange?.startDate) {
+            query = query.gte('date', dateRange.startDate.toISOString().split('T')[0]);
+        }
+        if(dateRange?.endDate) {
+            query = query.lte('date', dateRange.endDate.toISOString().split('T')[0]);
         }
         if(order) {
             query = query.order(order.column, { ascending: order.ascending ?? true });
@@ -65,52 +71,42 @@ export class Crud {
 
 }
 
-export async function getAllRecordsByFilter({ 
-    table, 
-    select, 
-    where = 'id', 
+export async function getAllRecordsByFilter({
+    table,
+    select,
+    where = 'id',
     value,
     order = 'dateRegister',
     ascending = true
 }){
-    const {data, status, error} = await supabase
+    const { data, error } = await supabase
         .from(table)
         .select(select)
         .eq(where, value)
         .order(order, { ascending: ascending });
-    if(status != 200){
-        console.log(error);
-    }return data;
+    if(error) throw error;
+    return data;
 }
 
-export async function getRecordByFilter({ 
-    table, 
-    select, 
-    where = 'id', 
+export async function getRecordByFilter({
+    table,
+    select,
+    where = 'id',
     value
 }){
-    const {data, status, error} = await supabase
+    const { data, error } = await supabase
         .from(table)
         .select(select)
         .eq(where, value);
-    if(status != 200){
-        console.log(error);
-    }
-    if(data.length > 0){
-        return data[0];
-    }
+    if(error) throw error;
+    return data.length > 0 ? data[0] : null;
 }
 
 export async function insertRecord({ table, obj }){
     const id = uuidv4();
-    const { status, error } = await supabase
+    const { error } = await supabase
         .from(table)
-        .insert({
-            ...obj,
-            id: id
-        });
-    if(status != 201){
-        console.log(error);
-        return;
-    } return id;
+        .insert({ ...obj, id });
+    if(error) throw error;
+    return id;
 }

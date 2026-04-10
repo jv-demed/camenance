@@ -14,7 +14,7 @@ function perDay(value, days) {
     return `${MonetaryService.floatToBr(value / days)} / dia`;
 }
 
-export function FinancialResumeBox({ expenses, incomes, allExpenses, allIncomes, benefitTypes }) {
+export function FinancialResumeBox({ expenses, incomes, benefitTypes }) {
 
     const mainExpenses = expenses.filter(e => !e.boxId && !e.benefitTypeId);
     const mainIncomes = incomes.filter(i => !i.benefitTypeId);
@@ -28,15 +28,15 @@ export function FinancialResumeBox({ expenses, incomes, allExpenses, allIncomes,
         const list = benefitTypes?.list ?? [];
         if (!list.length) return [];
         return list.map(bt => {
-            const totalIn = (allIncomes ?? [])
+            const totalIn = incomes
                 .filter(i => i.benefitTypeId === bt.id)
                 .reduce((s, i) => s + i.amount, 0);
-            const totalOut = (allExpenses ?? [])
+            const totalOut = expenses
                 .filter(e => e.benefitTypeId === bt.id)
                 .reduce((s, e) => s + e.amount, 0);
             return { id: bt.id, label: bt.title, color: bt.color ?? '#94a3b8', balance: totalIn - totalOut };
         });
-    }, [allExpenses, allIncomes, benefitTypes?.list]);
+    }, [expenses, incomes, benefitTypes?.list]);
 
     return (
         <div className='flex items-start gap-4 w-full pr-2'>

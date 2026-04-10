@@ -3,11 +3,7 @@ import { DateService } from '@/services/DateService';
 
 export class FinancialService {
 
-    static filterExpenses({
-        expenses,
-        isRelative,
-        dateFilter
-    }) {
+    static getDateRange({ dateFilter, isRelative }) {
         const now = new Date();
         let startDate = null;
         let endDate = null;
@@ -76,6 +72,11 @@ export class FinancialService {
                 startDate = new Date(2000, 0, 1);
                 endDate = new Date(3000, 12, 0);
         }
+        return { startDate, endDate };
+    }
+
+    static filterExpenses({ expenses, isRelative, dateFilter }) {
+        const { startDate, endDate } = FinancialService.getDateRange({ dateFilter, isRelative });
         return {
             list: expenses.filter(exp => {
                 const d = new Date(exp.date + 'T00:00:00');
@@ -85,7 +86,7 @@ export class FinancialService {
             }),
             startDate,
             endDate
-        }
+        };
     }
 
 }

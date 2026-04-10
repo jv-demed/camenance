@@ -5,11 +5,13 @@ export function useDataList({
     repository,
     filters,
     order,
-    delay
+    delay,
+    dateRange
 }) {
 
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [flag, setFlag] = useState(false);
 
     const refresh = useCallback(() => {
@@ -20,22 +22,25 @@ export function useDataList({
         if(delay) return;
         const fetchData = async () => {
             setLoading(true);
+            setError(null);
             try {
-                const data = await repository.findAll(filters, order);
+                const data = await repository.findAll(filters, order, dateRange ?? null);
                 setList(data);
             } catch(err) {
-                console.log(err.message);
+                setError(err.message ?? 'Erro desconhecido');
             } finally {
                 setLoading(false);
             }
         };
         fetchData();
-    }, [flag, delay]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [flag, delay, dateRange]);
 
     return {
         list,
         setList,
         loading,
+        error,
         refresh
     };
 }
