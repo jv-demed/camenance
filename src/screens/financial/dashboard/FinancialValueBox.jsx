@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { MonetaryService } from '@/services/MonetaryService';
 
-export function FinancialValueBox({ title, value, color, caption, tooltipItems }) {
+export function FinancialValueBox({ title, value, color, caption, accentColor, tooltipItems }) {
 
     const [hovered, setHovered] = useState(false);
     const hasTooltip = tooltipItems?.length > 0;
@@ -13,7 +13,12 @@ export function FinancialValueBox({ title, value, color, caption, tooltipItems }
             onMouseEnter={() => hasTooltip && setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
-            <h3>{title}</h3>
+            <div className='flex items-center gap-2'>
+                {accentColor && (
+                    <span className='w-2 h-2 rounded-full flex-shrink-0' style={{ backgroundColor: accentColor }} />
+                )}
+                <h3>{title}</h3>
+            </div>
             <span className={color}>
                 {MonetaryService.floatToBr(value)}
             </span>

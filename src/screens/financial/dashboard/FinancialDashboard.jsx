@@ -41,9 +41,8 @@ function PieTooltip({ active, payload }) {
 export function FinancialDashboard({ expenses, incomes, categories, payees, sources }) {
     const expensesByCategory = useMemo(() => {
         const groups = {};
-        expenses.forEach(e => {
-            const key = e.categoryId ?? '__none';
-            groups[key] = (groups[key] ?? 0) + e.amount;
+        expenses.filter(e => e.categoryId).forEach(e => {
+            groups[e.categoryId] = (groups[e.categoryId] ?? 0) + e.amount;
         });
         return Object.entries(groups)
             .map(([id, value]) => {
@@ -70,9 +69,8 @@ export function FinancialDashboard({ expenses, incomes, categories, payees, sour
 
     const topPayees = useMemo(() => {
         const groups = {};
-        expenses.forEach(e => {
-            const key = e.payeeId ?? '__none';
-            groups[key] = (groups[key] ?? 0) + e.amount;
+        expenses.filter(e => e.payeeId).forEach(e => {
+            groups[e.payeeId] = (groups[e.payeeId] ?? 0) + e.amount;
         });
         return Object.entries(groups)
             .map(([id, value], idx) => {

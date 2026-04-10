@@ -1,4 +1,5 @@
 'use client'
+import { useMemo } from 'react';
 import { MonetaryService } from '@/services/MonetaryService';
 import { FinancialValueBox } from './FinancialValueBox';
 
@@ -13,7 +14,7 @@ function perDay(value, days) {
     return `${MonetaryService.floatToBr(value / days)} / dia`;
 }
 
-export function FinancialResumeBox({ expenses, incomes }) {
+export function FinancialResumeBox({ expenses, incomes, allExpenses, allIncomes, benefitTypes }) {
 
     const mainExpenses = expenses.filter(e => !e.boxId && !e.benefitTypeId);
     const mainIncomes = incomes.filter(i => !i.benefitTypeId);
@@ -23,19 +24,31 @@ export function FinancialResumeBox({ expenses, incomes }) {
 
     const days = daysRemainingInMonth();
 
+    const benefits = useMemo(() => {
+        const list = benefitTypes?.list ?? [];
+        if (!list.length) return [];
+        return list.map(bt => {
+            const totalIn = (allIncomes ?? [])
+                .filter(i => i.benefitTypeId === bt.id)
+                .reduce((s, i) => s + i.amount, 0);
+            const totalOut = (allExpenses ?? [])
+                .filter(e => e.benefitTypeId === bt.id)
+                .reduce((s, e) => s + e.amount, 0);
+            return { id: bt.id, label: bt.title, color: bt.color ?? '#94a3b8', balance: totalIn - totalOut };
+        });
+    }, [allExpenses, allIncomes, benefitTypes?.list]);
+
     return (
         <div className='flex items-start gap-4 w-full pr-2'>
             <FinancialValueBox
                 title='Entradas'
                 value={+totalIncomes}
                 color='text-green-500'
-                caption={perDay(totalIncomes, days)}
             />
             <FinancialValueBox
                 title='Saídas'
                 value={-totalExpenses}
                 color='text-[tomato]'
-                caption={perDay(totalExpenses, days)}
             />
             <FinancialValueBox
                 title='Saldo'
@@ -43,6 +56,24 @@ export function FinancialResumeBox({ expenses, incomes }) {
                 color={balance >= 0 ? 'text-green-500' : 'text-[tomato]'}
                 caption={perDay(balance, days)}
             />
+            {benefits.length > 0 && (() => {
+                const totalBenefits = benefits.reduce((s, b) => s + b.balance, 0);
+                const tooltipItems = benefits.map(b => ({
+                    label: b.label,
+                    value: b.balance,
+                    color: b.color,
+                    valueColor: b.balance >= 0 ? 'text-green-500' : 'text-[tomato]',
+                }));
+                return (
+                    <FinancialValueBox
+                        title='Benefícios'
+                        value={totalBenefits}
+                        color={totalBenefits >= 0 ? 'text-green-500' : 'text-[tomato]'}
+                        caption={perDay(totalBenefits, days)}
+                        tooltipItems={tooltipItems}
+                    />
+                );
+            })()}
         </div>
     );
 }

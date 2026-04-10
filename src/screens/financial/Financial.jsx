@@ -22,7 +22,6 @@ import { FinancialFilters } from '@/screens/financial/dashboard/FinancialFilters
 import { FinancialSettingsModal } from '@/screens/financial/settings/FinancialSettingsModal';
 import { FinancialDashboard } from '@/screens/financial/dashboard/FinancialDashboard';
 import { FinancialResumeBox } from '@/screens/financial/dashboard/FinancialResumeBox';
-import { BenefitsBalanceBox } from '@/screens/financial/dashboard/BenefitsBalanceBox';
 import { CreditPurchasesList } from '@/screens/financial/credit/CreditPurchasesList';
 import { RecurringTransactionsList } from '@/screens/financial/recurring/RecurringTransactionsList';
 import { BoxesList } from '@/screens/financial/boxes/BoxesList';
@@ -186,8 +185,7 @@ export function Financial() {
                         <div className="flex flex-col gap-3 flex-1 min-w-0 overflow-hidden">
                             <div className="flex gap-1 border-b border-white/15 pb-1">
                                 {[
-                                    { key: 'resumo', label: 'Resumo' },
-                                    { key: 'graficos', label: 'Gráficos' },
+                                    { key: 'resumo', label: 'Dashboard' },
                                     { key: 'credit', label: 'Crédito' },
                                     { key: 'recurring', label: 'Recorrentes' },
                                     { key: 'boxes', label: 'Caixinhas' },
@@ -218,22 +216,18 @@ export function Financial() {
                                     <FinancialResumeBox
                                         expenses={filteredExpenses}
                                         incomes={filteredIncomes}
-                                    />
-                                    <BenefitsBalanceBox
-                                        expenses={expenses.list}
-                                        incomes={incomes.list}
+                                        allExpenses={expenses.list}
+                                        allIncomes={incomes.list}
                                         benefitTypes={benefitTypes}
                                     />
+                                    <FinancialDashboard
+                                        expenses={filteredExpenses}
+                                        incomes={filteredIncomes}
+                                        categories={categories}
+                                        payees={payees}
+                                        sources={sources}
+                                    />
                                 </div>
-                            )}
-                            {activeTab === 'graficos' && (
-                                <FinancialDashboard
-                                    expenses={filteredExpenses}
-                                    incomes={filteredIncomes}
-                                    categories={categories}
-                                    payees={payees}
-                                    sources={sources}
-                                />
                             )}
                             {activeTab === 'credit' && (
                                 <CreditPurchasesList
