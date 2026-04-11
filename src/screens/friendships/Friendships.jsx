@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react';
-import { useUser } from '@/context/UserContext';
+import { useUser } from '@/contexts/UserContext';
 import { useDataList } from '@/hooks/useDataList';
 import { friendRepository } from '@/repositories/FriendRepository';
 import { encounterRepository } from '@/repositories/EncounterRepository';

@@ -2,6 +2,7 @@
 import { useMemo } from 'react';
 import { MonetaryService } from '@/services/MonetaryService';
 import { FinancialValueBox } from './FinancialValueBox';
+import { useFinancial } from '@/contexts/FinancialContext';
 
 function daysRemainingInMonth() {
     const today = new Date();
@@ -14,7 +15,8 @@ function perDay(value, days) {
     return `${MonetaryService.floatToBr(value / days)} / dia`;
 }
 
-export function FinancialResumeBox({ expenses, incomes, benefitTypes }) {
+export function FinancialResumeBox() {
+    const { expenses, incomes, benefitTypes } = useFinancial();
 
     const mainExpenses = expenses.filter(e => !e.boxId && !e.benefitTypeId);
     const mainIncomes = incomes.filter(i => !i.benefitTypeId);

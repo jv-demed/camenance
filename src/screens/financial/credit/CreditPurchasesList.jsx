@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useFinancial } from '@/contexts/FinancialContext';
 import { expenseRepository } from '@/repositories/ExpenseRepository';
 import { ExpenseModel } from '@/models/ExpenseModel';
 import { CreditCardService } from '@/services/CreditCardService';
@@ -26,17 +27,8 @@ const emptyPurchase = {
     startDate: DateService.dateToSqlDate(new Date())
 };
 
-export function CreditPurchasesList({
-    installmentPurchases,
-    expenses,
-    payees,
-    categories,
-    tags,
-    creditCards,
-    user,
-    installmentPurchasesRefresh,
-    expensesRefresh
-}) {
+export function CreditPurchasesList() {
+    const { expenses, payees, categories, tags, creditCards, user, installmentPurchases, installmentPurchasesRefresh, expensesRefresh } = useFinancial();
 
     const now = new Date();
 

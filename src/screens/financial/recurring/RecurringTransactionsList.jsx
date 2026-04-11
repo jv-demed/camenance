@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useFinancial } from '@/contexts/FinancialContext';
 import { expenseRepository } from '@/repositories/ExpenseRepository';
 import { incomeRepository } from '@/repositories/IncomeRepository';
 import { installmentPurchaseRepository } from '@/repositories/InstallmentPurchaseRepository';
@@ -39,20 +40,8 @@ const emptyRecord = {
     skippedDates: [],
 };
 
-export function RecurringTransactionsList({
-    recurringTransactions,
-    payees,
-    sources,
-    categories,
-    tags,
-    creditCards,
-    benefitTypes,
-    user,
-    recurringRefresh,
-    expensesRefresh,
-    incomesRefresh,
-    installmentPurchasesRefresh,
-}) {
+export function RecurringTransactionsList() {
+    const { recurringTransactions, payees, sources, categories, tags, creditCards, benefitTypes, user, recurringRefresh, expensesRefresh, incomesRefresh, installmentPurchasesRefresh } = useFinancial();
     const now = new Date();
 
     const [search, setSearch] = useState('');

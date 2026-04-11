@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react';
+import { useFinancial } from '@/contexts/FinancialContext';
 import {
     BarChart, Bar, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -38,7 +39,8 @@ function PieTooltip({ active, payload }) {
     );
 }
 
-export function FinancialDashboard({ expenses, incomes, categories, payees, sources }) {
+export function FinancialDashboard() {
+    const { expenses, incomes, categories, payees, sources } = useFinancial();
     const expensesByCategory = useMemo(() => {
         const groups = {};
         expenses.filter(e => e.categoryId).forEach(e => {

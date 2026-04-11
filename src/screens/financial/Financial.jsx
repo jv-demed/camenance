@@ -1,6 +1,7 @@
-import { useUser } from '@/context/UserContext';
+import { useUser } from '@/contexts/UserContext';
 import { useDataList } from '@/hooks/useDataList';
 import { useEffect, useMemo, useState } from 'react';
+import { FinancialContext } from '@/contexts/FinancialContext';
 import { payeeRepository } from '@/repositories/PayeeRepository';
 import { sourceRepository } from '@/repositories/SourceRepository';
 import { incomeRepository } from '@/repositories/IncomeRepository';
@@ -149,140 +150,98 @@ export function Financial() {
         LocalStorageService.set(LocalStorageService.KEYS.FINANCIAL_IS_RELATIVE, value);
     }
 
+    const contextValue = {
+        user,
+        categories,
+        tags,
+        payees,
+        sources,
+        creditCards,
+        benefitTypes,
+        expenses: expenses.list,
+        incomes: incomes.list,
+        expensesRefresh: expenses.refresh,
+        incomesRefresh: incomes.refresh,
+        installmentPurchases,
+        installmentPurchasesRefresh: installmentPurchases.refresh,
+        recurringTransactions,
+        recurringRefresh: recurringTransactions.refresh,
+    };
+
     return (
-        <Main>
-            {isLoading ? <SpinLoader /> :
-                <div className={`
-                    flex flex-col gap-2 w-full
-                    h-screen max-h-screen overflow-hidden
-                `}>
-                    <PageHeader title='Financeiro'>
-                        <FinancialFilters
-                            dateFilter={dateFilter}
-                            setDateFilter={handleDateFilterChange}
-                            isRelative={isRelative}
-                            setIsRelative={handleIsRelativeChange}
-                            startDate={dateRange.startDate}
-                            endDate={dateRange.endDate}
-                        />
-                        <IconBtn icon={ICONS.settings}
-                            onClick={() => setIsSettingsOpen(true)}
-                        />
-                    </PageHeader>
+        <FinancialContext.Provider value={contextValue}>
+            <Main>
+                {isLoading ? <SpinLoader /> :
                     <div className={`
-                        flex gap-4 pt-1
-                        overflow-hidden
+                        flex flex-col gap-2 w-full
+                        h-screen max-h-screen overflow-hidden
                     `}>
-                        <div className="flex flex-col gap-3 flex-1 min-w-0 overflow-hidden">
-                            <div className="flex gap-1 border-b border-white/15 pb-1">
-                                {TABS.map(tab => (
-                                    <button
-                                        key={tab.key}
-                                        onClick={() => handleTabChange(tab.key)}
-                                        className={`
-                                            px-4 py-1.5 rounded-lg text-sm transition-all duration-200
-                                            ${activeTab === tab.key
-                                                ? 'bg-white text-gray-500 font-semibold'
-                                                : 'text-gray-400 hover:text-white'
-                                            }
-                                        `}
-                                    >
-                                        {tab.label}
-                                    </button>
-                                ))}
-                            </div>
-                            {activeTab === 'resumo' && (
-                                <div className='flex flex-col gap-4 overflow-y-auto pr-2 pb-4
-                                    [&::-webkit-scrollbar]:w-1.5
-                                    [&::-webkit-scrollbar-track]:rounded-md
-                                    [&::-webkit-scrollbar-thumb]:bg-gray-400/50
-                                    [&::-webkit-scrollbar-thumb]:rounded-md
-                                    [&::-webkit-scrollbar-thumb:hover]:bg-gray-400/80
-                                '>
-                                    <FinancialResumeBox
-                                        expenses={expenses.list}
-                                        incomes={incomes.list}
-                                        benefitTypes={benefitTypes}
-                                    />
-                                    <FinancialDashboard
-                                        expenses={expenses.list}
-                                        incomes={incomes.list}
-                                        categories={categories}
-                                        payees={payees}
-                                        sources={sources}
-                                    />
+                        <PageHeader title='Financeiro'>
+                            <FinancialFilters
+                                dateFilter={dateFilter}
+                                setDateFilter={handleDateFilterChange}
+                                isRelative={isRelative}
+                                setIsRelative={handleIsRelativeChange}
+                                startDate={dateRange.startDate}
+                                endDate={dateRange.endDate}
+                            />
+                            <IconBtn icon={ICONS.settings}
+                                onClick={() => setIsSettingsOpen(true)}
+                            />
+                        </PageHeader>
+                        <div className={`
+                            flex gap-4 pt-1
+                            overflow-hidden
+                        `}>
+                            <div className="flex flex-col gap-3 flex-1 min-w-0 overflow-hidden">
+                                <div className="flex gap-1 border-b border-white/15 pb-1">
+                                    {TABS.map(tab => (
+                                        <button
+                                            key={tab.key}
+                                            onClick={() => handleTabChange(tab.key)}
+                                            className={`
+                                                px-4 py-1.5 rounded-lg text-sm transition-all duration-200
+                                                ${activeTab === tab.key
+                                                    ? 'bg-white text-gray-500 font-semibold'
+                                                    : 'text-gray-400 hover:text-white'
+                                                }
+                                            `}
+                                        >
+                                            {tab.label}
+                                        </button>
+                                    ))}
                                 </div>
-                            )}
-                            {activeTab === 'credit' && (installmentPurchases.loading
-                                ? <SpinLoader />
-                                : <CreditPurchasesList
-                                    installmentPurchases={installmentPurchases}
-                                    expenses={expenses.list}
-                                    payees={payees}
-                                    categories={categories}
-                                    tags={tags}
-                                    creditCards={creditCards}
-                                    user={user}
-                                    installmentPurchasesRefresh={installmentPurchases.refresh}
-                                    expensesRefresh={expenses.refresh}
-                                />
-                            )}
-                            {activeTab === 'boxes' && (
-                                <BoxesList
-                                    user={user}
-                                    payees={payees}
-                                    categories={categories}
-                                    tags={tags}
-                                    benefitTypes={benefitTypes}
-                                    expensesRefresh={expenses.refresh}
-                                    incomesRefresh={incomes.refresh}
-                                />
-                            )}
-                            {activeTab === 'recurring' && (recurringTransactions.loading
-                                ? <SpinLoader />
-                                : <RecurringTransactionsList
-                                    recurringTransactions={recurringTransactions}
-                                    payees={payees}
-                                    sources={sources}
-                                    categories={categories}
-                                    tags={tags}
-                                    creditCards={creditCards}
-                                    benefitTypes={benefitTypes}
-                                    user={user}
-                                    recurringRefresh={recurringTransactions.refresh}
-                                    expensesRefresh={expenses.refresh}
-                                    incomesRefresh={incomes.refresh}
-                                    installmentPurchasesRefresh={installmentPurchases.refresh}
-                                />
-                            )}
+                                {activeTab === 'resumo' && (
+                                    <div className='flex flex-col gap-4 overflow-y-auto pr-2 pb-4
+                                        [&::-webkit-scrollbar]:w-1.5
+                                        [&::-webkit-scrollbar-track]:rounded-md
+                                        [&::-webkit-scrollbar-thumb]:bg-gray-400/50
+                                        [&::-webkit-scrollbar-thumb]:rounded-md
+                                        [&::-webkit-scrollbar-thumb:hover]:bg-gray-400/80
+                                    '>
+                                        <FinancialResumeBox />
+                                        <FinancialDashboard />
+                                    </div>
+                                )}
+                                {activeTab === 'credit' && (installmentPurchases.loading
+                                    ? <SpinLoader />
+                                    : <CreditPurchasesList />
+                                )}
+                                {activeTab === 'boxes' && <BoxesList />}
+                                {activeTab === 'recurring' && (recurringTransactions.loading
+                                    ? <SpinLoader />
+                                    : <RecurringTransactionsList />
+                                )}
+                            </div>
+                            <TransactionList />
                         </div>
-                        <TransactionList
-                            expenses={expenses.list}
-                            incomes={incomes.list}
-                            payees={payees}
-                            sources={sources}
-                            categories={categories}
-                            tags={tags}
-                            creditCards={creditCards}
-                            benefitTypes={benefitTypes}
-                            expensesRefresh={expenses.refresh}
-                            incomesRefresh={incomes.refresh}
-                            user={user}
-                        />
                     </div>
-                </div>
-            }
-            <FinancialSettingsModal
-                isOpen={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
-                categories={categories}
-                tags={tags}
-                payees={payees}
-                sources={sources}
-                creditCards={creditCards}
-                benefitTypes={benefitTypes}
-                user={user}
-            />
-        </Main>
+                }
+                <FinancialSettingsModal
+                    isOpen={isSettingsOpen}
+                    onClose={() => setIsSettingsOpen(false)}
+                />
+            </Main>
+        </FinancialContext.Provider>
     );
 }

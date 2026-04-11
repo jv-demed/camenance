@@ -1,6 +1,6 @@
 'use client'
 import { usePathname } from 'next/navigation';
-import { UserProvider } from '@/context/UserContext';
+import { UserProvider } from '@/contexts/UserContext';
 import { Sidebar } from '@/components/menu/Sidebar';
 import '@/styles/globals.css';
 

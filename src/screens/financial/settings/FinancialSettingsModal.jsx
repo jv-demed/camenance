@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react';
+import { useFinancial } from '@/contexts/FinancialContext';
 import { ICONS } from '@/assets/icons';
 import { CategoriesSection } from '@/screens/financial/settings/CategoriesSection';
 import { TagsSection } from '@/screens/financial/settings/TagsSection';
@@ -17,7 +18,8 @@ const SECTIONS = [
     { key: 'benefits',   label: 'Benefícios' },
 ];
 
-export function FinancialSettingsModal({ isOpen, onClose, categories, tags, payees, sources, creditCards, benefitTypes, user }) {
+export function FinancialSettingsModal({ isOpen, onClose }) {
+    const { categories, tags, payees, sources, creditCards, benefitTypes, user } = useFinancial();
 
     if (!isOpen) return null;
 

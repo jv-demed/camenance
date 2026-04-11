@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useFinancial } from '@/contexts/FinancialContext';
 import { ICONS } from '@/assets/icons';
 import { AlertService } from '@/services/AlertService';
 import { BoxService } from '@/services/BoxService';
@@ -36,7 +37,8 @@ const emptyTx = {
     tagIds: [],
 };
 
-export function BoxesList({ user, payees, categories, tags, benefitTypes, expensesRefresh, incomesRefresh }) {
+export function BoxesList() {
+    const { user, payees, categories, tags, benefitTypes, expensesRefresh, incomesRefresh } = useFinancial();
     const boxes = useDataList({
         repository: boxRepository,
         order: { column: 'name', ascending: true },

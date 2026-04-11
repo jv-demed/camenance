@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
+import { useFinancial } from '@/contexts/FinancialContext';
 import { DateService } from '@/services/DateService';
 import { PAYMENT_TYPES } from '@/enums/PaymentTypes';
 import { INCOME_TYPES } from '@/enums/IncomeTypes';
@@ -9,19 +10,8 @@ import { DefaultBtn } from '@/components/buttons/DefaultBtn';
 import { TransactionCard } from './TransactionCard';
 import { TransactionModal } from './TransactionModal';
 
-export function TransactionList({
-    expenses,
-    incomes,
-    payees,
-    sources,
-    categories,
-    tags,
-    creditCards,
-    benefitTypes,
-    expensesRefresh,
-    incomesRefresh,
-    user
-}) {
+export function TransactionList() {
+    const { expenses, incomes, payees, sources, categories, tags, creditCards, benefitTypes, expensesRefresh, incomesRefresh, user } = useFinancial();
 
     const mergedList = [
         ...expenses.map(e => ({ ...e, _isIncome: false })),
