@@ -47,11 +47,19 @@ export function Financial() {
     const [dateFilter, setDateFilter] = useState(
         () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_DATE_FILTER, DATE_FILTER.MONTHLY)
     );
-
-    const dateRange = useMemo(
-        () => FinancialService.getDateRange({ dateFilter, isRelative }),
-        [dateFilter, isRelative]
+    const [customDateRange, setCustomDateRange] = useState(
+        () => LocalStorageService.get(LocalStorageService.KEYS.FINANCIAL_CUSTOM_DATE_RANGE, { startDate: null, endDate: null })
     );
+
+    const dateRange = useMemo(() => {
+        if (dateFilter === DATE_FILTER.CUSTOM) {
+            return {
+                startDate: customDateRange.startDate ? new Date(customDateRange.startDate + 'T00:00:00') : null,
+                endDate:   customDateRange.endDate   ? new Date(customDateRange.endDate   + 'T23:59:59.999') : null,
+            };
+        }
+        return FinancialService.getDateRange({ dateFilter, isRelative });
+    }, [dateFilter, isRelative, customDateRange]);
 
     const expenses = useDataList({
         repository: expenseRepository,
@@ -150,6 +158,11 @@ export function Financial() {
         LocalStorageService.set(LocalStorageService.KEYS.FINANCIAL_IS_RELATIVE, value);
     }
 
+    function handleCustomDateRangeChange(range) {
+        setCustomDateRange(range);
+        LocalStorageService.set(LocalStorageService.KEYS.FINANCIAL_CUSTOM_DATE_RANGE, range);
+    }
+
     const contextValue = {
         user,
         categories,
@@ -184,6 +197,8 @@ export function Financial() {
                                 setIsRelative={handleIsRelativeChange}
                                 startDate={dateRange.startDate}
                                 endDate={dateRange.endDate}
+                                customDateRange={customDateRange}
+                                setCustomDateRange={handleCustomDateRangeChange}
                             />
                             <IconBtn icon={ICONS.settings}
                                 onClick={() => setIsSettingsOpen(true)}

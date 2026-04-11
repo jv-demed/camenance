@@ -1,10 +1,11 @@
 export class LocalStorageService {
 
     static KEYS = Object.freeze({
-        FINANCIAL_DATE_FILTER:    'financial:dateFilter',
-        FINANCIAL_IS_RELATIVE:    'financial:isRelative',
-        FINANCIAL_CREDIT_VIEW:    'financial:creditView',     // 'card' | 'list'
-        FINANCIAL_RECURRING_VIEW: 'financial:recurringView',  // 'card' | 'list'
+        FINANCIAL_DATE_FILTER:      'financial:dateFilter',
+        FINANCIAL_IS_RELATIVE:      'financial:isRelative',
+        FINANCIAL_CUSTOM_DATE_RANGE:'financial:customDateRange',
+        FINANCIAL_CREDIT_VIEW:      'financial:creditView',     // 'card' | 'list'
+        FINANCIAL_RECURRING_VIEW:   'financial:recurringView',  // 'card' | 'list'
     });
 
     static get(key, fallback = null) {

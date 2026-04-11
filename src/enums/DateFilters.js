@@ -6,4 +6,5 @@ export const DATE_FILTER = Object.freeze({
     BIANNUAL:  'Semestral',
     ANNUAL:    'Anual',
     TOTAL:     'Total',
+    CUSTOM:    'Personalizado',
 });
