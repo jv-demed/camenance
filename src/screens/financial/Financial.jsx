@@ -1,33 +1,40 @@
-import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useDataList } from '@/hooks/useDataList';
+import { useEffect, useMemo, useState } from 'react';
 import { payeeRepository } from '@/repositories/PayeeRepository';
 import { sourceRepository } from '@/repositories/SourceRepository';
-import { expenseRepository } from '@/repositories/ExpenseRepository';
 import { incomeRepository } from '@/repositories/IncomeRepository';
+import { expenseRepository } from '@/repositories/ExpenseRepository';
+import { creditCardRepository } from '@/repositories/CreditCardRepository';
+import { benefitTypeRepository } from '@/repositories/BenefitTypeRepository';
 import { financialTagRepository } from '@/repositories/FinancialTagRepository';
 import { financialCategoryRepository } from '@/repositories/FinancialCategoryRepository';
-import { creditCardRepository } from '@/repositories/CreditCardRepository';
 import { installmentPurchaseRepository } from '@/repositories/InstallmentPurchaseRepository';
 import { recurringTransactionRepository } from '@/repositories/RecurringTransactionRepository';
-import { benefitTypeRepository } from '@/repositories/BenefitTypeRepository';
-import { DATE_FILTER } from '@/enums/DateFilters';
+import { AlertService } from '@/services/AlertService';
 import { FinancialService } from '@/services/FinancialService';
 import { LocalStorageService } from '@/services/LocalStorageService';
+import { ICONS } from '@/assets/icons';
+import { DATE_FILTER } from '@/enums/DateFilters';
 import { Main } from '@/components/containers/Main';
+import { IconBtn } from '@/components/buttons/IconBtn';
 import { PageHeader } from '@/components/elements/PageHeader';
 import { SpinLoader } from '@/components/elements/SpinLoader';
-import { TransactionList } from '@/screens/financial/transactions/TransactionList';
+import { BoxesList } from '@/screens/financial/boxes/BoxesList';
 import { FinancialFilters } from '@/screens/financial/dashboard/FinancialFilters';
-import { FinancialSettingsModal } from '@/screens/financial/settings/FinancialSettingsModal';
+import { TransactionList } from '@/screens/financial/transactions/TransactionList';
+import { CreditPurchasesList } from '@/screens/financial/credit/CreditPurchasesList';
 import { FinancialDashboard } from '@/screens/financial/dashboard/FinancialDashboard';
 import { FinancialResumeBox } from '@/screens/financial/dashboard/FinancialResumeBox';
-import { CreditPurchasesList } from '@/screens/financial/credit/CreditPurchasesList';
+import { FinancialSettingsModal } from '@/screens/financial/settings/FinancialSettingsModal';
 import { RecurringTransactionsList } from '@/screens/financial/recurring/RecurringTransactionsList';
-import { BoxesList } from '@/screens/financial/boxes/BoxesList';
-import { IconBtn } from '@/components/buttons/IconBtn';
-import { AlertService } from '@/services/AlertService';
-import { ICONS } from '@/assets/icons';
+
+const TABS = [
+    { key: 'resumo', label: 'Dashboard' },
+    { key: 'credit', label: 'Crédito' },
+    { key: 'recurring', label: 'Recorrentes' },
+    { key: 'boxes', label: 'Caixinhas' },
+];
 
 export function Financial() {
 
@@ -118,18 +125,17 @@ export function Financial() {
         filters: { userId: user.id }
     });
 
-    const [isLoading, setIsLoading] = useState(true);
-    useEffect(() => {
-        const coreHooks = [expenses, incomes, payees, sources, categories, tags, creditCards, benefitTypes];
-        const allDone = coreHooks.every(h => !h.loading);
-        if(allDone) setIsLoading(false);
-    }, [expenses, incomes, payees, sources, categories, tags, creditCards, benefitTypes]);
+    const isLoading = [expenses, incomes, payees, sources, categories, tags, creditCards, benefitTypes].some(h => h.loading);
 
-    const hooks = [expenses, incomes, payees, sources, categories, tags, creditCards, benefitTypes, installmentPurchases, recurringTransactions];
     useEffect(() => {
-        const failed = hooks.find(h => h.error);
-        if(failed) AlertService.error('Erro ao carregar dados. Tente recarregar a página.');
-    }, hooks.map(h => h.error));
+        const allHooks = [expenses, incomes, payees, sources, categories, tags, creditCards, benefitTypes, installmentPurchases, recurringTransactions];
+        const failed = allHooks.find(h => h.error);
+        if (failed) AlertService.error('Erro ao carregar dados. Tente recarregar a página.');
+    }, [
+        expenses.error, incomes.error, payees.error, sources.error,
+        categories.error, tags.error, creditCards.error, benefitTypes.error,
+        installmentPurchases.error, recurringTransactions.error
+    ]);
 
     function handleDateFilterChange(filter) {
         setDateFilter(filter);
@@ -169,12 +175,7 @@ export function Financial() {
                     `}>
                         <div className="flex flex-col gap-3 flex-1 min-w-0 overflow-hidden">
                             <div className="flex gap-1 border-b border-white/15 pb-1">
-                                {[
-                                    { key: 'resumo', label: 'Dashboard' },
-                                    { key: 'credit', label: 'Crédito' },
-                                    { key: 'recurring', label: 'Recorrentes' },
-                                    { key: 'boxes', label: 'Caixinhas' },
-                                ].map(tab => (
+                                {TABS.map(tab => (
                                     <button
                                         key={tab.key}
                                         onClick={() => handleTabChange(tab.key)}
