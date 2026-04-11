@@ -95,12 +95,10 @@ export class BoxService {
         await this.#accrueYield(box, transactions, date);
         const refreshed = await this.getTransactions(box.id);
 
-        const { netAmount } = this.#computeWithdrawIr(refreshed, amount, date);
-
         const income = await incomeRepository.insert({
             userId,
             title: `Resgate de ${box.name}`,
-            amount: netAmount,
+            amount,
             date,
             incomeType: INCOME_TYPES.BOX,
         });

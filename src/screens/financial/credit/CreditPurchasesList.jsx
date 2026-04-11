@@ -81,14 +81,8 @@ export function CreditPurchasesList() {
             .filter(s => s.items.length > 0);
     }, [installmentPurchases.list, expenses, creditCards.list, search, typeFilter]);
 
-    const firstFutureKey = installmentsByMonth.find(({ key }) => {
-        if (key === 'none') return false;
-        const [year, month] = key.split('-').map(Number);
-        return year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth());
-    })?.key ?? null;
-
     function isBlocked(key) {
-        if (key === 'none' || key === firstFutureKey) return false;
+        if (key === 'none') return false;
         const [year, month] = key.split('-').map(Number);
         return year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth());
     }

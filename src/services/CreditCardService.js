@@ -8,16 +8,16 @@ export class CreditCardService {
      * @returns {Date} Data de vencimento da parcela
      */
     static calculateDueDate(card, purchaseDate, installmentIndex = 1) {
-        // Converter string para Date se necessário
+        // Parsear como data local para evitar problema de timezone UTC
         const date = typeof purchaseDate === 'string'
-            ? new Date(purchaseDate)
+            ? new Date(purchaseDate + 'T00:00:00')
             : new Date(purchaseDate);
 
         const day = date.getDate();
 
-        // Se compra foi feita após o dia de fechamento,
+        // Se compra foi feita no dia anterior ao fechamento ou depois,
         // a fatura vai para o mês seguinte
-        let monthOffset = day > card.closingDay ? 1 : 0;
+        let monthOffset = day >= card.closingDay - 1 ? 1 : 0;
 
         // Adicionar offset das parcelas (parcela 1 = mesmo mês/próximo, parcela 2 = 1 mês depois, etc)
         monthOffset += (installmentIndex - 1);
