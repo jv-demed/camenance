@@ -9,7 +9,10 @@ export class DateService {
     }
 
     static dateToBrDate(date) {
-        const obj = date instanceof Date ? date : new Date(date);
+        const obj = date instanceof Date ? date
+            : typeof date === 'string' && date.length === 10
+                ? new Date(date + 'T00:00:00')
+                : new Date(date);
         const day   = String(obj.getDate()).padStart(2, '0');
         const month = String(obj.getMonth() + 1).padStart(2, '0');
         const year  = obj.getFullYear();

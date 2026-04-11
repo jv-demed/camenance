@@ -28,7 +28,7 @@ const emptyPurchase = {
 };
 
 export function CreditPurchasesList() {
-    const { expenses, payees, categories, tags, creditCards, user, installmentPurchases, installmentPurchasesRefresh, expensesRefresh } = useFinancial();
+    const { creditExpenses, payees, categories, tags, creditCards, user, installmentPurchases, installmentPurchasesRefresh, expensesRefresh } = useFinancial();
 
     const now = new Date();
 
@@ -43,7 +43,7 @@ export function CreditPurchasesList() {
             const card = creditCards.list.find(c => c.id === purchase.creditCardId);
             const installmentAmount = purchase.totalAmount / purchase.installmentTotal;
             for (let i = 1; i <= purchase.installmentTotal; i++) {
-                const isPaid = expenses.some(
+                const isPaid = creditExpenses.some(
                     e => e.installmentGroupId === purchase.id && e.installmentNumber === i
                 );
                 if (isPaid) continue;
@@ -79,7 +79,7 @@ export function CreditPurchasesList() {
         return sections
             .map(s => ({ ...s, items: s.items.filter(i => i.purchase.title.toLowerCase().includes(search.toLowerCase())) }))
             .filter(s => s.items.length > 0);
-    }, [installmentPurchases.list, expenses, creditCards.list, search, typeFilter]);
+    }, [installmentPurchases.list, creditExpenses, creditCards.list, search, typeFilter]);
 
     function isBlocked(key) {
         if (key === 'none') return false;
@@ -92,7 +92,9 @@ export function CreditPurchasesList() {
         try {
             await Promise.all(items.map(({ purchase, installmentNumber, installmentAmount }) =>
                 expenseRepository.insert(new ExpenseModel({
-                    title: `${purchase.title} ${installmentNumber}/${purchase.installmentTotal}`,
+                    title: purchase.installmentTotal > 1
+                        ? `${purchase.title} ${installmentNumber}/${purchase.installmentTotal}`
+                        : purchase.title,
                     amount: installmentAmount,
                     date: DateService.dateToSqlDate(new Date()),
                     description: purchase.description || '',
@@ -119,7 +121,9 @@ export function CreditPurchasesList() {
     async function handlePay(purchase, installmentNumber, installmentAmount) {
         try {
             const model = new ExpenseModel({
-                title: `${purchase.title} ${installmentNumber}/${purchase.installmentTotal}`,
+                title: purchase.installmentTotal > 1
+                    ? `${purchase.title} ${installmentNumber}/${purchase.installmentTotal}`
+                    : purchase.title,
                 amount: installmentAmount,
                 date: DateService.dateToSqlDate(new Date()),
                 description: purchase.description || '',
@@ -168,7 +172,7 @@ export function CreditPurchasesList() {
     }
 
     function getPaidCount(purchaseId) {
-        return expenses.filter(e => e.installmentGroupId === purchaseId).length;
+        return creditExpenses.filter(e => e.installmentGroupId === purchaseId).length;
     }
 
     return (

@@ -68,6 +68,12 @@ export function Financial() {
         dateRange
     });
 
+    const creditExpenses = useDataList({
+        repository: expenseRepository,
+        order: { column: 'date', ascending: false },
+        filters: { userId: user.id, paymentType: 'credit' },
+    });
+
     const incomes = useDataList({
         repository: incomeRepository,
         order: { column: 'date', ascending: false },
@@ -172,8 +178,9 @@ export function Financial() {
         creditCards,
         benefitTypes,
         expenses: expenses.list,
+        creditExpenses: creditExpenses.list,
         incomes: incomes.list,
-        expensesRefresh: expenses.refresh,
+        expensesRefresh: () => { expenses.refresh(); creditExpenses.refresh(); },
         incomesRefresh: incomes.refresh,
         installmentPurchases,
         installmentPurchasesRefresh: installmentPurchases.refresh,
