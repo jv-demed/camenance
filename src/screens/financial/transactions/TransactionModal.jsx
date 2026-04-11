@@ -160,9 +160,13 @@ export function TransactionModal({
                                     />
                                 ) : (
                                     <SelectInput
-                                        options={PAYMENT_TYPES_OPTIONS.filter(o => o.value !== PAYMENT_TYPES.CREDIT)}
+                                        options={record.paymentType === PAYMENT_TYPES.CREDIT
+                                            ? PAYMENT_TYPES_OPTIONS
+                                            : PAYMENT_TYPES_OPTIONS.filter(o => o.value !== PAYMENT_TYPES.CREDIT)
+                                        }
                                         value={record.paymentType || PAYMENT_TYPES.DEBIT}
                                         setValue={e => setRecord({ ...record, paymentType: e, benefitTypeId: e === PAYMENT_TYPES.BENEFITS ? record.benefitTypeId : null })}
+                                        disabled={record.paymentType === PAYMENT_TYPES.CREDIT}
                                         label='Tipo de pagamento'
                                     />
                                 )}
